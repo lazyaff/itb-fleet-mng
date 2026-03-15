@@ -10,23 +10,9 @@ export async function roleSeeder(prisma: PrismaClient) {
       id: "ADM",
       name: "Admin",
     },
-    {
-      id: "LEAD",
-      name: "Team Leader",
-    },
-    {
-      id: "MD",
-      name: "Merchandiser",
-    },
-    {
-      id: "MTR",
-      name: "Motorist",
-    },
-    {
-      id: "SPG",
-      name: "SPG",
-    },
   ];
+
+  console.log("Seeding roles...");
 
   await prisma.role.createMany({
     data,

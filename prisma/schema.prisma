@@ -13,3 +13,196 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model user {
+  id                          String            @id @default(uuid())
+  role_id                     String
+  email                       String            @unique
+  password                    String?
+  name                        String
+  created_at                  DateTime          @default(now())
+  updated_at                  DateTime          @updatedAt
+  deleted_at                  DateTime?
+
+  role                        role              @relation(fields: [role_id], references: [id])
+  vehicles                    vehicle[]
+  service_histories           service_history[]
+  inspection_reports          inspection_report[]
+}
+
+model role {
+  id                          String            @id
+  name                        String   
+  created_at                  DateTime          @default(now())
+  updated_at                  DateTime          @updatedAt
+  deleted_at                  DateTime?
+
+  users                       user[]
+}
+
+model vehicle_type {
+  id                          String            @id @default(uuid())
+  name                        String   
+  created_at                  DateTime          @default(now())
+  updated_at                  DateTime          @updatedAt
+  deleted_at                  DateTime?
+
+  vehicles                    vehicle[]
+}
+
+model vehicle {
+  id                          String            @id @default(uuid())
+  user_id                     String
+  type_id                     String
+  plate_number                String
+  name                        String
+  image                       String
+  internal_code               String?
+  status                      String
+  device_id                   String?
+  notes                       String?
+  current_mileage             Int
+  engine_hours                Int
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  user                        user               @relation(fields: [user_id], references: [id])
+  vehicle_type                vehicle_type       @relation(fields: [type_id], references: [id])
+  live_tracks                 live_track_history[]
+  vehicle_parts               vehicle_part[]
+  service_histories           service_history[]
+  inspection_reports          inspection_report[]
+}
+
+model live_track_history {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String?
+  device_id                   String
+  speed                       Int
+  battery_voltage             Int
+  lat                         Float
+  long                        Float
+  angle                       Int
+  ignition                    Boolean
+  movement                    Boolean
+  gsm_signal_strength         Int
+  total_mileage               Int
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle?           @relation(fields: [vehicle_id], references: [id])
+}
+
+model general_vehicle_part {
+  id                          String             @id @default(uuid())
+  name                        String
+  distance_limit              Int
+  time_limit                  Int
+  active                      Boolean
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle_parts               vehicle_part[]
+}
+
+model vehicle_part {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  general_vehicle_part_id     String?
+  name                        String
+  last_service                DateTime
+  current_distance            Int
+  distance_limit              Int
+  time_limit                  Int
+  notes                       String?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle                          @relation(fields: [vehicle_id], references: [id])
+  general_vehicle_part        general_vehicle_part?            @relation(fields: [general_vehicle_part_id], references: [id])
+  service_histories           vehicle_part_service_history[]
+}
+
+model service_history {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  user_id                     String
+  image                       String
+  current_mileage             Int
+  date                        DateTime
+  type                        String
+  cost                        Int
+  notes                       String?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
+  user                        user               @relation(fields: [user_id], references: [id])
+}
+
+model vehicle_part_service_history {
+  id                          String             @id @default(uuid())
+  vehicle_part_id             String
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle_part                vehicle_part       @relation(fields: [vehicle_part_id], references: [id])
+}
+
+model inspection_item {
+  id                          String             @id @default(uuid())
+  name                        String
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  criterias                   inspection_item_criteria[]
+}
+
+model inspection_item_criteria {
+  id                          String             @id @default(uuid())
+  inspection_item_id          String
+  name                        String
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  inspection_item             inspection_item    @relation(fields: [inspection_item_id], references: [id])
+  reports                     inspection_item_report[]
+}
+
+model inspection_report {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  user_id                     String
+  image                       String
+  date                        DateTime
+  current_mileage             Int
+  severity                    String
+  notes                       String?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
+  user                        user               @relation(fields: [user_id], references: [id])
+  items                       inspection_item_report[]
+}
+
+model inspection_item_report {
+  id                          String             @id @default(uuid())
+  inspection_report_id        String
+  inspection_item_criteria_id String
+  check                       Boolean
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  inspection_report           inspection_report                @relation(fields: [inspection_report_id], references: [id])
+  inspection_item_criteria    inspection_item_criteria         @relation(fields: [inspection_item_criteria_id], references: [id])
+}
