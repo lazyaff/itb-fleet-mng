@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3003",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3003",
     "seed": "npx tsx prisma/seeder/index.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "bcrypt": "^6.0.0",
+    "browser-image-compression": "^2.0.2",
     "jsonwebtoken": "^9.0.3",
     "leaflet": "^1.9.4",
     "luxon": "^3.7.2",
@@ -19,7 +20,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-leaflet": "^5.0.0",
-    "react-select": "^5.10.2"
+    "react-select": "^5.10.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
