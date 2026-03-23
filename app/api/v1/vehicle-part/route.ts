@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
 import { NextResponse, NextRequest } from "next/server";
-import bcrypt from "bcrypt";
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,53 +35,21 @@ export async function GET(request: NextRequest) {
               mode: "insensitive",
             },
           },
-          {
-            email: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            vehicles: {
-              some: {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
-          {
-            vehicles: {
-              some: {
-                plate_number: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
         ],
       }),
     };
 
     const [rawData, totalRecords] = await Promise.all([
-      prisma.user.findMany({
+      prisma.general_vehicle_part.findMany({
         where: conditions,
         ...(limit ? { take: limit } : {}),
         ...(offset ? { skip: offset } : {}),
         select: {
           id: true,
           name: true,
-          email: true,
+          distance_limit: true,
+          time_limit: true,
           active: true,
-          vehicles: {
-            select: {
-              id: true,
-              name: true,
-              plate_number: true,
-            },
-          },
         },
         orderBy: [
           {
@@ -90,7 +57,7 @@ export async function GET(request: NextRequest) {
           },
         ],
       }),
-      prisma.user.count({
+      prisma.general_vehicle_part.count({
         where: conditions,
       }),
     ]);
@@ -99,13 +66,9 @@ export async function GET(request: NextRequest) {
       return {
         id: item.id,
         name: item.name,
-        email: item.email,
+        distance_limit: item.distance_limit,
+        time_limit: item.time_limit,
         active: item.active,
-        vehicles: item.vehicles.map((vehicle) => ({
-          id: vehicle.id,
-          name: vehicle.name,
-          plate_number: vehicle.plate_number,
-        })),
       };
     });
 
@@ -150,14 +113,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const {
-      role_id,
-      name,
-      email,
-      password,
-      vehicle_ids = [],
-    } = await request.json();
-    if (!role_id || !name || !email || !password) {
+    const { user_id, name, distance_limit, time_limit } = await request.json();
+    if (!user_id || !name || !distance_limit || !time_limit) {
       return NextResponse.json(
         {
           success: false,
@@ -168,41 +125,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // check vehicle data
-    if (vehicle_ids.length > 0) {
-      const vehicle = await prisma.vehicle.findMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-          deleted_at: null,
-        },
-      });
-      if (vehicle.length !== vehicle_ids.length) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Vehicle not found!",
-          },
-          { status: 400 },
-        );
-      }
-    }
-
-    // check if email already exist
-    const isExist = await prisma.user.findFirst({
+    // check user data
+    const user = await prisma.user.findFirst({
       where: {
-        email: email,
+        id: user_id,
         deleted_at: null,
       },
     });
-    if (isExist) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
           status: 400,
-          message: "Email already exist!",
+          message: "Admin not found!",
         },
         { status: 400 },
       );
@@ -210,25 +145,39 @@ export async function POST(request: NextRequest) {
 
     // create data
     await prisma.$transaction(async (tx) => {
-      const data = await tx.user.create({
+      const distance = Number(distance_limit);
+      const time = Number(time_limit);
+
+      const data = await tx.general_vehicle_part.create({
         data: {
           name,
-          email,
-          password: bcrypt.hashSync(password, 10),
-          role_id,
+          distance_limit: distance,
+          time_limit: time,
+          active: true,
         },
       });
 
-      if (vehicle_ids?.length > 0) {
-        await tx.vehicle.updateMany({
-          where: {
-            id: { in: vehicle_ids },
-          },
-          data: {
-            user_id: data.id,
-          },
-        });
-      }
+      const vehicles = await tx.vehicle.findMany({
+        where: {
+          deleted_at: null,
+        },
+      });
+
+      const vehicle_part_data = vehicles.map((item) => {
+        return {
+          vehicle_id: item.id,
+          general_vehicle_part_id: data.id,
+          name: name,
+          last_service: new Date(),
+          current_distance: 0,
+          distance_limit: distance,
+          time_limit: time,
+        };
+      });
+
+      await tx.vehicle_part.createMany({
+        data: vehicle_part_data,
+      });
     });
 
     return NextResponse.json(
@@ -256,7 +205,6 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // validate auth
     const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
@@ -269,8 +217,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { id, role_id, name, email, vehicle_ids = [] } = await request.json();
-    if (!id || !role_id || !name || !email) {
+    const { id, user_id, name, distance_limit, time_limit } =
+      await request.json();
+
+    if (!id || !user_id || !name || !distance_limit || !time_limit) {
       return NextResponse.json(
         {
           success: false,
@@ -281,14 +231,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // check if data exist
-    const isDataExist = await prisma.user.findFirst({
+    // check exist
+    const part = await prisma.general_vehicle_part.findFirst({
       where: {
-        id: id,
+        id,
         deleted_at: null,
       },
     });
-    if (!isDataExist) {
+
+    if (!part) {
       return NextResponse.json(
         {
           success: false,
@@ -299,78 +250,48 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // check vehicle data
-    if (vehicle_ids.length > 0) {
-      const vehicle = await prisma.vehicle.findMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-          deleted_at: null,
-        },
-      });
-      if (vehicle.length !== vehicle_ids.length) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Vehicle not found!",
-          },
-          { status: 400 },
-        );
-      }
-    }
-
-    // check if email already exist
-    const isExist = await prisma.user.findFirst({
+    // check user data
+    const user = await prisma.user.findFirst({
       where: {
-        id: {
-          not: id,
-        },
-        email: email,
+        id: user_id,
         deleted_at: null,
       },
     });
-    if (isExist) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
           status: 400,
-          message: "Email already exist!",
+          message: "Admin not found!",
         },
         { status: 400 },
       );
     }
 
+    const distance = Number(distance_limit);
+    const time = Number(time_limit);
+
     await prisma.$transaction(async (tx) => {
-      await tx.user.update({
+      await tx.general_vehicle_part.update({
         where: { id },
         data: {
           name,
-          email,
-          role_id,
+          user_id,
+          distance_limit: distance,
+          time_limit: time,
         },
       });
 
-      await tx.vehicle.updateMany({
+      await tx.vehicle_part.updateMany({
         where: {
-          user_id: id,
+          general_vehicle_part_id: id,
         },
         data: {
-          user_id: null,
+          name,
+          distance_limit: distance,
+          time_limit: time,
         },
       });
-
-      if (vehicle_ids.length > 0) {
-        await tx.vehicle.updateMany({
-          where: {
-            id: { in: vehicle_ids },
-          },
-          data: {
-            user_id: id,
-          },
-        });
-      }
     });
 
     return NextResponse.json({
@@ -393,7 +314,6 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    // validate auth
     const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
@@ -407,6 +327,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { id } = await request.json();
+
     if (!id) {
       return NextResponse.json(
         {
@@ -418,23 +339,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // check if data exist
-    const isExist = await prisma.user.findFirst({
+    const part = await prisma.general_vehicle_part.findFirst({
       where: {
-        id: id,
+        id,
         deleted_at: null,
       },
-      select: {
-        id: true,
-        email: true,
-        vehicles: {
-          select: {
-            id: true,
-          },
-        },
-      },
     });
-    if (!isExist) {
+
+    if (!part) {
       return NextResponse.json(
         {
           success: false,
@@ -445,30 +357,24 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // update data
-    await prisma.user.update({
-      where: {
-        id: id,
-      },
-      data: {
-        email: isExist.email + " | DELETED",
-        deleted_at: new Date(),
-      },
-    });
-
-    if (isExist.vehicles.length > 0) {
-      const vehicle_ids = isExist.vehicles.map((vehicle) => vehicle.id);
-      await prisma.vehicle.updateMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-        },
+    await prisma.$transaction(async (tx) => {
+      await tx.general_vehicle_part.update({
+        where: { id },
         data: {
-          user_id: null,
+          deleted_at: new Date(),
+          active: false,
         },
       });
-    }
+
+      await tx.vehicle_part.updateMany({
+        where: {
+          general_vehicle_part_id: id,
+        },
+        data: {
+          deleted_at: new Date(),
+        },
+      });
+    });
 
     return NextResponse.json({
       success: true,
@@ -478,11 +384,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      {
-        success: false,
-        status: 500,
-        message: "Internal server error",
-      },
+      { success: false, status: 500, message: "Internal server error" },
       { status: 500 },
     );
   }

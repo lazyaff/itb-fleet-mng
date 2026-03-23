@@ -25,6 +25,7 @@ model user {
   deleted_at                  DateTime?
 
   role                        role              @relation(fields: [role_id], references: [id])
+  general_vehicle_part        general_vehicle_part[]
   vehicles                    vehicle[]
   service_histories           service_history[]
   inspection_reports          inspection_report[]
@@ -110,6 +111,7 @@ model live_track_history {
 
 model general_vehicle_part {
   id                          String             @id @default(uuid())
+  user_id                     String?
   name                        String
   distance_limit              Int
   time_limit                  Int
@@ -118,6 +120,7 @@ model general_vehicle_part {
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
+  user                        user?              @relation(fields: [user_id], references: [id])
   vehicle_parts               vehicle_part[]
 }
 
