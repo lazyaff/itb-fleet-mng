@@ -150,8 +150,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const res = await request.json();
-    const { imei, vehicle_id } = res;
+    const { imei, vehicle_id } = await request.json();
     if (!imei) {
       return NextResponse.json(
         {
@@ -168,6 +167,7 @@ export async function POST(request: NextRequest) {
       const vehicle = await prisma.vehicle.findFirst({
         where: {
           id: vehicle_id,
+          deleted_at: null,
         },
       });
       if (!vehicle) {
@@ -186,6 +186,7 @@ export async function POST(request: NextRequest) {
     const isExist = await prisma.gps_tracker.findFirst({
       where: {
         imei: imei,
+        deleted_at: null,
       },
     });
     if (isExist) {
@@ -256,8 +257,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const res = await request.json();
-    const { id, imei, vehicle_id } = res;
+    const { id, imei, vehicle_id } = await request.json();
     if (!id || !imei) {
       return NextResponse.json(
         {
@@ -273,6 +273,7 @@ export async function PUT(request: NextRequest) {
     const data = await prisma.gps_tracker.findFirst({
       where: {
         id,
+        deleted_at: null,
       },
       select: {
         id: true,
@@ -299,6 +300,7 @@ export async function PUT(request: NextRequest) {
       const vehicle = await prisma.vehicle.findFirst({
         where: {
           id: vehicle_id,
+          deleted_at: null,
         },
       });
       if (!vehicle) {
@@ -320,6 +322,7 @@ export async function PUT(request: NextRequest) {
         id: {
           not: id,
         },
+        deleted_at: null,
       },
     });
     if (isExist) {
@@ -410,8 +413,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const res = await request.json();
-    const { id } = res;
+    const { id } = await request.json();
     if (!id) {
       return NextResponse.json(
         {

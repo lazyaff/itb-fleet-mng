@@ -19,6 +19,7 @@ model user {
   email                       String            @unique
   password                    String?
   name                        String
+  active                      Boolean           @default(true)
   created_at                  DateTime          @default(now())
   updated_at                  DateTime          @updatedAt
   deleted_at                  DateTime?
@@ -62,7 +63,7 @@ model vehicle_type {
 
 model vehicle {
   id                          String            @id @default(uuid())
-  user_id                     String
+  user_id                     String?
   type_id                     String
   gps_tracker_id              String?           @unique
   plate_number                String
@@ -77,7 +78,7 @@ model vehicle {
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  user                        user               @relation(fields: [user_id], references: [id])
+  user                        user?              @relation(fields: [user_id], references: [id])
   vehicle_type                vehicle_type       @relation(fields: [type_id], references: [id])
   gps_tracker                 gps_tracker?       @relation(fields: [gps_tracker_id], references: [id])
   live_tracks                 live_track_history[]

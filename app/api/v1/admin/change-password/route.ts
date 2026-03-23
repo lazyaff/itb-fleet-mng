@@ -1,13 +1,12 @@
 import prisma from "@/lib/prisma";
-import { validateBasicAuth } from "@/utils/auth";
+import { validateJWT } from "@/utils/auth";
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import { hashSync } from "bcrypt";
 
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = validateBasicAuth(request);
+    const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized) {
       return NextResponse.json(
         {
@@ -19,8 +18,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password } = await request.json();
-    if (!email || !password) {
+    const { user_id, password, confirm_password } = await request.json();
+
+    if (!user_id || !password || !confirm_password) {
       return NextResponse.json(
         {
           success: false,
@@ -31,51 +31,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch user by email
+    // check user
     const user = await prisma.user.findFirst({
       where: {
-        email: email,
+        id: user_id,
+        deleted_at: null,
       },
     });
-
     if (!user) {
       return NextResponse.json(
         {
           success: false,
           status: 401,
-          message: "Email or password not valid!",
+          message: "User not found!",
         },
         { status: 401 },
       );
     }
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password || "");
+    const isPasswordValid = password === confirm_password;
     if (!isPasswordValid) {
       return NextResponse.json(
         {
           success: false,
           status: 401,
-          message: "Email or password not valid!",
+          message: "Passwords do not match!",
         },
         { status: 401 },
       );
     }
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET || "komuto",
-      { expiresIn: "30d" },
-    );
+    // update data
+    await prisma.user.update({
+      where: {
+        id: user_id,
+      },
+      data: {
+        password: hashSync(password, 10),
+      },
+    });
 
     return NextResponse.json({
       success: true,
       status: 200,
-      message: "Token generated successfully!",
-      data: {
-        token: token,
-      },
+      message: "Data updated successfully!",
     });
   } catch (error) {
     console.error(error);
