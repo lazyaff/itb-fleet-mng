@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -172,7 +172,6 @@ export async function POST(request: NextRequest) {
     const status = form.get("status") as string;
     const current_milage = form.get("current_milage") as string;
     const engine_hours = form.get("engine_hours") as string;
-    const device_id = form.get("device_id") as string;
     const notes = form.get("notes") as string;
 
     if (
@@ -196,40 +195,29 @@ export async function POST(request: NextRequest) {
     }
 
     // jalankan paralel
-    const [
-      admin,
-      vehicle_type,
-      exist_plate_number,
-      exist_internal_code,
-      exist_device_id,
-    ] = await Promise.all([
-      prisma.user.findFirst({
-        where: { id: user_id, deleted_at: null },
-      }),
-      prisma.vehicle_type.findFirst({
-        where: { id: vehicle_type_id, deleted_at: null },
-      }),
-      prisma.vehicle.findFirst({
-        where: { plate_number, deleted_at: null },
-      }),
-      internal_code
-        ? prisma.vehicle.findFirst({
-            where: { internal_code, deleted_at: null },
-          })
-        : Promise.resolve(null),
-      device_id
-        ? prisma.vehicle.findFirst({
-            where: { device_id, deleted_at: null },
-          })
-        : Promise.resolve(null),
-    ]);
+    const [admin, vehicle_type, exist_plate_number, exist_internal_code] =
+      await Promise.all([
+        prisma.user.findFirst({
+          where: { id: user_id, deleted_at: null },
+        }),
+        prisma.vehicle_type.findFirst({
+          where: { id: vehicle_type_id, deleted_at: null },
+        }),
+        prisma.vehicle.findFirst({
+          where: { plate_number, deleted_at: null },
+        }),
+        internal_code
+          ? prisma.vehicle.findFirst({
+              where: { internal_code, deleted_at: null },
+            })
+          : Promise.resolve(null),
+      ]);
 
     if (!admin) return errorResponse("Admin not found!");
     if (!vehicle_type) return errorResponse("Vehicle type not found!");
     if (exist_plate_number) return errorResponse("Plate number already used!");
     if (exist_internal_code)
       return errorResponse("Internal code already used!");
-    if (exist_device_id) return errorResponse("Device id already used!");
 
     // validate image myme type
     const validMimeTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -291,7 +279,6 @@ export async function POST(request: NextRequest) {
         status: status,
         current_mileage: Number(current_milage) * 1000,
         engine_hours: Number(engine_hours),
-        device_id: device_id,
         notes: notes,
         vehicle_parts: {
           create: partData,
@@ -325,7 +312,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -348,7 +335,6 @@ export async function PUT(request: NextRequest) {
     const status = form.get("status") as string;
     const current_milage = form.get("current_milage") as string;
     const engine_hours = form.get("engine_hours") as string;
-    const device_id = form.get("device_id") as string;
     const notes = form.get("notes") as string;
 
     if (
@@ -378,7 +364,6 @@ export async function PUT(request: NextRequest) {
       vehicle_type,
       exist_plate_number,
       exist_internal_code,
-      exist_device_id,
     ] = await Promise.all([
       prisma.vehicle.findFirst({
         where: { id, deleted_at: null },
@@ -409,17 +394,6 @@ export async function PUT(request: NextRequest) {
             },
           })
         : Promise.resolve(null),
-      device_id
-        ? prisma.vehicle.findFirst({
-            where: {
-              id: {
-                not: id,
-              },
-              device_id,
-              deleted_at: null,
-            },
-          })
-        : Promise.resolve(null),
     ]);
 
     if (!vehicle) return errorResponse("Vehicle not found!");
@@ -428,7 +402,6 @@ export async function PUT(request: NextRequest) {
     if (exist_plate_number) return errorResponse("Plate number already used!");
     if (exist_internal_code)
       return errorResponse("Internal code already used!");
-    if (exist_device_id) return errorResponse("Device id already used!");
 
     let filePath = vehicle.image;
     if (image && image.size > 0) {
@@ -474,7 +447,6 @@ export async function PUT(request: NextRequest) {
         status: status,
         current_mileage: Number(current_milage) * 1000,
         engine_hours: Number(engine_hours),
-        device_id: device_id,
         notes: notes,
       },
     });
@@ -500,7 +472,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {

@@ -39,6 +39,17 @@ model role {
   users                       user[]
 }
 
+model gps_tracker {
+  id                          String            @id @default(uuid())
+  imei                        String   
+  created_at                  DateTime          @default(now())
+  updated_at                  DateTime          @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle?
+  live_tracks                 live_track_history[]
+}
+
 model vehicle_type {
   id                          String            @id @default(uuid())
   name                        String   
@@ -53,12 +64,12 @@ model vehicle {
   id                          String            @id @default(uuid())
   user_id                     String
   type_id                     String
+  gps_tracker_id              String?           @unique
   plate_number                String
   name                        String
   image                       String
   internal_code               String?
   status                      String
-  device_id                   String?
   notes                       String?
   current_mileage             Int
   engine_hours                Int
@@ -68,6 +79,7 @@ model vehicle {
 
   user                        user               @relation(fields: [user_id], references: [id])
   vehicle_type                vehicle_type       @relation(fields: [type_id], references: [id])
+  gps_tracker                 gps_tracker?       @relation(fields: [gps_tracker_id], references: [id])
   live_tracks                 live_track_history[]
   vehicle_parts               vehicle_part[]
   service_histories           service_history[]
@@ -77,7 +89,7 @@ model vehicle {
 model live_track_history {
   id                          String             @id @default(uuid())
   vehicle_id                  String?
-  device_id                   String
+  gps_tracker_id              String
   speed                       Int
   battery_voltage             Int
   lat                         Float
@@ -92,6 +104,7 @@ model live_track_history {
   deleted_at                  DateTime?
 
   vehicle                     vehicle?           @relation(fields: [vehicle_id], references: [id])
+  gps_tracker                 gps_tracker        @relation(fields: [gps_tracker_id], references: [id])
 }
 
 model general_vehicle_part {
