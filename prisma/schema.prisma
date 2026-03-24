@@ -16,6 +16,7 @@ datasource db {
 model user {
   id                          String            @id @default(uuid())
   role_id                     String
+  admin_id                    String?
   email                       String            @unique
   password                    String?
   name                        String
@@ -25,6 +26,8 @@ model user {
   deleted_at                  DateTime?
 
   role                        role              @relation(fields: [role_id], references: [id])
+  admin                       user?             @relation("UserToAdmin", fields: [admin_id], references: [id])
+  inspectors                  user[]            @relation("UserToAdmin")
   general_vehicle_part        general_vehicle_part[]
   vehicles                    vehicle[]
   service_histories           service_history[]
@@ -171,55 +174,81 @@ model vehicle_part_service_history {
   vehicle_part                vehicle_part       @relation(fields: [vehicle_part_id], references: [id])
 }
 
-model inspection_item {
+model inspection_section {
   id                          String             @id @default(uuid())
-  name                        String
+  title                       String  
+  order                       Int
+  icon                        String?
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  criterias                   inspection_item_criteria[]
+  questions inspection_question[]
 }
 
-model inspection_item_criteria {
+model inspection_question {
   id                          String             @id @default(uuid())
-  inspection_item_id          String
-  name                        String
+  section_id                  String
+  title                       String   
+  order                       Int
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  inspection_item             inspection_item    @relation(fields: [inspection_item_id], references: [id])
-  reports                     inspection_item_report[]
+  section                     inspection_section               @relation(fields: [section_id], references: [id])
+  options                     inspection_option[]
+  answers                     inspection_answer[]
+}
+
+model inspection_option {
+  id                          String             @id @default(uuid())
+  question_id                 String
+  label                       String   
+  description                 String   
+  value                       Int     
+  order                       Int
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  question                    inspection_question              @relation(fields: [question_id], references: [id])
+  answers                     inspection_answer[]
 }
 
 model inspection_report {
   id                          String             @id @default(uuid())
-  vehicle_id                  String
   user_id                     String
-  image                       String
+  vehicle_id                  String
   date                        DateTime
-  current_mileage             Int
-  severity                    String
+  conclusion                  String?  
   notes                       String?
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
   user                        user               @relation(fields: [user_id], references: [id])
-  items                       inspection_item_report[]
+  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
+  answers                     inspection_answer[]
 }
 
-model inspection_item_report {
+model inspection_answer {
   id                          String             @id @default(uuid())
-  inspection_report_id        String
-  inspection_item_criteria_id String
-  check                       Boolean
+  report_id                   String
+  question_id                 String
+  option_id                   String
+  section_title               String
+  section_order               Int
+  section_icon                String
+  question_title              String
+  question_order              Int
+  option_label                String
+  option_desc                 String
+  option_value                Int
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  inspection_report           inspection_report                @relation(fields: [inspection_report_id], references: [id])
-  inspection_item_criteria    inspection_item_criteria         @relation(fields: [inspection_item_criteria_id], references: [id])
+  report                      inspection_report              @relation(fields: [report_id], references: [id])
+  question                    inspection_question            @relation(fields: [question_id], references: [id])
+  option                      inspection_option              @relation(fields: [option_id], references: [id])
 }

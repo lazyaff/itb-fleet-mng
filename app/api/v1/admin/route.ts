@@ -28,6 +28,9 @@ export async function GET(request: NextRequest) {
 
     const conditions: any = {
       deleted_at: null,
+      role_id: {
+        in: ["SADM", "ADM"],
+      },
       ...(search && {
         OR: [
           {
@@ -42,26 +45,6 @@ export async function GET(request: NextRequest) {
               mode: "insensitive",
             },
           },
-          {
-            vehicles: {
-              some: {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
-          {
-            vehicles: {
-              some: {
-                plate_number: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-            },
-          },
         ],
       }),
     };
@@ -74,15 +57,6 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
-          email: true,
-          active: true,
-          vehicles: {
-            select: {
-              id: true,
-              name: true,
-              plate_number: true,
-            },
-          },
         },
         orderBy: [
           {
@@ -99,13 +73,6 @@ export async function GET(request: NextRequest) {
       return {
         id: item.id,
         name: item.name,
-        email: item.email,
-        active: item.active,
-        vehicles: item.vehicles.map((vehicle) => ({
-          id: vehicle.id,
-          name: vehicle.name,
-          plate_number: vehicle.plate_number,
-        })),
       };
     });
 
@@ -135,355 +102,355 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
-    if (!isAuthorized.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 401,
-          message: "Unauthorized",
-        },
-        { status: 401 },
-      );
-    }
+// export async function POST(request: NextRequest) {
+//   try {
+//     // validate auth
+//     const isAuthorized = await validateJWT(request, ["SADM"]);
+//     if (!isAuthorized.success) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 401,
+//           message: "Unauthorized",
+//         },
+//         { status: 401 },
+//       );
+//     }
 
-    const {
-      role_id,
-      name,
-      email,
-      password,
-      vehicle_ids = [],
-    } = await request.json();
-    if (!role_id || !name || !email || !password) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Missing required fields!",
-        },
-        { status: 400 },
-      );
-    }
+//     const {
+//       role_id,
+//       name,
+//       email,
+//       password,
+//       vehicle_ids = [],
+//     } = await request.json();
+//     if (!role_id || !name || !email || !password) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 400,
+//           message: "Missing required fields!",
+//         },
+//         { status: 400 },
+//       );
+//     }
 
-    // check vehicle data
-    if (vehicle_ids.length > 0) {
-      const vehicle = await prisma.vehicle.findMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-          deleted_at: null,
-        },
-      });
-      if (vehicle.length !== vehicle_ids.length) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Vehicle not found!",
-          },
-          { status: 400 },
-        );
-      }
-    }
+//     // check vehicle data
+//     if (vehicle_ids.length > 0) {
+//       const vehicle = await prisma.vehicle.findMany({
+//         where: {
+//           id: {
+//             in: vehicle_ids,
+//           },
+//           deleted_at: null,
+//         },
+//       });
+//       if (vehicle.length !== vehicle_ids.length) {
+//         return NextResponse.json(
+//           {
+//             success: false,
+//             status: 400,
+//             message: "Vehicle not found!",
+//           },
+//           { status: 400 },
+//         );
+//       }
+//     }
 
-    // check if email already exist
-    const isExist = await prisma.user.findFirst({
-      where: {
-        email: email,
-        deleted_at: null,
-      },
-    });
-    if (isExist) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Email already exist!",
-        },
-        { status: 400 },
-      );
-    }
+//     // check if email already exist
+//     const isExist = await prisma.user.findFirst({
+//       where: {
+//         email: email,
+//         deleted_at: null,
+//       },
+//     });
+//     if (isExist) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 400,
+//           message: "Email already exist!",
+//         },
+//         { status: 400 },
+//       );
+//     }
 
-    // create data
-    await prisma.$transaction(async (tx) => {
-      const data = await tx.user.create({
-        data: {
-          name,
-          email,
-          password: bcrypt.hashSync(password, 10),
-          role_id,
-        },
-      });
+//     // create data
+//     await prisma.$transaction(async (tx) => {
+//       const data = await tx.user.create({
+//         data: {
+//           name,
+//           email,
+//           password: bcrypt.hashSync(password, 10),
+//           role_id,
+//         },
+//       });
 
-      if (vehicle_ids?.length > 0) {
-        await tx.vehicle.updateMany({
-          where: {
-            id: { in: vehicle_ids },
-          },
-          data: {
-            user_id: data.id,
-          },
-        });
-      }
-    });
+//       if (vehicle_ids?.length > 0) {
+//         await tx.vehicle.updateMany({
+//           where: {
+//             id: { in: vehicle_ids },
+//           },
+//           data: {
+//             user_id: data.id,
+//           },
+//         });
+//       }
+//     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        status: 201,
-        message: "Data created successfully!",
-      },
-      {
-        status: 201,
-      },
-    );
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      {
-        success: false,
-        status: 500,
-        message: "Internal server error",
-      },
-      { status: 500 },
-    );
-  }
-}
+//     return NextResponse.json(
+//       {
+//         success: true,
+//         status: 201,
+//         message: "Data created successfully!",
+//       },
+//       {
+//         status: 201,
+//       },
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         status: 500,
+//         message: "Internal server error",
+//       },
+//       { status: 500 },
+//     );
+//   }
+// }
 
-export async function PUT(request: NextRequest) {
-  try {
-    // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
-    if (!isAuthorized.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 401,
-          message: "Unauthorized",
-        },
-        { status: 401 },
-      );
-    }
+// export async function PUT(request: NextRequest) {
+//   try {
+//     // validate auth
+//     const isAuthorized = await validateJWT(request, ["SADM"]);
+//     if (!isAuthorized.success) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 401,
+//           message: "Unauthorized",
+//         },
+//         { status: 401 },
+//       );
+//     }
 
-    const { id, role_id, name, email, vehicle_ids = [] } = await request.json();
-    if (!id || !role_id || !name || !email) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Missing required fields!",
-        },
-        { status: 400 },
-      );
-    }
+//     const { id, role_id, name, email, vehicle_ids = [] } = await request.json();
+//     if (!id || !role_id || !name || !email) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 400,
+//           message: "Missing required fields!",
+//         },
+//         { status: 400 },
+//       );
+//     }
 
-    // check if data exist
-    const isDataExist = await prisma.user.findFirst({
-      where: {
-        id: id,
-        deleted_at: null,
-      },
-    });
-    if (!isDataExist) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 404,
-          message: "Data not found!",
-        },
-        { status: 404 },
-      );
-    }
+//     // check if data exist
+//     const isDataExist = await prisma.user.findFirst({
+//       where: {
+//         id: id,
+//         deleted_at: null,
+//       },
+//     });
+//     if (!isDataExist) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 404,
+//           message: "Data not found!",
+//         },
+//         { status: 404 },
+//       );
+//     }
 
-    // check vehicle data
-    if (vehicle_ids.length > 0) {
-      const vehicle = await prisma.vehicle.findMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-          deleted_at: null,
-        },
-      });
-      if (vehicle.length !== vehicle_ids.length) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Vehicle not found!",
-          },
-          { status: 400 },
-        );
-      }
-    }
+//     // check vehicle data
+//     if (vehicle_ids.length > 0) {
+//       const vehicle = await prisma.vehicle.findMany({
+//         where: {
+//           id: {
+//             in: vehicle_ids,
+//           },
+//           deleted_at: null,
+//         },
+//       });
+//       if (vehicle.length !== vehicle_ids.length) {
+//         return NextResponse.json(
+//           {
+//             success: false,
+//             status: 400,
+//             message: "Vehicle not found!",
+//           },
+//           { status: 400 },
+//         );
+//       }
+//     }
 
-    // check if email already exist
-    const isExist = await prisma.user.findFirst({
-      where: {
-        id: {
-          not: id,
-        },
-        email: email,
-        deleted_at: null,
-      },
-    });
-    if (isExist) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Email already exist!",
-        },
-        { status: 400 },
-      );
-    }
+//     // check if email already exist
+//     const isExist = await prisma.user.findFirst({
+//       where: {
+//         id: {
+//           not: id,
+//         },
+//         email: email,
+//         deleted_at: null,
+//       },
+//     });
+//     if (isExist) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 400,
+//           message: "Email already exist!",
+//         },
+//         { status: 400 },
+//       );
+//     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: { id },
-        data: {
-          name,
-          email,
-          role_id,
-        },
-      });
+//     await prisma.$transaction(async (tx) => {
+//       await tx.user.update({
+//         where: { id },
+//         data: {
+//           name,
+//           email,
+//           role_id,
+//         },
+//       });
 
-      await tx.vehicle.updateMany({
-        where: {
-          user_id: id,
-        },
-        data: {
-          user_id: null,
-        },
-      });
+//       await tx.vehicle.updateMany({
+//         where: {
+//           user_id: id,
+//         },
+//         data: {
+//           user_id: null,
+//         },
+//       });
 
-      if (vehicle_ids.length > 0) {
-        await tx.vehicle.updateMany({
-          where: {
-            id: { in: vehicle_ids },
-          },
-          data: {
-            user_id: id,
-          },
-        });
-      }
-    });
+//       if (vehicle_ids.length > 0) {
+//         await tx.vehicle.updateMany({
+//           where: {
+//             id: { in: vehicle_ids },
+//           },
+//           data: {
+//             user_id: id,
+//           },
+//         });
+//       }
+//     });
 
-    return NextResponse.json({
-      success: true,
-      status: 200,
-      message: "Data updated successfully!",
-    });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      {
-        success: false,
-        status: 500,
-        message: "Internal server error",
-      },
-      { status: 500 },
-    );
-  }
-}
+//     return NextResponse.json({
+//       success: true,
+//       status: 200,
+//       message: "Data updated successfully!",
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         status: 500,
+//         message: "Internal server error",
+//       },
+//       { status: 500 },
+//     );
+//   }
+// }
 
-export async function DELETE(request: NextRequest) {
-  try {
-    // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
-    if (!isAuthorized.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 401,
-          message: "Unauthorized",
-        },
-        { status: 401 },
-      );
-    }
+// export async function DELETE(request: NextRequest) {
+//   try {
+//     // validate auth
+//     const isAuthorized = await validateJWT(request, ["SADM"]);
+//     if (!isAuthorized.success) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 401,
+//           message: "Unauthorized",
+//         },
+//         { status: 401 },
+//       );
+//     }
 
-    const { id } = await request.json();
-    if (!id) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Missing required fields!",
-        },
-        { status: 400 },
-      );
-    }
+//     const { id } = await request.json();
+//     if (!id) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 400,
+//           message: "Missing required fields!",
+//         },
+//         { status: 400 },
+//       );
+//     }
 
-    // check if data exist
-    const isExist = await prisma.user.findFirst({
-      where: {
-        id: id,
-        deleted_at: null,
-      },
-      select: {
-        id: true,
-        email: true,
-        vehicles: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-    if (!isExist) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 404,
-          message: "Data not found!",
-        },
-        { status: 404 },
-      );
-    }
+//     // check if data exist
+//     const isExist = await prisma.user.findFirst({
+//       where: {
+//         id: id,
+//         deleted_at: null,
+//       },
+//       select: {
+//         id: true,
+//         email: true,
+//         vehicles: {
+//           select: {
+//             id: true,
+//           },
+//         },
+//       },
+//     });
+//     if (!isExist) {
+//       return NextResponse.json(
+//         {
+//           success: false,
+//           status: 404,
+//           message: "Data not found!",
+//         },
+//         { status: 404 },
+//       );
+//     }
 
-    // update data
-    await prisma.user.update({
-      where: {
-        id: id,
-      },
-      data: {
-        email: isExist.email + " | DELETED",
-        deleted_at: new Date(),
-      },
-    });
+//     // update data
+//     await prisma.user.update({
+//       where: {
+//         id: id,
+//       },
+//       data: {
+//         email: isExist.email + " | DELETED",
+//         deleted_at: new Date(),
+//       },
+//     });
 
-    if (isExist.vehicles.length > 0) {
-      const vehicle_ids = isExist.vehicles.map((vehicle) => vehicle.id);
-      await prisma.vehicle.updateMany({
-        where: {
-          id: {
-            in: vehicle_ids,
-          },
-        },
-        data: {
-          user_id: null,
-        },
-      });
-    }
+//     if (isExist.vehicles.length > 0) {
+//       const vehicle_ids = isExist.vehicles.map((vehicle) => vehicle.id);
+//       await prisma.vehicle.updateMany({
+//         where: {
+//           id: {
+//             in: vehicle_ids,
+//           },
+//         },
+//         data: {
+//           user_id: null,
+//         },
+//       });
+//     }
 
-    return NextResponse.json({
-      success: true,
-      status: 200,
-      message: "Data deleted successfully!",
-    });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      {
-        success: false,
-        status: 500,
-        message: "Internal server error",
-      },
-      { status: 500 },
-    );
-  }
-}
+//     return NextResponse.json({
+//       success: true,
+//       status: 200,
+//       message: "Data deleted successfully!",
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         status: 500,
+//         message: "Internal server error",
+//       },
+//       { status: 500 },
+//     );
+//   }
+// }
