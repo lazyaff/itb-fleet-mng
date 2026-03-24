@@ -6,19 +6,19 @@ export async function inspectionItemSeeder(prisma: PrismaClient) {
       id: "8c1e2f4a-6b73-4d9a-8f2c-1a7e5d3b9c60",
       title: "Eksterior & Body",
       order: 1,
-      icon: "section/icon-1.png",
+      icon: "inspection-section/icon-1.png",
     },
     {
       id: "f3a9d2c7-5b18-4e6f-9c4a-2d7b1e8f3a90",
       title: "Mekanis & Keamanan",
       order: 2,
-      icon: "section/icon-2.png",
+      icon: "inspection-section/icon-2.png",
     },
     {
       id: "1d7c9a5e-4b62-4f3a-8e1d-6c2b9f7a3e40",
       title: "Interior & Elektronik",
       order: 3,
-      icon: "section/icon-3.png",
+      icon: "inspection-section/icon-3.png",
     },
   ];
 

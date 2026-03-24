@@ -56,6 +56,9 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [
         {
+          name: "asc",
+        },
+        {
           plate_number: "asc",
         },
       ],

@@ -74,6 +74,8 @@ const authOptions: NextAuthOptions = {
         if (!admin) throw new Error("SSO_USER_NOT_FOUND");
 
         token.id = admin.id;
+        token.name = admin.name;
+        token.email = admin.email;
         token.access_token = jwt.sign(
           { id: admin.id },
           process.env.JWT_SECRET || "",
@@ -81,6 +83,8 @@ const authOptions: NextAuthOptions = {
         );
       } else if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
         token.access_token = user.access_token;
       }
 

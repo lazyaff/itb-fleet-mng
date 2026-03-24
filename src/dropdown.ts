@@ -27,3 +27,18 @@ export const vehicle_health = [
     max: 24,
   },
 ];
+
+export const inspectionConclusion = [
+  {
+    label: "Siap Jalan",
+    color: "green",
+  },
+  {
+    label: "Butuh Servis",
+    color: "yellow",
+  },
+  {
+    label: "Dilarang Jalan",
+    color: "red",
+  },
+];
