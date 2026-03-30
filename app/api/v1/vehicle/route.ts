@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
-import { deleteFile, saveFile } from "@/utils/image";
 import { healthCount } from "@/utils/vehicle";
 import { DateTime } from "luxon";
 import { NextResponse, NextRequest } from "next/server";
@@ -38,14 +37,8 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         plate_number: true,
-        internal_code: true,
         name: true,
-        vehicle_type: {
-          select: {
-            name: true,
-          },
-        },
-        image: true,
+        // image: true,
         status: true,
         current_mileage: true,
         vehicle_parts: {
@@ -64,7 +57,12 @@ export async function GET(request: NextRequest) {
       ],
     });
 
-    const data = rawData.map((item) => {
+    const alert: {
+      title: string;
+      plate_number: string;
+    }[] = [];
+
+    const vehicle = rawData.map((item) => {
       let health = 0;
       let time_limit: null | number = null;
       let distance_limit: null | number = null;
@@ -78,7 +76,8 @@ export async function GET(request: NextRequest) {
 
         const lastService = DateTime.fromJSDate(part.last_service);
         const now = DateTime.now();
-        const diffDays = part.time_limit - now.diff(lastService, "days").days;
+        const diffDays =
+          part.time_limit * 30 - now.diff(lastService, "days").days;
         time_limit = Math.floor(
           time_limit ? Math.min(time_limit, diffDays) : diffDays,
         );
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
         //   }),
         // );
 
-        health += Math.max(
+        const healthPoint = Math.max(
           healthCount({
             current_mileage: part.current_distance,
             distance_limit: part.distance_limit,
@@ -102,6 +101,14 @@ export async function GET(request: NextRequest) {
           }),
           0,
         );
+        if (healthPoint < 25) {
+          alert.push({
+            title: part.name,
+            plate_number: item.plate_number,
+          });
+        }
+
+        health += healthPoint;
       }
 
       // console.log();
@@ -109,13 +116,11 @@ export async function GET(request: NextRequest) {
       return {
         id: item.id,
         plate_number: item.plate_number,
-        internal_code: item.internal_code,
         name: item.name,
-        type: item.vehicle_type.name,
-        image:
-          process.env.NEXTAUTH_URL! +
-          process.env.PUBLIC_STORAGE_PATH +
-          item.image,
+        // image:
+        //   process.env.NEXTAUTH_URL! +
+        //   process.env.PUBLIC_STORAGE_PATH +
+        //   item.image,
         status: item.status,
         health: Math.floor(health / item.vehicle_parts.length),
         current_mileage: Math.floor(item.current_mileage / 1000),
@@ -135,7 +140,10 @@ export async function GET(request: NextRequest) {
       success: true,
       status: 200,
       message: "Data fetched successfully",
-      data,
+      data: {
+        alert: alert,
+        vehicle: vehicle,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -166,27 +174,12 @@ export async function POST(request: NextRequest) {
     }
 
     const form = await request.formData();
-    const image = form.get("image") as File;
-    const user_id = form.get("user_id") as string;
     const plate_number = form.get("plate_number") as string;
     const name = form.get("name") as string;
-    const vehicle_type_id = form.get("vehicle_type_id") as string;
-    const internal_code = form.get("internal_code") as string;
-    const status = form.get("status") as string;
     const current_milage = form.get("current_milage") as string;
-    const engine_hours = form.get("engine_hours") as string;
-    const notes = form.get("notes") as string;
+    const last_service = form.get("last_service") as string;
 
-    if (
-      !image ||
-      !user_id ||
-      !plate_number ||
-      !name ||
-      !vehicle_type_id ||
-      !status ||
-      !current_milage ||
-      !engine_hours
-    ) {
+    if (!plate_number || !name || !current_milage || !last_service) {
       return NextResponse.json(
         {
           success: false,
@@ -197,55 +190,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // jalankan paralel
-    const [admin, vehicle_type, exist_plate_number, exist_internal_code] =
-      await Promise.all([
-        prisma.user.findFirst({
-          where: { id: user_id, deleted_at: null },
-        }),
-        prisma.vehicle_type.findFirst({
-          where: { id: vehicle_type_id, deleted_at: null },
-        }),
-        prisma.vehicle.findFirst({
-          where: { plate_number, deleted_at: null },
-        }),
-        internal_code
-          ? prisma.vehicle.findFirst({
-              where: { internal_code, deleted_at: null },
-            })
-          : Promise.resolve(null),
-      ]);
-
-    if (!admin) return errorResponse("Admin not found!");
-    if (!vehicle_type) return errorResponse("Vehicle type not found!");
+    // check if data exist
+    const exist_plate_number = await prisma.vehicle.findFirst({
+      where: { plate_number, deleted_at: null },
+    });
     if (exist_plate_number) return errorResponse("Plate number already used!");
-    if (exist_internal_code)
-      return errorResponse("Internal code already used!");
-
-    // validate image myme type
-    const validMimeTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!validMimeTypes.includes(image.type)) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Invalid image format",
-        },
-        { status: 400 },
-      );
-    }
-
-    // validate file size
-    if (image.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Image size must be less than 5MB",
-        },
-        { status: 400 },
-      );
-    }
 
     // get part data
     const parts = await prisma.general_vehicle_part.findMany({
@@ -258,7 +207,7 @@ export async function POST(request: NextRequest) {
     const partData = parts.map((part) => ({
       general_vehicle_part_id: part.id,
       name: part.name,
-      last_service: new Date(),
+      last_service: new Date(last_service),
       current_distance: 0,
       distance_limit: part.distance_limit,
       time_limit: part.time_limit,
@@ -267,22 +216,15 @@ export async function POST(request: NextRequest) {
 
     // save file
     const id = uuidv4();
-    const filepath = await saveFile(image, "vehicle", id);
 
     // save data
     await prisma.vehicle.create({
       data: {
         id: id,
-        user_id: user_id,
-        image: filepath,
         plate_number: plate_number,
         name: name,
-        type_id: vehicle_type_id,
-        internal_code: internal_code,
-        status: status,
+        status: "Available",
         current_mileage: Number(current_milage) * 1000,
-        engine_hours: Number(engine_hours),
-        notes: notes,
         vehicle_parts: {
           create: partData,
         },
@@ -329,27 +271,11 @@ export async function PUT(request: NextRequest) {
 
     const form = await request.formData();
     const id = form.get("id") as string;
-    const image = form.get("image") as File;
-    const user_id = form.get("user_id") as string;
     const plate_number = form.get("plate_number") as string;
     const name = form.get("name") as string;
-    const vehicle_type_id = form.get("vehicle_type_id") as string;
-    const internal_code = form.get("internal_code") as string;
-    const status = form.get("status") as string;
     const current_milage = form.get("current_milage") as string;
-    const engine_hours = form.get("engine_hours") as string;
-    const notes = form.get("notes") as string;
 
-    if (
-      !id ||
-      !user_id ||
-      !plate_number ||
-      !name ||
-      !vehicle_type_id ||
-      !status ||
-      !current_milage ||
-      !engine_hours
-    ) {
+    if (!id || !plate_number || !name || !current_milage) {
       return NextResponse.json(
         {
           success: false,
@@ -361,21 +287,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // jalankan paralel
-    const [
-      vehicle,
-      admin,
-      vehicle_type,
-      exist_plate_number,
-      exist_internal_code,
-    ] = await Promise.all([
+    const [vehicle, exist_plate_number] = await Promise.all([
       prisma.vehicle.findFirst({
         where: { id, deleted_at: null },
-      }),
-      prisma.user.findFirst({
-        where: { id: user_id, deleted_at: null },
-      }),
-      prisma.vehicle_type.findFirst({
-        where: { id: vehicle_type_id, deleted_at: null },
       }),
       prisma.vehicle.findFirst({
         where: {
@@ -386,71 +300,18 @@ export async function PUT(request: NextRequest) {
           deleted_at: null,
         },
       }),
-      internal_code
-        ? prisma.vehicle.findFirst({
-            where: {
-              id: {
-                not: id,
-              },
-              internal_code,
-              deleted_at: null,
-            },
-          })
-        : Promise.resolve(null),
     ]);
 
     if (!vehicle) return errorResponse("Vehicle not found!");
-    if (!admin) return errorResponse("Admin not found!");
-    if (!vehicle_type) return errorResponse("Vehicle type not found!");
     if (exist_plate_number) return errorResponse("Plate number already used!");
-    if (exist_internal_code)
-      return errorResponse("Internal code already used!");
-
-    let filePath = vehicle.image;
-    if (image && image.size > 0) {
-      // validate image myme type
-      const validMimeTypes = ["image/jpeg", "image/png", "image/webp"];
-      if (!validMimeTypes.includes(image.type)) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Invalid image format",
-          },
-          { status: 400 },
-        );
-      }
-
-      // validate file size
-      if (image.size > 5 * 1024 * 1024) {
-        return NextResponse.json(
-          {
-            success: false,
-            status: 400,
-            message: "Image size must be less than 5MB",
-          },
-          { status: 400 },
-        );
-      }
-
-      await deleteFile(filePath);
-      filePath = await saveFile(image, "vehicle", id);
-    }
 
     // update data
     await prisma.vehicle.update({
       where: { id },
       data: {
-        user_id: user_id,
-        image: filePath,
         plate_number: plate_number,
         name: name,
-        type_id: vehicle_type_id,
-        internal_code: internal_code,
-        status: status,
         current_mileage: Number(current_milage) * 1000,
-        engine_hours: Number(engine_hours),
-        notes: notes,
       },
     });
 
@@ -526,9 +387,6 @@ export async function DELETE(request: NextRequest) {
         deleted_at: new Date(),
       },
     });
-
-    // delete image
-    await deleteFile(isExist.image);
 
     return NextResponse.json({
       success: true,

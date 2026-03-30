@@ -49,13 +49,25 @@ export async function PUT(request: NextRequest) {
     }
 
     // update data
-    await prisma.general_vehicle_part.update({
-      where: {
-        id: id,
-      },
-      data: {
-        active: !data.active,
-      },
+    await prisma.$transaction(async (tx) => {
+      const newActive = !data.active;
+      await prisma.$transaction(async (tx) => {
+        await tx.general_vehicle_part.update({
+          where: { id },
+          data: {
+            active: newActive,
+          },
+        });
+
+        await tx.vehicle_part.updateMany({
+          where: {
+            general_vehicle_part_id: id,
+          },
+          data: {
+            deleted_at: newActive ? null : new Date(),
+          },
+        });
+      });
     });
 
     return NextResponse.json({

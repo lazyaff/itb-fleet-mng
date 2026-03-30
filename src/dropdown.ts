@@ -22,7 +22,7 @@ export const vehicle_health = [
     max: 49,
   },
   {
-    label: "Bad",
+    label: "Overdue",
     min: 0,
     max: 24,
   },
