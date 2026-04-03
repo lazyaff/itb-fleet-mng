@@ -27,7 +27,20 @@ export async function GET(request: NextRequest) {
         plate_number: true,
         status: true,
         vehicle_parts: {
-          where: { deleted_at: null },
+          where: {
+            deleted_at: null,
+            OR: [
+              {
+                general_vehicle_part: {
+                  deleted_at: null,
+                  active: true,
+                },
+              },
+              {
+                general_vehicle_part: null,
+              },
+            ],
+          },
           select: {
             name: true,
             current_distance: true,

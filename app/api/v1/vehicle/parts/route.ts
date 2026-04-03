@@ -37,6 +37,17 @@ export async function GET(request: NextRequest) {
         vehicle_parts: {
           where: {
             deleted_at: null,
+            OR: [
+              {
+                general_vehicle_part: {
+                  deleted_at: null,
+                  active: true,
+                },
+              },
+              {
+                general_vehicle_part: null,
+              },
+            ],
           },
           orderBy: {
             name: "asc",
@@ -71,11 +82,14 @@ export async function GET(request: NextRequest) {
     }[] = [];
 
     const parts: {
+      id: string;
+      general_vehicle_part_id: string | null;
       title: string;
       current_mileage: number;
       distance_limit: number;
-      last_service: Date;
+      last_service: string;
       time_limit: number;
+      notes: string | null;
       health: number;
     }[] = [];
 
@@ -117,11 +131,14 @@ export async function GET(request: NextRequest) {
       }
 
       parts.push({
+        id: part.id,
+        general_vehicle_part_id: part.general_vehicle_part_id,
         title: part.name,
-        current_mileage: part.current_distance / 1000,
+        current_mileage: part.current_distance,
         distance_limit: part.distance_limit,
-        last_service: part.last_service,
-        time_limit: part.time_limit * 30,
+        last_service: part.last_service.toISOString().split("T")[0],
+        time_limit: part.time_limit,
+        notes: part.notes,
         health: healthPoint,
       });
 
@@ -161,6 +178,260 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error(error);
+    return NextResponse.json(
+      {
+        success: false,
+        status: 500,
+        message: "Internal server error",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // validate auth
+    const isAuthorized = await validateJWT(request, ["SADM"]);
+    if (!isAuthorized.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 401,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    const {
+      vehicle_id,
+      name,
+      distance_limit,
+      time_limit,
+      last_service,
+      current_distance,
+      notes,
+    } = await request.json();
+    if (
+      !vehicle_id ||
+      !name ||
+      !distance_limit ||
+      !time_limit ||
+      !last_service
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Missing required fields!",
+        },
+        { status: 400 },
+      );
+    }
+
+    // check vehicle
+    const vehicle = await prisma.vehicle.findFirst({
+      where: {
+        id: vehicle_id,
+        deleted_at: null,
+      },
+    });
+    if (!vehicle) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Vehicle not found!",
+        },
+        { status: 400 },
+      );
+    }
+
+    // create data
+    await prisma.vehicle_part.create({
+      data: {
+        vehicle_id,
+        name: name,
+        last_service: new Date(last_service),
+        current_distance: current_distance || 0,
+        distance_limit: distance_limit,
+        time_limit: time_limit,
+        notes: notes || null,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        status: 201,
+        message: "Data created successfully!",
+      },
+      {
+        status: 201,
+      },
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      {
+        success: false,
+        status: 500,
+        message: "Internal server error",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const isAuthorized = await validateJWT(request, ["SADM"]);
+    if (!isAuthorized.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 401,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    const {
+      id,
+      name,
+      distance_limit,
+      time_limit,
+      last_service,
+      current_distance,
+      notes,
+    } = await request.json();
+
+    if (!id || !name || !distance_limit || !time_limit || !last_service) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Missing required fields!",
+        },
+        { status: 400 },
+      );
+    }
+
+    // check exist
+    const part = await prisma.vehicle_part.findFirst({
+      where: {
+        id,
+        deleted_at: null,
+      },
+    });
+
+    if (!part) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 404,
+          message: "Data not found!",
+        },
+        { status: 404 },
+      );
+    }
+
+    // update data
+    await prisma.vehicle_part.update({
+      where: {
+        id,
+      },
+      data: {
+        name: name,
+        last_service: new Date(last_service),
+        current_distance: current_distance || 0,
+        distance_limit: distance_limit,
+        time_limit: time_limit,
+        notes: notes || null,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      status: 200,
+      message: "Data updated successfully!",
+    });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      {
+        success: false,
+        status: 500,
+        message: "Internal server error",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const isAuthorized = await validateJWT(request, ["SADM"]);
+    if (!isAuthorized.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 401,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Missing required fields!",
+        },
+        { status: 400 },
+      );
+    }
+
+    const part = await prisma.vehicle_part.findFirst({
+      where: {
+        id,
+        deleted_at: null,
+      },
+    });
+
+    if (!part) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 404,
+          message: "Data not found!",
+        },
+        { status: 404 },
+      );
+    }
+
+    await prisma.vehicle_part.updateMany({
+      where: {
+        id: id,
+      },
+      data: {
+        deleted_at: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      status: 200,
+      message: "Data deleted successfully!",
+    });
+  } catch (error) {
+    console.log(error);
     return NextResponse.json(
       {
         success: false,

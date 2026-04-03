@@ -384,7 +384,11 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.log(error);
     return NextResponse.json(
-      { success: false, status: 500, message: "Internal server error" },
+      {
+        success: false,
+        status: 500,
+        message: "Internal server error",
+      },
       { status: 500 },
     );
   }

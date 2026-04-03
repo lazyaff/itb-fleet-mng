@@ -44,6 +44,17 @@ export async function GET(request: NextRequest) {
         vehicle_parts: {
           where: {
             deleted_at: null,
+            OR: [
+              {
+                general_vehicle_part: {
+                  deleted_at: null,
+                  active: true,
+                },
+              },
+              {
+                general_vehicle_part: null,
+              },
+            ],
           },
         },
       },
@@ -123,7 +134,7 @@ export async function GET(request: NextRequest) {
         //   item.image,
         status: item.status,
         health: Math.floor(health / item.vehicle_parts.length),
-        current_mileage: Math.floor(item.current_mileage / 1000),
+        current_mileage: item.current_mileage,
         next_service: {
           time_limit: time_limit && time_limit > 0 ? time_limit : -1,
           distance_limit:
@@ -224,7 +235,7 @@ export async function POST(request: NextRequest) {
         plate_number: plate_number,
         name: name,
         status: "Available",
-        current_mileage: Number(current_milage) * 1000,
+        current_mileage: Number(current_milage),
         vehicle_parts: {
           create: partData,
         },
@@ -311,7 +322,7 @@ export async function PUT(request: NextRequest) {
       data: {
         plate_number: plate_number,
         name: name,
-        current_mileage: Number(current_milage) * 1000,
+        current_mileage: Number(current_milage),
       },
     });
 
