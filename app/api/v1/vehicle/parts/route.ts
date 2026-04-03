@@ -416,7 +416,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.vehicle_part.updateMany({
+    await prisma.vehicle_part.update({
       where: {
         id: id,
       },

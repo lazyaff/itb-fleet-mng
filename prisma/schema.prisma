@@ -156,22 +156,26 @@ model service_history {
   type                        String
   cost                        Int
   notes                       String?
+  is_all                      Boolean
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
   vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
   user                        user               @relation(fields: [user_id], references: [id])
+  vehicle_parts               vehicle_part_service_history[]
 }
 
 model vehicle_part_service_history {
   id                          String             @id @default(uuid())
   vehicle_part_id             String
+  service_history_id          String
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
   vehicle_part                vehicle_part       @relation(fields: [vehicle_part_id], references: [id])
+  service_history             service_history    @relation(fields: [service_history_id], references: [id])
 }
 
 model inspection_section {
