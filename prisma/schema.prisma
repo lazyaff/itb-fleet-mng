@@ -110,6 +110,8 @@ model live_track_history {
 
   vehicle                     vehicle?           @relation(fields: [vehicle_id], references: [id])
   gps_tracker                 gps_tracker        @relation(fields: [gps_tracker_id], references: [id])
+
+  @@unique([gps_tracker_id, created_at])
 }
 
 model general_vehicle_part {

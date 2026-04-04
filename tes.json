@@ -1,0 +1,105 @@
+{
+  "records": [
+    {
+      "timestamp": "2026-02-21T07:43:07.000Z",
+      "priority": 0,
+      "gps": {
+        "longitude": 107.6096833,
+        "latitude": -6.89947,
+        "altitude": 762,
+        "angle": 184,
+        "satellites": 12,
+        "speed": 7
+      },
+      "event_id": 0,
+      "properties_count": 12,
+      "ioElements": [
+        {
+          "id": 239,
+          "value": 1,
+          "label": "Ignition",
+          "valueHuman": "Yes"
+        },
+        {
+          "id": 240,
+          "value": 1,
+          "label": "Movement",
+          "valueHuman": "Yes"
+        },
+        {
+          "id": 21,
+          "value": 2,
+          "label": "GSM Signal Strength",
+          "valueHuman": "2"
+        },
+        {
+          "id": 200,
+          "value": 0,
+          "label": "Sleep Mode",
+          "valueHuman": "No Sleep"
+        },
+        {
+          "id": 69,
+          "value": 1,
+          "label": "GNSS Status",
+          "valueHuman": "ON with fix"
+        },
+        {
+          "id": 181,
+          "value": 31,
+          "label": "PDOP",
+          "valueHuman": ""
+        },
+        {
+          "id": 182,
+          "value": 9,
+          "label": "HDOP",
+          "valueHuman": ""
+        },
+        {
+          "id": 66,
+          "value": 22883,
+          "label": "Ext Voltage",
+          "dimension": "mV",
+          "valueHuman": ""
+        },
+        {
+          "id": 67,
+          "value": 4033,
+          "label": "Battery Voltage",
+          "dimension": "mV",
+          "valueHuman": ""
+        },
+        {
+          "id": 68,
+          "value": 0,
+          "label": "Battery Current",
+          "dimension": "mA",
+          "valueHuman": ""
+        },
+        {
+          "id": 241,
+          "value": 51021,
+          "label": "GSM Operator",
+          "valueHuman": ""
+        },
+        {
+          "id": 16,
+          "value": 1418272,
+          "label": "Total Odometer",
+          "valueHuman": ""
+        }
+      ]
+    }
+  ],
+  "data_length": 88,
+  "codec_id": 142,
+  "number_of_data": 1,
+  "number_of_data2": 1,
+  "CRC": {
+    "0": 0,
+    "1": 0,
+    "2": 10,
+    "3": 81
+  }
+}

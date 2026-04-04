@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         plate_number: true,
+        name: true,
         status: true,
         vehicle_parts: {
           where: {
@@ -47,6 +48,21 @@ export async function GET(request: NextRequest) {
             distance_limit: true,
             last_service: true,
             time_limit: true,
+          },
+        },
+        live_tracks: {
+          take: 1,
+          orderBy: {
+            created_at: "desc",
+          },
+          where: {
+            deleted_at: null,
+          },
+          select: {
+            lat: true,
+            long: true,
+            angle: true,
+            movement: true,
           },
         },
       },
@@ -77,10 +93,30 @@ export async function GET(request: NextRequest) {
       under_maintenance: 0,
     };
 
+    const live_track: {
+      plate_number: string;
+      name: string;
+      lat: number;
+      long: number;
+      angle: number;
+      movement: boolean;
+    }[] = [];
+
     let totalVehicle = 0;
     for (const item of rawData) {
       totalVehicle++;
       let health = 0;
+
+      if (item.live_tracks.length > 0) {
+        live_track.push({
+          plate_number: item.plate_number,
+          name: item.name,
+          lat: item.live_tracks[0].lat,
+          long: item.live_tracks[0].long,
+          angle: item.live_tracks[0].angle,
+          movement: item.live_tracks[0].movement,
+        });
+      }
 
       for (const part of item.vehicle_parts) {
         const healthPoint = Math.max(
@@ -139,6 +175,7 @@ export async function GET(request: NextRequest) {
           health: vehicleHealth,
           status: status,
         },
+        live_track: live_track,
         alert: alert,
       },
     });
