@@ -1,65 +1,255 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useContext, useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { LoadingContext } from "@/context/Loading";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { NotificationAlert } from "@/context/Alert";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { loading, setLoading } = useContext(LoadingContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorModal, setErrorModal] = useState({
+    open: false,
+    message: "",
+  });
+
+  useEffect(() => {
+    setLoading(false);
+    const url = new URL(window.location.href);
+    const error = url.searchParams.get("error");
+    if (error) {
+      setErrorModal({
+        open: true,
+        message: "Login failed, try using another account",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  const handleSubmit = async (target: string) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (res?.ok) {
+        router.push(target);
+      } else {
+        setErrorModal({
+          open: true,
+          message:
+            "Login failed, please check your email and password and try again",
+        });
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log(err);
+      setErrorModal({
+        open: true,
+        message: "Something went wrong, please try again later",
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleSSOLogin = (target: string) => {
+    setLoading(true);
+    signIn("azure-ad", {
+      callbackUrl: target,
+      redirect: false,
+    });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="h-dvh flex flex-col items-center justify-center bg-[url('/image/bg-login.webp')] bg-cover bg-center select-none">
+      <div className=" w-full max-w-120 hidden md:block">
+        <div className="relative z-10 bg-white/95 rounded-xl shadow-xl p-10">
+          <div className="flex flex-row gap-6 items-center w-full mb-8">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src={"/image/logo-itb.png"}
+              alt="logo"
+              height={500}
+              width={500}
+              className="h-18 w-auto"
+              draggable={false}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div>
+              <span className="font-medium text-2xl">
+                Dashboard <br /> E-Facility Fleet
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Email
+              </label>
+              <input
+                autoComplete="off"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A1FE] focus:border-transparent outline-none transition-all duration-200"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  autoComplete="off"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A1FE] focus:border-transparent outline-none transition-all duration-200 pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-center flex-col items-center w-full gap-6 mb-2">
+              {/* Sign In Button */}
+              <button
+                onClick={() => handleSubmit("/admin/dashboard")}
+                className="cursor-pointer mt-2 w-full bg-[#00A1FE] text-white py-3 rounded-lg font-medium hover:bg-[#037fc7] transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                Login
+              </button>
+
+              {/* SSO Login Button */}
+              <button
+                onClick={() => handleSSOLogin("/admin/dashboard")}
+                className="mx-auto flex gap-3 flex-row items-center justify-center cursor-pointer w-[80%] bg-[#171C34] text-white py-3 rounded-lg font-medium hover:bg-[#000000] transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Image
+                  src={"/image/logo-ms.png"}
+                  alt="logo"
+                  height={500}
+                  width={500}
+                  className="h-5 w-auto"
+                  draggable={false}
+                />
+                <span>Login with ITB Account</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
+
+      <div className=" w-full min-h-full max-w-120 block md:hidden bg-white">
+        <div className="bg-[url('/image/bg-login.webp')] bg-cover bg-center h-[35dvh] w-full"></div>
+        <div className="px-6 py-5">
+          <div className="flex flex-row gap-6 items-center w-full mb-6">
+            <span className="font-bold text-xl">Welcome!</span>
+          </div>
+
+          <div className="space-y-6">
+            <input
+              placeholder="Email Address"
+              autoComplete="off"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="text-sm md:text-base w-full px-4 py-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A1FE] focus:border-transparent outline-none transition-all duration-200"
+            />
+
+            {/* Password Field */}
+            <div className="relative">
+              <input
+                placeholder="Password"
+                autoComplete="off"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="text-sm md:text-base w-full px-4 py-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A1FE] focus:border-transparent outline-none transition-all duration-200 pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="cursor-pointer absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+
+            <div className="flex justify-center flex-col items-center w-full gap-5 mb-2">
+              {/* Sign In Button */}
+              <button
+                onClick={() => handleSubmit("/inspector")}
+                className="cursor-pointer text-sm md:text-base mt-2 w-full bg-[#00A1FE] text-white py-3 rounded-lg font-medium hover:bg-[#037fc7] transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                Login
+              </button>
+
+              <div className="w-full h-[0.5px] bg-gray-300"></div>
+
+              {/* SSO Login Button */}
+              <button
+                onClick={() => handleSSOLogin("/inspector")}
+                className="mx-auto flex gap-3 flex-row items-center justify-center cursor-pointer text-sm md:text-base w-[80%] bg-[#171C34] text-white py-3 rounded-lg font-medium hover:bg-[#000000] transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Image
+                  src={"/image/logo-ms.png"}
+                  alt="logo"
+                  height={500}
+                  width={500}
+                  className="h-4.5 w-auto"
+                  draggable={false}
+                />
+                <span>Login with ITB Account</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <NotificationAlert
+        visible={errorModal.open}
+        message={errorModal.message}
+        type="error"
+        onClose={() => {
+          setErrorModal({ ...errorModal, open: false });
+          setTimeout(() => setErrorModal({ open: false, message: "" }), 500);
+        }}
+      />
     </div>
   );
 }

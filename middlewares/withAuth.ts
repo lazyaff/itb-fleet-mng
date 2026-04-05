@@ -1,78 +1,47 @@
 import { getToken } from "next-auth/jwt";
-import { signOut } from "next-auth/react";
-import {
-  NextFetchEvent,
-  NextMiddleware,
-  NextRequest,
-  NextResponse,
-} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-interface Token {
-  role_id: string;
-  role: string;
+type Role = "SADM" | "ADM" | "INSP";
+
+const ROUTE_CONFIG = [
+  { prefix: "/admin", roles: ["SADM", "ADM"] },
+  { prefix: "/inspector", roles: ["INSP"] },
+];
+
+function getDefaultRoute(role?: Role) {
+  if (role === "SADM" || role === "ADM") return "/admin/dashboard";
+  if (role === "INSP") return "/inspector";
+  return "/";
 }
 
 export default function withAuth(
-  middleware: NextMiddleware,
-  requireAuth: string[] = []
+  middleware: (req: NextRequest) => NextResponse | Promise<NextResponse>,
 ) {
-  return async (req: NextRequest, next: NextFetchEvent) => {
+  return async function wrappedMiddleware(req: NextRequest) {
     const pathname = req.nextUrl.pathname;
-    const token = (await getToken({
+    const token = await getToken({
       req,
       secret: process.env.JWT_SECRET,
-    })) as Token | null;
+    });
 
-    // if user access to the protected page
-    if (requireAuth.some((page) => pathname.startsWith(page))) {
-      if (!token) {
-        if (pathname.startsWith("/admin/dashboard")) {
-          const url = new URL("/admin", req.url);
-          return NextResponse.redirect(url);
-        } else {
-          const url = new URL("/", req.url);
-          return NextResponse.redirect(url);
-        }
+    const role = token?.role_id as Role | undefined;
+    const matchedRoute = ROUTE_CONFIG.find((route) =>
+      pathname.startsWith(route.prefix),
+    );
+
+    if (matchedRoute) {
+      if (!token || !role) {
+        return NextResponse.redirect(new URL("/", req.url));
       }
-
-      // Get user role from token
-      const userRole = token.role_id?.toLowerCase();
-
-      // Check if user has access to the requested path based on their role (!superadmin & !admin)
-      if (
-        userRole &&
-        userRole !== "sadm" &&
-        userRole !== "adm" &&
-        !pathname.startsWith(`/${userRole}`)
-      ) {
-        // Redirect to role-specific home page if user tries to access unauthorized route
-        const url = new URL(`/${userRole}`, req.url);
-        return NextResponse.redirect(url);
-      }
-
-      // only sadm can create project
-      // if (
-      //   userRole &&
-      //   userRole !== "sadm" &&
-      //   pathname === "/admin/dashboard/projects/create"
-      // ) {
-      //   const url = new URL(`/admin/dashboard/projects`, req.url);
-      //   return NextResponse.redirect(url);
-      // }
-    }
-
-    // if logged in user access to the login page
-    if ((token && pathname === "/") || (token && pathname === "/admin")) {
-      const userRole = token.role_id?.toLowerCase();
-      if (userRole === "sadm" || userRole === "adm") {
-        const url = new URL(`/admin/dashboard`, req.url);
-        return NextResponse.redirect(url);
-      } else {
-        const url = new URL(`/${userRole}`, req.url);
-        return NextResponse.redirect(url);
+      if (!matchedRoute.roles.includes(role)) {
+        return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
       }
     }
 
-    return middleware(req, next);
+    if (token && pathname === "/") {
+      return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
+    }
+
+    return middleware(req);
   };
 }

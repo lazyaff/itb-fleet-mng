@@ -76,6 +76,7 @@ const authOptions: NextAuthOptions = {
         token.id = admin.id;
         token.name = admin.name;
         token.email = admin.email;
+        token.role_id = admin.role_id;
         token.access_token = jwt.sign(
           { id: admin.id },
           process.env.JWT_SECRET || "",
@@ -85,6 +86,7 @@ const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.role_id = user.role_id;
         token.access_token = user.access_token;
       }
 
