@@ -3,9 +3,9 @@
 import { ChevronDown, ChevronRight, LogOut, UserKey } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect, useContext } from "react";
-import { LoadingContext } from "./Loading";
+import { LoadingContext } from "../context/Loading";
 import { useRouter } from "next/navigation";
-import { PageInfoContext } from "./PageInfo";
+import { PageInfoContext } from "../context/PageInfo";
 
 const Navbar = () => {
   const { data: session } = useSession();

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { LoadingContext } from "@/context/Loading";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { NotificationAlert } from "@/context/Alert";
+import { NotificationAlert } from "@/components/Alert";
 
 export default function LoginPage() {
   const router = useRouter();

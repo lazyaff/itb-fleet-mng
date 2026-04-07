@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingContext } from "@/context/Loading";
-import MapComponent from "@/context/Map";
+import MapComponent from "@/components/Map";
 import { PageInfoContext } from "@/context/PageInfo";
 import { MoveDiagonal, TriangleAlert } from "lucide-react";
 import { useSession } from "next-auth/react";
