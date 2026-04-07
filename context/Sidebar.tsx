@@ -20,7 +20,7 @@ const Sidebar = () => {
 
   const pageData = [
     {
-      title: "Dashboard",
+      title: "Dashboard Overview",
       url: "/admin/dashboard",
       icon: <LayoutDashboard className="mr-3" size={18} />,
       item: [],
@@ -64,7 +64,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative z-10 flex flex-col bg-[#F7F7F7] w-72 h-screen shadow-[6px_0_15px_rgba(0,0,0,0.1)] select-none">
+    <div className="relative z-10 flex flex-col bg-[#F7F7F7] w-64 h-screen shadow-[6px_0_15px_rgba(0,0,0,0.1)] select-none">
       <div className="px-6 py-3 border-b border-slate-400 h-16">
         <div className="flex items-center gap-3 justify-center">
           <Image
@@ -113,7 +113,7 @@ const Sidebar = () => {
                   <ChevronDown
                     size={16}
                     className={`transition-transform ${
-                      isOpen ? "rotate-180" : ""
+                      !isOpen ? "rotate-180" : ""
                     }`}
                   />
                 )}

@@ -4,59 +4,75 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { TileLayer } from "react-leaflet";
 
-type Bus = {
+type Vehicle = {
   name: string;
+  plate_number: string;
   lat: number;
-  lng: number;
+  long: number;
+  angle: number;
+  movement: boolean;
 };
 
 type Props = {
-  buses: Bus[];
+  vehicles: Vehicle[];
 };
 
 const MapComponent = dynamic(
-  () =>
-    import("react-leaflet").then((L) => {
-      const busIcon = new (require("leaflet").Icon)({
-        iconUrl: "/image/bus.png",
-        iconSize: [48, 24],
-        iconAnchor: [24, 24],
-        popupAnchor: [0, -24],
-      });
+  async () => {
+    const RL = await import("react-leaflet");
 
-      const InnerMap = ({ buses }: Props) => {
-        const defaultPosition: [number, number] = [-6.918669, 107.683533];
+    // IMPORT DI SINI (CLIENT ONLY)
+    const L = (await import("leaflet")).default;
+    await import("leaflet-rotatedmarker");
 
-        return (
-          <div style={{ height: "500px", width: "100%" }}>
-            <L.MapContainer
-              center={defaultPosition}
-              zoom={12.6}
-              zoomSnap={0.1}
-              zoomDelta={0.1}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
-                attribution="Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012"
-              />
+    const InnerMap = ({ vehicles }: Props) => {
+      const defaultPosition: [number, number] = [-6.918669, 107.683533];
 
-              {buses.map((bus, index) => (
-                <L.Marker
-                  key={index}
-                  position={[bus.lat, bus.lng]}
-                  icon={busIcon}
-                >
-                  <L.Popup>{bus.name}</L.Popup>
-                </L.Marker>
-              ))}
-            </L.MapContainer>
-          </div>
-        );
-      };
+      const vehicleData = vehicles.map((item) => ({
+        ...item,
+        icon: new L.Icon({
+          iconUrl: item.movement
+            ? "/image/icon-car-1.png"
+            : "/image/icon-car-2.png",
+          iconSize: [24, 48],
+          iconAnchor: [12, 24],
+          popupAnchor: [0, -24],
+        }),
+      }));
 
-      return InnerMap;
-    }),
+      return (
+        <div style={{ height: "100%", width: "100%" }}>
+          <RL.MapContainer
+            center={defaultPosition}
+            zoom={12.6}
+            zoomSnap={0.1}
+            zoomDelta={0.1}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+            {vehicleData.map((item, index) => (
+              <RL.Marker
+                key={index}
+                position={[item.lat, item.long]}
+                icon={item.icon}
+                {...({
+                  rotationAngle: item.angle - 90,
+                  rotationOrigin: "center",
+                } as any)}
+              >
+                <RL.Popup className="text-center">
+                  {item.name} <br /> {item.plate_number}
+                </RL.Popup>
+              </RL.Marker>
+            ))}
+          </RL.MapContainer>
+        </div>
+      );
+    };
+
+    return InnerMap;
+  },
   { ssr: false },
 );
 

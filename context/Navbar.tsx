@@ -1,13 +1,15 @@
 "use client";
 
-import { ChevronDown, LogOut, UserKey } from "lucide-react";
+import { ChevronDown, ChevronRight, LogOut, UserKey } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect, useContext } from "react";
 import { LoadingContext } from "./Loading";
 import { useRouter } from "next/navigation";
+import { PageInfoContext } from "./PageInfo";
 
 const Navbar = () => {
   const { data: session } = useSession();
+  const { pageInfo } = useContext(PageInfoContext);
   const [open, setOpen] = useState(false);
   const { setLoading } = useContext(LoadingContext);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -24,7 +26,16 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex justify-end items-center bg-white shadow px-4 h-16 select-none">
+    <div className="flex justify-between items-center bg-white shadow px-4 h-16 select-none">
+      <div className="flex items-center flex-row py-8 px-4 gap-3 text-sm">
+        <span className="text-[#64748B]">
+          {pageInfo.title === "Dashboard Overview" ? "Home" : pageInfo.title}
+        </span>
+        <span className="text-[#64748B]">
+          <ChevronRight size={15} />
+        </span>
+        <span className="">{pageInfo.subtitle}</span>
+      </div>
       <div className="flex items-center flex-row py-8 px-4">
         <div
           ref={dropdownRef}
