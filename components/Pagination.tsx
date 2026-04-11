@@ -53,7 +53,7 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-center items-center space-x-2 my-4">
+    <div className="flex justify-center items-center space-x-2 mt-8 mb-10">
       {/* Previous button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
@@ -78,7 +78,7 @@ const Pagination: React.FC<PaginationProps> = ({
             disabled={page === "..."}
             className={`px-3 py-1 rounded-lg border ${
               page === currentPage
-                ? "bg-blue-500 text-white border-blue-500"
+                ? "bg-[#00A1FE] text-white border-[#00A1FE]"
                 : page === "..."
                   ? "bg-white text-gray-700 cursor-default"
                   : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 cursor-pointer"

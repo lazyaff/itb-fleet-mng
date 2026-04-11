@@ -93,8 +93,9 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item) => {
+    const data = rawData.map((item, index) => {
       return {
+        no: offset + index + 1,
         id: item.id,
         created_at: formatedDate(item.created_at, "dd/MM/yyyy"),
         imei: item.imei,
