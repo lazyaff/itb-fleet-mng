@@ -19,27 +19,51 @@ export async function GET(request: NextRequest) {
 
     const url = new URL(request.url);
     const search = url.searchParams.get("search") || "";
+    const id = url.searchParams.get("id") || "";
 
     const rawData = await prisma.vehicle.findMany({
       where: {
-        deleted_at: null,
-        user_id: null,
-        ...(search && {
-          OR: [
-            {
-              name: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-            {
-              plate_number: {
-                contains: search,
-                mode: "insensitive",
-              },
-            },
-          ],
-        }),
+        OR: [
+          {
+            user_id: id,
+            ...(search && {
+              OR: [
+                {
+                  name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  plate_number: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }),
+          },
+          {
+            deleted_at: null,
+            user_id: null,
+            ...(search && {
+              OR: [
+                {
+                  name: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  plate_number: {
+                    contains: search,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }),
+          },
+        ],
       },
       select: {
         id: true,

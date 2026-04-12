@@ -27,6 +27,7 @@ const authOptions: NextAuthOptions = {
         };
         const user: any = await prisma.user.findFirst({
           where: {
+            active: true,
             email: {
               equals: email,
               mode: "insensitive",
@@ -64,6 +65,7 @@ const authOptions: NextAuthOptions = {
         const email = profile?.email;
         const admin = await prisma.user.findFirst({
           where: {
+            active: true,
             email: {
               equals: email,
               mode: "insensitive",

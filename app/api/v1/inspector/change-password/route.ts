@@ -43,10 +43,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          status: 401,
+          status: 400,
           message: "User not found!",
         },
-        { status: 401 },
+        { status: 400 },
       );
     }
 
@@ -56,10 +56,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          status: 401,
+          status: 400,
           message: "Passwords do not match!",
         },
-        { status: 401 },
+        { status: 400 },
       );
     }
 

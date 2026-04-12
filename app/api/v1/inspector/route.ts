@@ -97,8 +97,9 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item) => {
+    const data = rawData.map((item, index) => {
       return {
+        no: index + offset + 1,
         id: item.id,
         admin_id: item.admin_id,
         name: item.name,

@@ -1,17 +1,11 @@
 "use client";
 
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
+import { Select } from "@/components/Form";
 import Pagination from "@/components/Pagination";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import {
-  ChevronDown,
-  Info,
-  Plus,
-  Search,
-  SquarePen,
-  Trash2,
-} from "lucide-react";
+import { Info, Plus, Search, SquarePen, Trash2 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -33,8 +27,6 @@ export default function Vehicle() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
   const router = useRouter();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const dropdownRef2 = useRef<HTMLDivElement>(null);
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
   const [pagination, setPagination] = useState({
@@ -43,19 +35,18 @@ export default function Vehicle() {
     totalRecords: 0,
   });
   const [filteredData, setFilteredData] = useState<DataProps[]>([]);
-  const [availableVehicles, setAvailableVehicles] = useState({
-    rawData: [],
-    filteredData: [],
-  });
+  const [availableVehicles, setAvailableVehicles] = useState([]);
   const [alert, setAlert] = useState<{
     visible: boolean;
     type: "success" | "error" | "default";
-    message: string;
+    title: string;
+    subtitle?: string;
     onClose: () => void;
   }>({
     visible: false,
     type: "default",
-    message: "",
+    title: "",
+    subtitle: "",
     onClose: () => {},
   });
   const [confirmAlert, setConfirmAlert] = useState<{
@@ -91,14 +82,6 @@ export default function Vehicle() {
       vehicle_id: "",
     },
   });
-  const [dropdownAdd, setDropdownAdd] = useState({
-    open: false,
-    search: "",
-  });
-  const [dropdownUpdate, setDropdownUpdate] = useState({
-    open: false,
-    search: "",
-  });
 
   useEffect(() => {
     setPageInfo({
@@ -109,7 +92,9 @@ export default function Vehicle() {
 
   // Fetch data on page load and change page
   useEffect(() => {
-    if (session && filteredData.length === 0) fetchData();
+    if (session && filteredData.length === 0) {
+      fetchData();
+    }
   }, [session]);
 
   useEffect(() => {
@@ -119,27 +104,6 @@ export default function Vehicle() {
   const handleLogout = () => {
     signOut({ redirect: false }).then(() => router.push("/"));
   };
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        updateDropdownAdd({ open: false });
-      }
-
-      if (
-        dropdownRef2.current &&
-        !dropdownRef2.current.contains(event.target as Node)
-      ) {
-        updateDropdownUpdate({ open: false });
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -191,10 +155,7 @@ export default function Vehicle() {
       );
       const result = await response.json();
       if (result.success) {
-        setAvailableVehicles({
-          rawData: result.data,
-          filteredData: result.data,
-        });
+        setAvailableVehicles(result.data);
       } else {
         if (result.status === 401) {
           handleLogout();
@@ -237,22 +198,9 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          message: result.message,
-          onClose: () => {
-            setAlert({
-              visible: false,
-              message: "",
-              type: "default",
-              onClose: () => {},
-            });
-          },
-        });
-        setAddData({
-          open: false,
-          data: {
-            imei: "",
-            vehicle_id: "",
-          },
+          title: "Successful",
+          subtitle: "Congratulations! You have successfully added a new data.",
+          onClose: () => {},
         });
       } else {
         if (result.status === 401) {
@@ -261,7 +209,8 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            message: result.message,
+            title: "Failed",
+            subtitle: result.message,
             onClose: () => {
               setAddData({
                 ...addData,
@@ -277,7 +226,8 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        message: "Failed to add data",
+        title: "Failed",
+        subtitle: "Oops! Something went wrong, please try again later.",
         onClose: () => {
           setAddData({
             ...addData,
@@ -318,22 +268,16 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          message: result.message,
+          title: "Successful",
+          subtitle: "Congratulations! You have successfully updated the data.",
           onClose: () => {
             setAlert({
               visible: false,
-              message: "",
+              title: "",
+              subtitle: "",
               type: "default",
               onClose: () => {},
             });
-          },
-        });
-        setUpdateData({
-          open: false,
-          data: {
-            id: "",
-            imei: "",
-            vehicle_id: "",
           },
         });
       } else {
@@ -343,7 +287,8 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            message: result.message,
+            title: "Failed",
+            subtitle: result.message,
             onClose: () => {
               setUpdateData({
                 ...updateData,
@@ -359,7 +304,8 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        message: "Failed to add data",
+        title: "Failed",
+        subtitle: "Oops! Something went wrong, please try again later.",
         onClose: () => {
           setUpdateData({
             ...updateData,
@@ -396,11 +342,13 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          message: result.message,
+          title: "Successful",
+          subtitle: "Congratulations! You have successfully deleted the data.",
           onClose: () => {
             setAlert({
               visible: false,
-              message: "",
+              title: "",
+              subtitle: "",
               type: "default",
               onClose: () => {},
             });
@@ -413,11 +361,13 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            message: result.message,
+            title: "Failed",
+            subtitle: result.message,
             onClose: () => {
               setAlert({
                 visible: false,
-                message: "",
+                title: "",
+                subtitle: "",
                 type: "default",
                 onClose: () => {},
               });
@@ -431,11 +381,13 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        message: "Failed to add data",
+        title: "Failed",
+        subtitle: "Oops! Something went wrong, please try again later.",
         onClose: () => {
           setAlert({
             visible: false,
-            message: "",
+            title: "",
+            subtitle: "",
             type: "default",
             onClose: () => {},
           });
@@ -444,31 +396,6 @@ export default function Vehicle() {
       setLoading(false);
     }
   };
-
-  // dropdown
-  const updateDropdownAdd = (data: Partial<typeof dropdownAdd>) => {
-    setDropdownAdd((prev) => ({ ...prev, ...data }));
-  };
-
-  const updateDropdownUpdate = (data: Partial<typeof dropdownUpdate>) => {
-    setDropdownUpdate((prev) => ({ ...prev, ...data }));
-  };
-
-  const filteredAdd = availableVehicles.filteredData.filter((v: any) =>
-    v.plate_number.toLowerCase().includes(dropdownAdd.search.toLowerCase()),
-  );
-
-  const filteredUpdate = availableVehicles.filteredData.filter((v: any) =>
-    v.plate_number.toLowerCase().includes(dropdownUpdate.search.toLowerCase()),
-  );
-
-  const selectedAdd: any = availableVehicles.filteredData.find(
-    (v: any) => v.id?.toString() === addData.data.vehicle_id?.toString(),
-  );
-
-  const selectedUpdate: any = availableVehicles.filteredData.find(
-    (v: any) => v.id?.toString() === updateData.data.vehicle_id?.toString(),
-  );
 
   return (
     <div className="p-4 flex flex-col min-h-full">
@@ -636,7 +563,7 @@ export default function Vehicle() {
         }`}
       >
         <div
-          className={`bg-white shadow-lg rounded-xl w-full max-w-xl transition-transform duration-500 ${
+          className={`bg-white shadow-lg rounded-xl w-full max-w-2xl transition-transform duration-500 ${
             addData.open ? "scale-100" : "scale-0"
           }`}
         >
@@ -653,10 +580,14 @@ export default function Vehicle() {
             <div className="flex flex-row justify-between gap-6">
               {/* IMEI */}
               <div className="w-full">
-                <label className="block mb-2">GPS IMEI</label>
+                <label className="block mb-2">
+                  GPS IMEI <span className="text-red-500">*</span>
+                </label>
                 <input
+                  autoComplete="off"
                   type="number"
                   value={addData.data.imei}
+                  placeholder="Enter IMEI number"
                   onChange={(e) =>
                     setAddData({
                       ...addData,
@@ -668,73 +599,24 @@ export default function Vehicle() {
               </div>
 
               {/* VEHICLE */}
-              <div className="w-full relative" ref={dropdownRef}>
-                <label className="block mb-2">Select Vehicle</label>
-                <div
-                  onClick={() => updateDropdownAdd({ open: !dropdownAdd.open })}
-                  className="w-full px-4 py-[0.4rem] border border-[#CBD5E1] rounded-lg text-[#64748B] cursor-pointer flex justify-between items-center select-none"
-                >
-                  <span>
-                    {selectedAdd
-                      ? selectedAdd.plate_number
-                      : "-- Select Vehicle --"}
-                  </span>
-                  <span
-                    className={`${dropdownAdd.open ? "rotate-180" : ""} transform duration-300`}
-                  >
-                    <ChevronDown />
-                  </span>
-                </div>
-
-                {dropdownAdd.open && (
-                  <div className="absolute z-10 w-full mt-2 bg-white border border-[#CBD5E1] rounded-lg shadow-lg">
-                    <input
-                      type="text"
-                      placeholder="Search vehicle..."
-                      value={dropdownAdd.search}
-                      onChange={(e) =>
-                        updateDropdownAdd({ search: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border-b border-[#CBD5E1] outline-none"
-                    />
-
-                    <div className="max-h-44 overflow-y-auto">
-                      {filteredAdd.length === 0 && (
-                        <div className="p-3 text-gray-400 text-center">
-                          No data found
-                        </div>
-                      )}
-
-                      {filteredAdd.map((item: any, i) => (
-                        <div
-                          key={item.id}
-                          onClick={() => {
-                            setAddData({
-                              ...addData,
-                              data: {
-                                ...addData.data,
-                                vehicle_id: item.id,
-                              },
-                            });
-
-                            updateDropdownAdd({
-                              open: false,
-                              search: "",
-                            });
-                          }}
-                          className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                            selectedAdd?.id === item.id
-                              ? "bg-blue-50"
-                              : "bg-white"
-                          }`}
-                        >
-                          {item.plate_number}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Select
+                label="Select Vehicle"
+                data={availableVehicles}
+                value={addData.data.vehicle_id}
+                onChange={(val) => {
+                  setAddData({
+                    ...addData,
+                    data: {
+                      ...addData.data,
+                      vehicle_id: val,
+                    },
+                  });
+                }}
+                displayValue={(item: any) =>
+                  `${item.plate_number} - ${item.name}`
+                }
+                searchKeys={["plate_number", "name"]}
+              />
             </div>
 
             {/* Action Buttons */}
@@ -748,10 +630,10 @@ export default function Vehicle() {
               <button
                 disabled={!addData.data.imei}
                 onClick={handleAddData}
-                className={`font-semibold px-12 bg-blue-500 text-white py-2 rounded-lg select-none ${
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                   !addData.data.imei
                     ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-blue-600 cursor-pointer"
+                    : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
                 Save
@@ -770,7 +652,7 @@ export default function Vehicle() {
         }`}
       >
         <div
-          className={`bg-white shadow-lg rounded-xl w-full max-w-xl transition-transform duration-500 ${
+          className={`bg-white shadow-lg rounded-xl w-full max-w-2xl transition-transform duration-500 ${
             updateData.open ? "scale-100" : "scale-0"
           }`}
         >
@@ -787,9 +669,13 @@ export default function Vehicle() {
             <div className="flex flex-row justify-between gap-6">
               {/* IMEI */}
               <div className="w-full">
-                <label className="block mb-2">GPS IMEI</label>
+                <label className="block mb-2">
+                  GPS IMEI <span className="text-red-500">*</span>
+                </label>
                 <input
+                  autoComplete="off"
                   type="number"
+                  placeholder="Enter IMEI number"
                   value={updateData.data.imei}
                   onChange={(e) =>
                     setUpdateData({
@@ -802,75 +688,24 @@ export default function Vehicle() {
               </div>
 
               {/* VEHICLE */}
-              <div className="w-full relative" ref={dropdownRef2}>
-                <label className="block mb-2">Select Vehicle</label>
-                <div
-                  onClick={() =>
-                    updateDropdownUpdate({ open: !dropdownUpdate.open })
-                  }
-                  className="w-full px-4 py-[0.4rem] border border-[#CBD5E1] rounded-lg text-[#64748B] cursor-pointer flex justify-between items-center select-none"
-                >
-                  <span>
-                    {selectedUpdate
-                      ? selectedUpdate.plate_number
-                      : "-- Select Vehicle --"}
-                  </span>
-                  <span
-                    className={`${dropdownUpdate.open ? "rotate-180" : ""} transform duration-300`}
-                  >
-                    <ChevronDown />
-                  </span>
-                </div>
-
-                {dropdownUpdate.open && (
-                  <div className="absolute z-10 w-full mt-2 bg-white border border-[#CBD5E1] rounded-lg shadow-lg">
-                    <input
-                      type="text"
-                      placeholder="Search vehicle..."
-                      value={dropdownUpdate.search}
-                      onChange={(e) =>
-                        updateDropdownUpdate({ search: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border-b border-[#CBD5E1] outline-none"
-                    />
-
-                    <div className="max-h-44 overflow-y-auto">
-                      {filteredUpdate.length === 0 && (
-                        <div className="p-3 text-gray-400 text-center">
-                          No data found
-                        </div>
-                      )}
-
-                      {filteredUpdate.map((item: any, i) => (
-                        <div
-                          key={item.id}
-                          onClick={() => {
-                            setUpdateData({
-                              ...updateData,
-                              data: {
-                                ...updateData.data,
-                                vehicle_id: item.id,
-                              },
-                            });
-
-                            updateDropdownUpdate({
-                              open: false,
-                              search: "",
-                            });
-                          }}
-                          className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                            selectedUpdate?.id === item.id
-                              ? "bg-blue-50"
-                              : "bg-white"
-                          }`}
-                        >
-                          {item.plate_number}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Select
+                label="Select Vehicle"
+                data={availableVehicles}
+                value={updateData.data.vehicle_id}
+                onChange={(val) => {
+                  setUpdateData({
+                    ...updateData,
+                    data: {
+                      ...updateData.data,
+                      vehicle_id: val,
+                    },
+                  });
+                }}
+                displayValue={(item: any) =>
+                  `${item.plate_number} - ${item.name}`
+                }
+                searchKeys={["plate_number", "name"]}
+              />
             </div>
 
             {/* Action Buttons */}
@@ -884,10 +719,10 @@ export default function Vehicle() {
               <button
                 disabled={!updateData.data.imei}
                 onClick={handleUpdateData}
-                className={`font-semibold px-12 bg-blue-500 text-white py-2 rounded-lg select-none ${
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                   !updateData.data.imei
                     ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-blue-600 cursor-pointer"
+                    : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
                 Save
@@ -899,12 +734,13 @@ export default function Vehicle() {
 
       {/* Alert */}
       <NotificationAlert
-        message={alert.message}
+        title={alert.title}
+        subtitle={alert.subtitle}
         visible={alert.visible}
         type={alert.type}
         onClose={() => {
           setAlert({ ...alert, visible: false });
-          setTimeout(() => alert.onClose(), 500);
+          setTimeout(() => alert.onClose(), 300);
         }}
       />
 
@@ -920,7 +756,7 @@ export default function Vehicle() {
         onConfirm={() => {
           setLoading(true);
           setConfirmAlert({ ...confirmAlert, visible: false });
-          setTimeout(() => confirmAlert.onConfirm(), 500);
+          setTimeout(() => confirmAlert.onConfirm(), 300);
         }}
       />
     </div>
