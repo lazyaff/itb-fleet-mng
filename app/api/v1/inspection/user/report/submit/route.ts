@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // validate conclusion
     const validConclusions = inspectionConclusion
-      .map((c) => c.label)
+      .map((c) => c.value)
       .includes(conclusion);
     if (!validConclusions) {
       return NextResponse.json(

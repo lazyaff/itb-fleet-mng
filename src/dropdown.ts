@@ -28,17 +28,26 @@ export const vehicle_health = [
   },
 ];
 
-export const inspectionConclusion = [
-  {
-    label: "Siap Jalan",
+export const inspectionConclusion = {
+  "Siap Jalan": {
     color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
   },
-  {
-    label: "Butuh Servis",
+  "Butuh Servis": {
     color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    dot: "bg-yellow-500",
   },
-  {
-    label: "Dilarang Jalan",
+  "Dilarang Jalan": {
     color: "red",
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-400",
+    dot: "bg-red-500",
   },
-];
+} as const;

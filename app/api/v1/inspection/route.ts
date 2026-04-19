@@ -131,8 +131,9 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item) => {
+    const data = rawData.map((item, index) => {
       return {
+        no: offset + index + 1,
         id: item.id,
         date: formatedDate(item.date, "dd/MM/yyyy"),
         vehicle: {

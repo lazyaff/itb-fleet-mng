@@ -9,7 +9,7 @@ export default function AdminLayout({
   return (
     <div className="flex flex-row">
       <Sidebar />
-      <div className="flex flex-col flex-1 h-dvh overflow-y-auto">
+      <div className="flex flex-col flex-1 h-dvh overflow-y-auto bg-gray-100">
         <Navbar />
         <main className="flex-1 bg-gray-100 px-5 py-5 text-sm">{children}</main>
       </div>

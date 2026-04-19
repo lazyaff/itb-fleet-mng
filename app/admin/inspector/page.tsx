@@ -130,14 +130,6 @@ export default function Inspector() {
       confirm_password: "",
     },
   });
-  const [dropdownAdd, setDropdownAdd] = useState({
-    open: false,
-    search: "",
-  });
-  const [dropdownUpdate, setDropdownUpdate] = useState({
-    open: false,
-    search: "",
-  });
 
   useEffect(() => {
     setPageInfo({
