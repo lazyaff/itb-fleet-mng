@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 type DataProps = {
   no: number;
@@ -36,8 +36,6 @@ export default function Inspector() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
   const router = useRouter();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const dropdownRef2 = useRef<HTMLDivElement>(null);
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
   const [pagination, setPagination] = useState({

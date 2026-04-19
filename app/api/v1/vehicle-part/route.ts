@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
         ...(offset ? { skip: offset } : {}),
         select: {
           id: true,
+          user_id: true,
           name: true,
           distance_limit: true,
           time_limit: true,
@@ -62,9 +63,11 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item) => {
+    const data = rawData.map((item, index) => {
       return {
+        no: offset + index + 1,
         id: item.id,
+        user_id: item.user_id,
         name: item.name,
         distance_limit: item.distance_limit,
         time_limit: item.time_limit,
@@ -150,6 +153,7 @@ export async function POST(request: NextRequest) {
 
       const data = await tx.general_vehicle_part.create({
         data: {
+          user_id: user_id,
           name,
           distance_limit: distance,
           time_limit: time,
