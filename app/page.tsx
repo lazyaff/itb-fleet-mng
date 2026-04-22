@@ -49,8 +49,7 @@ export default function LoginPage() {
       } else {
         setErrorModal({
           open: true,
-          message:
-            "Login failed, please check your email and password and try again",
+          message: "Please check your credentials and try again",
         });
         setLoading(false);
       }
@@ -213,7 +212,7 @@ export default function LoginPage() {
             <div className="flex justify-center flex-col items-center w-full gap-5 mb-2">
               {/* Sign In Button */}
               <button
-                onClick={() => handleSubmit("/inspector")}
+                onClick={() => handleSubmit("/inspector/home")}
                 className="cursor-pointer text-sm md:text-base mt-2 w-full bg-[#00A1FE] text-white py-3 rounded-lg font-medium hover:bg-[#037fc7] transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
                 Login
@@ -223,7 +222,7 @@ export default function LoginPage() {
 
               {/* SSO Login Button */}
               <button
-                onClick={() => handleSSOLogin("/inspector")}
+                onClick={() => handleSSOLogin("/inspector/home")}
                 className="mx-auto flex gap-3 flex-row items-center justify-center cursor-pointer text-sm md:text-base w-[80%] bg-[#171C34] text-white py-3 rounded-lg font-medium hover:bg-[#000000] transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
                 <Image
@@ -243,7 +242,8 @@ export default function LoginPage() {
 
       <NotificationAlert
         visible={errorModal.open}
-        message={errorModal.message}
+        title="Login Failed"
+        subtitle={errorModal.message}
         type="error"
         onClose={() => {
           setErrorModal({ ...errorModal, open: false });

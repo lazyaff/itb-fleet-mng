@@ -28,7 +28,7 @@ function mainMiddleware(req: NextRequest) {
   return res;
 }
 
-export default withAuth(mainMiddleware, ["/admin", "inspector"]);
+export default withAuth(mainMiddleware);
 export const config = {
   matcher: ["/api/:path*", "/admin/:path*", "/inspector/:path*", "/"],
 };

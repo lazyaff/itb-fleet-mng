@@ -556,7 +556,7 @@ export default function Vehicle() {
 
       {/* add modal */}
       <div
-        className={`z-50 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
           addData.open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -645,7 +645,7 @@ export default function Vehicle() {
 
       {/* update modal */}
       <div
-        className={`z-50 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
           updateData.open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

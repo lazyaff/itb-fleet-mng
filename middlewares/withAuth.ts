@@ -10,7 +10,7 @@ const ROUTE_CONFIG = [
 
 function getDefaultRoute(role?: Role) {
   if (role === "SADM" || role === "ADM") return "/admin/dashboard";
-  if (role === "INSP") return "/inspector";
+  if (role === "INSP") return "/inspector/home";
   return "/";
 }
 

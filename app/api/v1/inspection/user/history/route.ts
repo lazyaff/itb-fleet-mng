@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     const data = rawData.map((item) => {
       return {
         id: item.id,
-        date: formatedDate(item.date, "dd/MM/yyyy"),
+        date: formatedDate(item.date, "dd/MM/yy"),
         time: formatedDate(item.created_at, "HH:mm"),
         vehicle: {
           plate_number: item.vehicle.plate_number,

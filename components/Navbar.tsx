@@ -26,7 +26,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex justify-between items-center bg-white shadow px-4 h-16 select-none sticky top-0 z-99">
+    <div className="flex justify-between items-center bg-white shadow px-4 h-16 select-none sticky top-0 z-60">
       <div className="flex items-center flex-row py-8 px-4 gap-3 text-sm">
         <span className="text-[#64748B]">
           {pageInfo.title === "Dashboard Overview" ? "Home" : pageInfo.title}
@@ -57,7 +57,7 @@ const Navbar = () => {
 
           {/* Dropdown */}
           {open && (
-            <div className="absolute right-0 top-14 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50">
+            <div className="absolute right-0 top-14 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-70">
               <button
                 onClick={() => {
                   setOpen(false);
