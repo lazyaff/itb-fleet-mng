@@ -4,7 +4,7 @@ import { LoadingContext } from "@/context/Loading";
 import {
   ArrowDownNarrowWide,
   ArrowUpNarrowWide,
-  ClipboardList,
+  Image,
   LogOut,
   Plus,
 } from "lucide-react";
@@ -53,7 +53,7 @@ export default function Home() {
         }
 
         const response = await fetch(
-          `/api/v1/inspection/user/history?page=${pageNumber}&sort=${sort}&size=20`,
+          `/api/v1/inspection/user/history?page=${pageNumber}&sort=${sort}&size=7`,
           {
             method: "GET",
             headers: {
@@ -134,7 +134,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <p className="text-neutral-600 text-base">Hello!</p>
-            <h1 className="text-3xl font-semibold text-neutral-900">
+            <h1 className="text-2xl font-semibold text-neutral-900">
               {session?.user?.name}
             </h1>
           </div>
@@ -153,7 +153,7 @@ export default function Home() {
         {filteredData.length === 0 ? (
           <div className="min-h-[60vh] flex flex-col justify-center items-center text-center px-6">
             <div className="w-24 h-24 rounded-3xl bg-blue-50 flex items-center justify-center mb-6">
-              <ClipboardList className="text-blue-300" size={42} />
+              <Image className="text-blue-300" size={42} />
             </div>
 
             <h3 className="font-semibold text-xl text-neutral-800 mb-1.5">
@@ -196,7 +196,7 @@ export default function Home() {
                     onClick={() => {
                       setTimeout(() => {
                         setLoading(true);
-                        router.push(`/inspection/detail/${item.id}`);
+                        router.push(`/inspector/detail/${item.id}`);
                       }, 200);
                     }}
                     className="w-full mt-4 bg-[#F7F7F7] rounded-2xl p-5 text-left hover:bg-[#efefef] transition active:scale-90 duration-200"
@@ -224,7 +224,7 @@ export default function Home() {
           onClick={() => {
             setTimeout(() => {
               setLoading(true);
-              router.push("/inspection/report");
+              router.push("/inspector/report");
             }, 200);
           }}
           className="w-14 h-14 rounded-full bg-[#00A1FE]   shadow-xl flex items-center justify-center transition active:scale-90 duration-200"

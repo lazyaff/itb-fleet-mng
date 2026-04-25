@@ -51,3 +51,21 @@ export const inspectionConclusion = {
     dot: "bg-red-500",
   },
 } as const;
+
+export const inspectionConclusionForm = [
+  {
+    title: "Siap Jalan",
+    subtitle: "Siap digunakan segera",
+    value: "Siap Jalan",
+  },
+  {
+    title: "Butuh Servis",
+    subtitle: "Jadwalkan servis setelah kembali",
+    value: "Butuh Servis",
+  },
+  {
+    title: "Dilarang Jalan",
+    subtitle: "Perbaiki masalah 'Medium' sebelum disewakan",
+    value: "Dilarang Jalan",
+  },
+];

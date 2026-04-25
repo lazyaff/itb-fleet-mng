@@ -80,7 +80,7 @@ export function NotificationAlert({
         <div className="flex justify-center">{config.icon}</div>
 
         <p className="mt-4 text-gray-600 font-bold text-lg">{title}</p>
-        <p className="text-[#64748B]">{subtitle}</p>
+        <p className="text-[#64748B] mt-1">{subtitle}</p>
 
         <button
           onClick={onClose}
@@ -128,7 +128,7 @@ export function ConfirmationAlert({
         </div>
 
         <p className="mt-6 text-gray-600 font-bold text-lg">{title}</p>
-        <p className="text-[#64748B] ">{subtitle}</p>
+        <p className="text-[#64748B] mt-1">{subtitle}</p>
 
         <div className="mt-8 flex justify-center gap-6">
           <button
