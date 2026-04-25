@@ -3,6 +3,7 @@
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
 import { Select } from "@/components/Form";
 import Pagination from "@/components/Pagination";
+import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { Info, Plus, Search, SquarePen, Trash2 } from "lucide-react";
@@ -23,6 +24,7 @@ type DataProps = {
 export default function VehicleParts() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
@@ -101,10 +103,10 @@ export default function VehicleParts() {
 
   useEffect(() => {
     setPageInfo({
-      title: "Admin",
-      subtitle: "Vehicle Parts",
+      title: t("sidebar.admin"),
+      subtitle: t("sidebar.vehicle_parts"),
     });
-  }, []);
+  }, [lang]);
 
   // Fetch data on page load and change page
   useEffect(() => {
@@ -214,8 +216,8 @@ export default function VehicleParts() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully added a new data.",
+          title: t("form.success_title"),
+          subtitle: t("form.add_success"),
           onClose: () => {},
         });
       } else {
@@ -225,7 +227,7 @@ export default function VehicleParts() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {
               setAddData({
@@ -242,8 +244,8 @@ export default function VehicleParts() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {
           setAddData({
             ...addData,
@@ -293,8 +295,8 @@ export default function VehicleParts() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully updated the data.",
+          title: t("form.success_title"),
+          subtitle: t("form.update_success"),
           onClose: () => {},
         });
       } else {
@@ -304,7 +306,7 @@ export default function VehicleParts() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {
               setUpdateData({
@@ -321,8 +323,8 @@ export default function VehicleParts() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {
           setUpdateData({
             ...updateData,
@@ -359,8 +361,8 @@ export default function VehicleParts() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully deleted the data.",
+          title: t("form.success_title"),
+          subtitle: t("form.delete_success"),
           onClose: () => {},
         });
       } else {
@@ -370,7 +372,7 @@ export default function VehicleParts() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {},
           });
@@ -382,8 +384,8 @@ export default function VehicleParts() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {},
       });
       setLoading(false);
@@ -415,8 +417,8 @@ export default function VehicleParts() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully updated the data.",
+          title: t("form.success_title"),
+          subtitle: t("form.update_success"),
           onClose: () => {},
         });
       } else {
@@ -426,7 +428,7 @@ export default function VehicleParts() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {},
           });
@@ -438,8 +440,8 @@ export default function VehicleParts() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {},
       });
       setLoading(false);
@@ -453,7 +455,7 @@ export default function VehicleParts() {
           <Search className="w-4 h-4 text-gray-400 mr-2" />
           <input
             type="text"
-            placeholder="Search part name..."
+            placeholder={t("vehicle_part.search_placeholder")}
             className="w-full bg-transparent outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -477,7 +479,7 @@ export default function VehicleParts() {
             });
           }}
         >
-          <Plus size={20} /> <span>Add New Part</span>
+          <Plus size={20} /> <span>{t("vehicle_part.add_part")}</span>
         </button>
       </div>
 
@@ -485,14 +487,24 @@ export default function VehicleParts() {
         <table className="w-full">
           <thead className="bg-[#E2E8F0]/20">
             <tr className="border-b border-gray-300">
-              <th className="px-6 py-3 text-center">NO.</th>
-              <th className="px-6 py-3 text-center">PART</th>
-              <th className="px-6 py-3 text-center">SERVICE FREQUENCY (KM)</th>
               <th className="px-6 py-3 text-center">
-                SERVICE FREQUENCY (MONTHS)
+                {t("vehicle_part.table.no").toUpperCase()}
               </th>
-              <th className="px-6 py-3 text-center">STATUS</th>
-              <th className="px-6 py-3 text-center">ACTIONS</th>
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.part").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.service_frequency_km").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.service_frequency_months").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.status").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.actions").toUpperCase()}
+              </th>
             </tr>
           </thead>
 
@@ -540,8 +552,8 @@ export default function VehicleParts() {
                       onClick={() => {
                         setConfirmAlert({
                           visible: true,
-                          message: "Are you sure you want to delete this item?",
-                          subtitle: "This action cannot be undone.",
+                          message: t("vehicle_part.delete_confirm"),
+                          subtitle: t("vehicle_part.delete_warning"),
                           type: "delete",
                           onConfirm: async () => {
                             await handleDeleteData(item.id);
@@ -602,14 +614,16 @@ export default function VehicleParts() {
           <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
             <div className="font-semibold flex gap-2 items-center mb-2 text-base">
               <Info size={18} color="#00A1FE" />
-              Add New Part
+              {t("vehicle_part.modal_add_title")}
             </div>
-            <p className="text-[#64748B]">Add a new Part to the system</p>
+            <p className="text-[#64748B]">
+              {t("vehicle_part.modal_add_description")}
+            </p>
           </div>
           <div className="space-y-6 px-6 py-6">
             <div className="flex flex-row justify-between gap-6">
               <Select
-                label="Admin Responsible"
+                label={t("vehicle_part.admin_responsible")}
                 data={adminData}
                 value={addData.data.user_id}
                 onChange={(val) => {
@@ -627,12 +641,13 @@ export default function VehicleParts() {
               />
               <div className="w-full">
                 <label className="block mb-2">
-                  Part Name <span className="text-red-500">*</span>
+                  {t("vehicle_part.part_name")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="text"
-                  placeholder="Enter Part Name"
+                  placeholder={t("vehicle_part.enter_part_name")}
                   value={addData.data.name}
                   onChange={(e) =>
                     setAddData({
@@ -647,12 +662,13 @@ export default function VehicleParts() {
             <div className="flex flex-row justify-between gap-6">
               <div className="w-full">
                 <label className="block mb-2">
-                  Service Frequency (km) <span className="text-red-500">*</span>
+                  {t("vehicle_part.service_frequency_km")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="number"
-                  placeholder="Enter Service Frequency (km)"
+                  placeholder={t("vehicle_part.enter_service_frequency_km")}
                   value={
                     addData.data.distance_limit
                       ? addData.data.distance_limit.toString()
@@ -672,13 +688,13 @@ export default function VehicleParts() {
               </div>
               <div className="w-full">
                 <label className="block mb-2">
-                  Service Frequency (months)
+                  {t("vehicle_part.service_frequency_months")}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="number"
-                  placeholder="Enter Service Frequency (months)"
+                  placeholder={t("vehicle_part.enter_service_frequency_months")}
                   value={
                     addData.data.time_limit
                       ? addData.data.time_limit.toString()
@@ -704,7 +720,7 @@ export default function VehicleParts() {
                 onClick={() => setAddData({ ...addData, open: false })}
                 className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 disabled={
@@ -725,7 +741,7 @@ export default function VehicleParts() {
                     : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
           </div>
@@ -748,16 +764,16 @@ export default function VehicleParts() {
           <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
             <div className="font-semibold flex gap-2 items-center mb-2 text-base">
               <Info size={18} color="#00A1FE" />
-              Update Part
+              {t("vehicle_part.modal_update_title")}
             </div>
             <p className="text-[#64748B]">
-              Modify the details of an existing part data.
+              {t("vehicle_part.modal_update_description")}
             </p>
           </div>
           <div className="space-y-6 px-6 py-6">
             <div className="flex flex-row justify-between gap-6">
               <Select
-                label="Admin Responsible"
+                label={t("vehicle_part.admin_responsible")}
                 data={adminData}
                 value={updateData.data.user_id}
                 onChange={(val) => {
@@ -775,12 +791,13 @@ export default function VehicleParts() {
               />
               <div className="w-full">
                 <label className="block mb-2">
-                  Part Name <span className="text-red-500">*</span>
+                  {t("vehicle_part.part_name")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="text"
-                  placeholder="Enter Part Name"
+                  placeholder={t("vehicle_part.enter_part_name")}
                   value={updateData.data.name}
                   onChange={(e) =>
                     setUpdateData({
@@ -795,12 +812,13 @@ export default function VehicleParts() {
             <div className="flex flex-row justify-between gap-6">
               <div className="w-full">
                 <label className="block mb-2">
-                  Service Frequency (km) <span className="text-red-500">*</span>
+                  {t("vehicle_part.service_frequency_km")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
-                  type="email"
-                  placeholder="Enter Email"
+                  type="number"
+                  placeholder={t("vehicle_part.enter_service_frequency_km")}
                   value={
                     updateData.data.distance_limit
                       ? updateData.data.distance_limit.toString()
@@ -820,13 +838,13 @@ export default function VehicleParts() {
               </div>
               <div className="w-full">
                 <label className="block mb-2">
-                  Service Frequency (months)
+                  {t("vehicle_part.service_frequency_months")}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="number"
-                  placeholder="Enter Service Frequency (months)"
+                  placeholder={t("vehicle_part.enter_service_frequency_months")}
                   value={
                     updateData.data.time_limit
                       ? updateData.data.time_limit.toString()
@@ -852,7 +870,7 @@ export default function VehicleParts() {
                 onClick={() => setUpdateData({ ...updateData, open: false })}
                 className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 disabled={
@@ -873,7 +891,7 @@ export default function VehicleParts() {
                     : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
-                Save
+                {t("common.save")}
               </button>
             </div>
           </div>

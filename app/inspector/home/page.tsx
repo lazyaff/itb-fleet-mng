@@ -53,7 +53,7 @@ export default function Home() {
         }
 
         const response = await fetch(
-          `/api/v1/inspection/user/history?page=${pageNumber}&sort=${sort}&size=7`,
+          `/api/v1/inspection/user/history?page=${pageNumber}&sort=${sort}&size=15`,
           {
             method: "GET",
             headers: {

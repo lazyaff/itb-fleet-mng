@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/context/Language";
 import { Check, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -43,6 +44,7 @@ export function Select<T>({
   required = false,
 }: SelectProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -106,7 +108,11 @@ export function Select<T>({
         onClick={() => setOpen(!open)}
         className="w-full pl-4 pr-2 py-[0.275rem] border border-[#CBD5E1] rounded-lg text-[#64748B] cursor-pointer flex justify-between items-center select-none"
       >
-        <span>{selected ? renderLabel(selected) : "-- Select --"}</span>
+        <span>
+          {selected
+            ? renderLabel(selected)
+            : "-- " + t("common.select") + " --"}
+        </span>
 
         <span className={`${open ? "rotate-180" : ""} transform duration-300`}>
           <ChevronDown />
@@ -117,7 +123,7 @@ export function Select<T>({
         <div className="absolute z-10 w-full mt-2 bg-white border border-[#CBD5E1] rounded-lg shadow-lg">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t("common.search_placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full px-3 py-2 border-b border-[#CBD5E1] outline-none"
@@ -125,7 +131,9 @@ export function Select<T>({
 
           <div className="max-h-44 overflow-y-auto">
             {filtered.length === 0 && (
-              <div className="p-3 text-gray-400 text-center">No data found</div>
+              <div className="p-3 text-gray-400 text-center">
+                {t("common.no_data_found")}
+              </div>
             )}
 
             {filtered.map((item: any, idx) => (
@@ -161,6 +169,7 @@ export function MultiSelect<T>({
   required = false,
 }: MultiSelectProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -250,7 +259,7 @@ export function MultiSelect<T>({
         <div className="absolute z-10 w-full mt-2 bg-white border border-[#CBD5E1] rounded-lg shadow-lg">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={t("common.search_placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full px-3 py-2 border-b border-[#CBD5E1] outline-none"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { ChevronDown, LayoutDashboard } from "lucide-react";
@@ -10,63 +11,91 @@ import { useContext, useState } from "react";
 const Sidebar = () => {
   const { setLoading } = useContext(LoadingContext);
   const { pageInfo } = useContext(PageInfoContext);
+
+  const { t } = useLanguage();
   const router = useRouter();
 
   const [openMenus, setOpenMenus] = useState<string[]>([
-    "Admin",
-    "Maintenance",
-    "Live Fleet Map",
+    "admin",
+    "maintenance",
+    "live_fleet_map",
   ]);
 
   const pageData = [
     {
-      title: "Dashboard Overview",
+      id: "dashboard",
+      title: t("sidebar.dashboard_overview"),
       url: "/admin/dashboard",
-      icon: <LayoutDashboard className="mr-3" size={18} />,
+      icon: <LayoutDashboard size={18} />,
       item: [],
     },
     {
-      title: "Live Fleet Map",
-      item: [{ title: "Real-Time Map", url: "/admin/live-track" }],
-    },
-    {
-      title: "Maintenance",
+      id: "live_fleet_map",
+      title: t("sidebar.live_fleet_map"),
       item: [
-        { title: "Vehicle List", url: "/admin/vehicle" },
-        { title: "Inspection", url: "/admin/inspection" },
+        {
+          id: "real_time_map",
+          title: t("sidebar.real_time_map"),
+          url: "/admin/live-track",
+        },
       ],
     },
     {
-      title: "Admin",
+      id: "maintenance",
+      title: t("sidebar.maintenance"),
       item: [
-        { title: "Vehicle Parts", url: "/admin/vehicle-part" },
-        { title: "User Inspection", url: "/admin/inspector" },
-        { title: "GPS Tracker", url: "/admin/gps-tracker" },
+        {
+          id: "vehicle_list",
+          title: t("sidebar.vehicle_list"),
+          url: "/admin/vehicle",
+        },
+        {
+          id: "inspection",
+          title: t("sidebar.inspection"),
+          url: "/admin/inspection",
+        },
+      ],
+    },
+    {
+      id: "admin",
+      title: t("sidebar.admin"),
+      item: [
+        {
+          id: "vehicle_parts",
+          title: t("sidebar.vehicle_parts"),
+          url: "/admin/vehicle-part",
+        },
+        {
+          id: "user_inspection",
+          title: t("sidebar.user_inspection"),
+          url: "/admin/inspector",
+        },
+        {
+          id: "gps_tracker",
+          title: t("sidebar.gps_tracker"),
+          url: "/admin/gps-tracker",
+        },
       ],
     },
   ];
 
   const handleNavigate = (url: string, title: string) => {
-    console.log(pageInfo.title);
-    if (pageInfo.title !== title) {
+    if (pageInfo.title !== title && pageInfo.subtitle !== title) {
       setLoading(true);
       router.push(url);
     }
   };
 
-  const toggleMenu = (title: string) => {
-    setOpenMenus(
-      (prev) =>
-        prev.includes(title)
-          ? prev.filter((t) => t !== title) // tutup
-          : [...prev, title], // buka tanpa nutup yang lain
+  const toggleMenu = (id: string) => {
+    setOpenMenus((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
   return (
-    <div className="relative z-10 flex flex-col bg-[#F7F7F7] w-64 h-screen shadow-[6px_0_15px_rgba(0,0,0,0.1)] select-none">
-      <div className="px-6 py-3 border-b border-slate-400 h-16">
-        <div className="flex items-center gap-3 justify-center">
+    <div className="relative z-10 flex h-screen w-64 flex-col select-none bg-[#F7F7F7] shadow-[6px_0_15px_rgba(0,0,0,0.1)]">
+      <div className="h-16 border-b border-slate-400 px-6 py-3">
+        <div className="flex items-center justify-center gap-3">
           <Image
             src="/image/logo-itb.png"
             alt="logo"
@@ -75,36 +104,40 @@ const Sidebar = () => {
             className="rounded-full"
             draggable={false}
           />
-          <span className="font-semibold text-gray-700 text-lg">
+
+          <span className="text-lg font-semibold text-gray-700">
             E-Facility Fleet
           </span>
         </div>
       </div>
 
-      {/* MENU */}
-      <nav className="flex-1 px-4 py-4 space-y-4">
-        {pageData.map((menu, index) => {
+      <nav className="flex-1 space-y-4 px-4 py-4">
+        {pageData.map((menu) => {
           const isDropdown = menu.item.length > 0;
-          const isOpen = openMenus.includes(menu.title);
+          const isOpen = openMenus.includes(menu.id);
 
           return (
-            <div key={index}>
+            <div key={menu.id}>
               <div
-                className={`flex items-center justify-between cursor-pointer px-2 py-2 rounded-md
-                ${
-                  pageInfo.title === menu.title
-                    ? "text-blue-500 font-medium"
-                    : "text-gray-700 hover:text-blue-500"
-                }`}
                 onClick={() => {
                   if (isDropdown) {
-                    toggleMenu(menu.title);
-                  } else if (menu.url) {
+                    toggleMenu(menu.id);
+                    return;
+                  }
+
+                  if (menu.url) {
                     handleNavigate(menu.url, menu.title);
                   }
                 }}
+                className={`flex cursor-pointer items-center justify-between rounded-md px-2 py-2
+                  ${
+                    pageInfo.title === menu.title
+                      ? "font-medium text-blue-500"
+                      : "text-gray-700 hover:text-blue-500"
+                  }
+                `}
               >
-                <div className="flex items-center text-sm font-medium">
+                <div className="flex items-center text-sm font-medium gap-3">
                   {menu.icon}
                   {menu.title}
                 </div>
@@ -112,7 +145,7 @@ const Sidebar = () => {
                 {isDropdown && (
                   <ChevronDown
                     size={16}
-                    className={`transition-transform ${
+                    className={`transition-transform duration-200 ${
                       !isOpen ? "rotate-180" : ""
                     }`}
                   />
@@ -121,20 +154,23 @@ const Sidebar = () => {
 
               {isDropdown && isOpen && (
                 <div className="ml-6 mt-2 space-y-4">
-                  {menu.item.map((sub, i) => {
+                  {menu.item.map((sub) => {
                     const active = pageInfo.subtitle === sub.title;
+
                     return (
                       <div
-                        key={i}
+                        key={sub.id}
                         onClick={() => handleNavigate(sub.url, sub.title)}
-                        className={`flex items-center text-sm cursor-pointer transition-colors
-                        ${
-                          active
-                            ? "text-blue-500 font-medium"
-                            : "text-gray-700 hover:text-blue-500"
-                        }`}
+                        className={`flex cursor-pointer items-center text-sm transition-colors
+                          ${
+                            active
+                              ? "font-medium text-blue-500"
+                              : "text-gray-700 hover:text-blue-500"
+                          }
+                        `}
                       >
                         <span className="mr-2">•</span>
+
                         {sub.title}
                       </div>
                     );

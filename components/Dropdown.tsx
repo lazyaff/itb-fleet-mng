@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/context/Language";
 
 type SelectProps<T> = {
   label?: string;
@@ -35,6 +36,7 @@ export function Select<T>({
   multiple = false,
 }: SelectProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -52,12 +54,6 @@ export function Select<T>({
   const selected: any = !multiple
     ? data.find((item: any) => item.id?.toString() === value?.toString())
     : null;
-
-  const selectedItems: any[] = multiple
-    ? data.filter((item: any) =>
-        (value || []).map(String).includes(String(item.id)),
-      )
-    : [];
 
   const truncate = (text: string, max = 32) => {
     if (text.length <= max) return text;
@@ -119,7 +115,7 @@ export function Select<T>({
             <div className="p-3 border-b border-gray-200">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder={t("common.search_placeholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full px-3 py-1.5 border border-gray-300 rounded-md outline-none"
@@ -130,7 +126,7 @@ export function Select<T>({
           <div className="max-h-44 overflow-y-auto">
             {filtered.length === 0 && (
               <div className="p-3 text-gray-400 text-center text-sm">
-                No data found
+                {t("common.no_data_found")}
               </div>
             )}
 

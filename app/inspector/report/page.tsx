@@ -400,7 +400,7 @@ export default function Report() {
         </div>
 
         <div
-          className={`fixed bottom-0 left-0 right-0 bg-[#F3F3F5] active:scale-90 rounded-t-3xl flex justify-center items-center py-8 transform transition-transform duration-500 ease-in-out
+          className={`fixed bottom-0 left-0 right-0 bg-[#F3F3F5] rounded-t-3xl flex justify-center items-center py-8 transform transition-transform duration-500 ease-in-out
                     ${popUp === "save" ? "translate-y-0" : "translate-y-full"}`}
         >
           <button
@@ -449,7 +449,7 @@ export default function Report() {
               <ClipboardPlus className="w-8 h-8 text-white" />
             </div>
             <p
-              className="mt-4 text-gray-600 font-bold text-lg px-16"
+              className="mt-4 text-gray-600 font-bold text-lg px-12"
               style={{ lineHeight: 1.25 }}
             >
               Are you sure you want to submit this form?

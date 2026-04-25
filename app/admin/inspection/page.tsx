@@ -2,6 +2,7 @@
 
 import { DatePicker, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
+import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { inspectionConclusion } from "@/src/dropdown";
@@ -51,6 +52,7 @@ type DetailProps = {
 export default function Inspection() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
@@ -69,18 +71,30 @@ export default function Inspection() {
   const [openDetail, setOpenDetail] = useState(false);
 
   const sortOptions = [
-    { id: "date_desc", name: "Date Desc" },
-    { id: "date_asc", name: "Date Asc" },
-    { id: "vehicle_asc", name: "Vehicle A-Z" },
-    { id: "vehicle_desc", name: "Vehicle Z-A" },
+    {
+      id: "date_desc",
+      name: t("inspection.sort.date_desc"),
+    },
+    {
+      id: "date_asc",
+      name: t("inspection.sort.date_asc"),
+    },
+    {
+      id: "vehicle_asc",
+      name: t("inspection.sort.vehicle_asc"),
+    },
+    {
+      id: "vehicle_desc",
+      name: t("inspection.sort.vehicle_desc"),
+    },
   ];
 
   useEffect(() => {
     setPageInfo({
-      title: "Maintenance",
-      subtitle: "Inspection",
+      title: t("sidebar.maintenance"),
+      subtitle: t("sidebar.inspection"),
     });
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     if (session && filteredData.length === 0) fetchData();
@@ -106,7 +120,7 @@ export default function Inspection() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/v1/inspection?page=${pagination.page}&search=${searchInput}&size=20&sort=${sort}&date=${date}&vehicle_ids=${vehicleIds}`,
+        `/api/v1/inspection?page=${pagination.page}&search=${searchInput}&size=10&sort=${sort}&date=${date}&vehicle_ids=${vehicleIds}`,
         {
           method: "GET",
           headers: {
@@ -140,7 +154,7 @@ export default function Inspection() {
   const fetchVehicleData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/v1/inspector/vehicle-list`, {
+      const response = await fetch(`/api/v1/inspection/vehicle-list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,
@@ -209,7 +223,7 @@ export default function Inspection() {
             <Search className="w-4 h-4 text-gray-400 mr-2" />
             <input
               type="text"
-              placeholder="Search part name..."
+              placeholder={t("inspection.search_vehicle")}
               className="w-full bg-transparent outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -227,7 +241,7 @@ export default function Inspection() {
                   setDate(val);
                   setPagination((prev) => ({ ...prev, page: 1 }));
                 }}
-                placeholder="Date"
+                placeholder={t("common.date")}
               />
             </div>
 
@@ -242,7 +256,7 @@ export default function Inspection() {
                 }}
                 displayValue={(item: any) => item.name}
                 searchKeys={["name", "plate_number"]}
-                placeholder="Vehicle"
+                placeholder={t("inspection.vehicle")}
               />
             </div>
 
@@ -256,7 +270,7 @@ export default function Inspection() {
                 }}
                 displayValue={(item) => item.name}
                 searchKeys={["name"]}
-                placeholder="Sort by"
+                placeholder={t("inspection.sort_by")}
                 searchable={false}
               />
             </div>
@@ -267,12 +281,24 @@ export default function Inspection() {
           <table className="w-full">
             <thead className="bg-[#E2E8F0]/20">
               <tr className="border-b border-gray-300">
-                <th className="px-6 py-3 text-center">NO.</th>
-                <th className="px-6 py-3 text-center">DATE</th>
-                <th className="px-6 py-3 text-center">VEHICLE PART</th>
-                <th className="px-6 py-3 text-center">INSPECTOR</th>
-                <th className="px-6 py-3 text-center">RECOMENDATION</th>
-                <th className="px-6 py-3 text-center">ACTIONS</th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.no").toUpperCase()}
+                </th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.date").toUpperCase()}
+                </th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.vehicle_part").toUpperCase()}
+                </th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.inspector").toUpperCase()}
+                </th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.recommendation").toUpperCase()}
+                </th>
+                <th className="px-6 py-3 text-center">
+                  {t("inspection.table.actions").toUpperCase()}
+                </th>
               </tr>
             </thead>
 
@@ -374,13 +400,15 @@ export default function Inspection() {
               <div className="bg-[#F8FAFC] px-6 pt-6 pb-5 border-b border-gray-200 rounded-t-xl">
                 <div className="font-semibold flex gap-2 items-center text-base">
                   <Info strokeWidth={2.5} size={18} color="#00A1FE" />
-                  Form Inspection Report
+                  {t("inspection.form_inspection_report")}
                 </div>
               </div>
               <div className="space-y-6 px-6 py-6">
                 <div className="flex flex-row justify-between gap-6">
                   <div className="w-full">
-                    <label className="block mb-2">Inspector</label>
+                    <label className="block mb-2">
+                      {t("inspection.inspector")}
+                    </label>
                     <input
                       readOnly
                       value={detailData.inspector}
@@ -388,7 +416,7 @@ export default function Inspection() {
                     />
                   </div>
                   <div className="w-full">
-                    <label className="block mb-2">Date</label>
+                    <label className="block mb-2">{t("common.date")}</label>
                     <input
                       readOnly
                       value={detailData.date}
@@ -398,7 +426,9 @@ export default function Inspection() {
                 </div>
                 <div className="flex flex-row justify-between gap-6">
                   <div className="w-full">
-                    <label className="block mb-2">Vehicle Name</label>
+                    <label className="block mb-2">
+                      {t("inspection.vehicle_name")}
+                    </label>
                     <input
                       readOnly
                       value={detailData.vehicle.name}
@@ -406,7 +436,9 @@ export default function Inspection() {
                     />
                   </div>
                   <div className="w-full">
-                    <label className="block mb-2">Vehicle</label>
+                    <label className="block mb-2">
+                      {t("inspection.vehicle")}
+                    </label>
                     <input
                       readOnly
                       value={detailData.vehicle.plate_number}
@@ -461,7 +493,8 @@ export default function Inspection() {
                     color="#00A1FE"
                   />
                   <span>
-                    Rekomendasi Akhir Inspektor <br /> Kesimpulan Penilaian
+                    {t("inspection.final_inspector_recommendation")} <br />{" "}
+                    {t("inspection.assessment_conclusion")}
                   </span>
                 </div>
               </div>
@@ -492,7 +525,7 @@ export default function Inspection() {
               <div className="bg-[#F8FAFC] px-6 pt-6 pb-5 border-b border-gray-200 rounded-t-xl">
                 <div className="font-semibold flex gap-2 items-center text-base">
                   <Info strokeWidth={2.5} size={18} color="#00A1FE" />
-                  Notes
+                  {t("inspection.notes")}
                 </div>
               </div>
               <div className="space-y-6 px-6 py-6">
@@ -500,7 +533,7 @@ export default function Inspection() {
                   <div className="w-full">
                     <textarea
                       readOnly
-                      value={detailData.notes}
+                      value={detailData.notes || ""}
                       className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
                       rows={4}
                     />
@@ -521,7 +554,7 @@ export default function Inspection() {
               }, 500);
             }}
           >
-            Back
+            {t("common.back")}
           </button>
         </div>
       </div>

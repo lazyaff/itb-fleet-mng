@@ -7,9 +7,11 @@ import { LoadingContext } from "@/context/Loading";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { NotificationAlert } from "@/components/Alert";
+import { useLanguage } from "@/context/Language";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { loading, setLoading } = useContext(LoadingContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +28,7 @@ export default function LoginPage() {
     if (error) {
       setErrorModal({
         open: true,
-        message: "Login failed, try using another account",
+        message: t("auth.login_failed"),
       });
     }
   }, []);
@@ -49,7 +51,7 @@ export default function LoginPage() {
       } else {
         setErrorModal({
           open: true,
-          message: "Please check your credentials and try again",
+          message: t("auth.check_credentials"),
         });
         setLoading(false);
       }
@@ -57,7 +59,7 @@ export default function LoginPage() {
       console.log(err);
       setErrorModal({
         open: true,
-        message: "Something went wrong, please try again later",
+        message: t("auth.error_generic"),
       });
       setLoading(false);
     }
@@ -115,7 +117,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Password
+                {t("auth.password")}
               </label>
               <div className="relative">
                 <input
@@ -146,7 +148,7 @@ export default function LoginPage() {
                 onClick={() => handleSubmit("/admin/dashboard")}
                 className="cursor-pointer mt-2 w-full bg-[#00A1FE] text-white py-3 rounded-lg font-medium hover:bg-[#037fc7] transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
-                Login
+                {t("auth.login")}
               </button>
 
               {/* SSO Login Button */}
@@ -162,7 +164,7 @@ export default function LoginPage() {
                   className="h-5 w-auto"
                   draggable={false}
                 />
-                <span>Login with ITB Account</span>
+                <span>{t("auth.sso")}</span>
               </button>
             </div>
           </div>
@@ -178,7 +180,7 @@ export default function LoginPage() {
 
           <div className="space-y-6">
             <input
-              placeholder="Email Address"
+              placeholder="Email"
               autoComplete="off"
               type="email"
               value={email}
@@ -215,7 +217,7 @@ export default function LoginPage() {
                 onClick={() => handleSubmit("/inspector/home")}
                 className="cursor-pointer text-sm md:text-base mt-2 w-full bg-[#00A1FE] text-white py-3 rounded-lg font-medium hover:bg-[#037fc7] transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
-                Login
+                {t("auth.login")}
               </button>
 
               <div className="w-full h-[0.5px] bg-gray-300"></div>
@@ -233,7 +235,7 @@ export default function LoginPage() {
                   className="h-4.5 w-auto"
                   draggable={false}
                 />
-                <span>Login with ITB Account</span>
+                <span>{t("auth.sso")}</span>
               </button>
             </div>
           </div>
@@ -242,7 +244,7 @@ export default function LoginPage() {
 
       <NotificationAlert
         visible={errorModal.open}
-        title="Login Failed"
+        title={t("auth.error_header")}
         subtitle={errorModal.message}
         type="error"
         onClose={() => {

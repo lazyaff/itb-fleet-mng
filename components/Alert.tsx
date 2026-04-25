@@ -1,8 +1,8 @@
+import { useLanguage } from "@/context/Language";
 import {
   BadgeAlert,
   BadgeCheck,
   LockKeyhole,
-  SquarePen,
   Trash2,
   TriangleAlert,
 } from "lucide-react";
@@ -109,6 +109,7 @@ export function ConfirmationAlert({
   type?: AlertType;
 }) {
   const config = ALERT_CONFIG[type];
+  const { t } = useLanguage();
 
   return (
     <div
@@ -135,13 +136,13 @@ export function ConfirmationAlert({
             onClick={onCancel}
             className="px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer font-medium"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             onClick={onConfirm}
             className={`${config.buttonClass} px-12 py-2 rounded-lg font-medium text-white cursor-pointer select-none`}
           >
-            Confirm
+            {t("common.confirm")}
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
 import { Select } from "@/components/Form";
 import Pagination from "@/components/Pagination";
+import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { Info, Plus, Search, SquarePen, Trash2 } from "lucide-react";
@@ -26,6 +27,7 @@ type DataProps = {
 export default function Vehicle() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
@@ -85,10 +87,10 @@ export default function Vehicle() {
 
   useEffect(() => {
     setPageInfo({
-      title: "Admin",
-      subtitle: "GPS Tracker",
+      title: t("sidebar.admin"),
+      subtitle: t("sidebar.gps_tracker"),
     });
-  }, []);
+  }, [lang]);
 
   // Fetch data on page load and change page
   useEffect(() => {
@@ -198,8 +200,8 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully added a new data.",
+          title: t("form.success_title"),
+          subtitle: t("form.add_success"),
           onClose: () => {},
         });
       } else {
@@ -209,7 +211,7 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {
               setAddData({
@@ -226,8 +228,8 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {
           setAddData({
             ...addData,
@@ -268,8 +270,8 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully updated the data.",
+          title: t("form.success_title"),
+          subtitle: t("form.update_success"),
           onClose: () => {
             setAlert({
               visible: false,
@@ -287,7 +289,7 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {
               setUpdateData({
@@ -304,8 +306,8 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {
           setUpdateData({
             ...updateData,
@@ -342,8 +344,8 @@ export default function Vehicle() {
         setAlert({
           visible: true,
           type: "success",
-          title: "Successful",
-          subtitle: "Congratulations! You have successfully deleted the data.",
+          title: t("form.success_title"),
+          subtitle: t("form.delete_success"),
           onClose: () => {
             setAlert({
               visible: false,
@@ -361,7 +363,7 @@ export default function Vehicle() {
           setAlert({
             visible: true,
             type: "error",
-            title: "Failed",
+            title: t("form.error_title"),
             subtitle: result.message,
             onClose: () => {
               setAlert({
@@ -381,8 +383,8 @@ export default function Vehicle() {
       setAlert({
         visible: true,
         type: "error",
-        title: "Failed",
-        subtitle: "Oops! Something went wrong, please try again later.",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
         onClose: () => {
           setAlert({
             visible: false,
@@ -404,7 +406,7 @@ export default function Vehicle() {
           <Search className="w-4 h-4 text-gray-400 mr-2" />
           <input
             type="text"
-            placeholder="Search plate or ID..."
+            placeholder={t("gps_tracker.search_placeholder")}
             className="w-full bg-transparent outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -427,7 +429,7 @@ export default function Vehicle() {
             });
           }}
         >
-          <Plus size={20} /> <span>Add GPS Tracker</span>
+          <Plus size={20} /> <span>{t("gps_tracker.add_tracker")}</span>
         </button>
       </div>
 
@@ -435,12 +437,24 @@ export default function Vehicle() {
         <table className="w-full">
           <thead className="bg-[#E2E8F0]/20">
             <tr className="border-b border-gray-300">
-              <th className="px-6 py-3 text-center">NO.</th>
-              <th className="px-6 py-3 text-center">DATE ADDED</th>
-              <th className="px-6 py-3 text-center">IMEI NAME</th>
-              <th className="px-6 py-3 text-center">LAST UPDATE</th>
-              <th className="px-6 py-3 text-center">CONNECTED CAR</th>
-              <th className="px-6 py-3 text-center">ACTIONS</th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.no").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.date_added").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.imei_name").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.last_update").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.connected_car").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("gps_tracker.table.actions").toUpperCase()}
+              </th>
             </tr>
           </thead>
 
@@ -476,7 +490,9 @@ export default function Vehicle() {
                     </div>
                   ) : (
                     <div className="flex flex-col">
-                      <span className="italic text-gray-800">None</span>
+                      <span className="italic text-gray-800">
+                        {t("gps_tracker.none")}
+                      </span>
                       <button
                         className="text-xs text-blue-500 hover:underline cursor-pointer"
                         onClick={async () => {
@@ -491,7 +507,7 @@ export default function Vehicle() {
                           });
                         }}
                       >
-                        Select Vehicle
+                        {t("gps_tracker.select_vehicle")}
                       </button>
                     </div>
                   )}
@@ -504,7 +520,7 @@ export default function Vehicle() {
                       onClick={() => {
                         setConfirmAlert({
                           visible: true,
-                          message: "Are you sure you want to delete this item?",
+                          message: t("gps_tracker.delete_confirm"),
                           onConfirm: async () => {
                             await handleDeleteData(item.id);
                           },
@@ -570,10 +586,10 @@ export default function Vehicle() {
           <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
             <div className="font-semibold flex gap-2 items-center mb-2 text-base">
               <Info size={18} color="#00A1FE" />
-              Add New GPS Tracker
+              {t("gps_tracker.modal_add_title")}
             </div>
             <p className="text-[#64748B]">
-              Add a new GPS Tracker to the system
+              {t("gps_tracker.modal_add_description")}
             </p>
           </div>
           <div className="space-y-4 px-6 py-6">
@@ -581,13 +597,14 @@ export default function Vehicle() {
               {/* IMEI */}
               <div className="w-full">
                 <label className="block mb-2">
-                  GPS IMEI <span className="text-red-500">*</span>
+                  {t("gps_tracker.gps_imei")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="number"
                   value={addData.data.imei}
-                  placeholder="Enter IMEI number"
+                  placeholder={t("gps_tracker.enter_imei")}
                   onChange={(e) =>
                     setAddData({
                       ...addData,
@@ -600,7 +617,7 @@ export default function Vehicle() {
 
               {/* VEHICLE */}
               <Select
-                label="Select Vehicle"
+                label={t("gps_tracker.select_vehicle")}
                 data={availableVehicles}
                 value={addData.data.vehicle_id}
                 onChange={(val) => {
@@ -625,7 +642,7 @@ export default function Vehicle() {
                 onClick={() => setAddData({ ...addData, open: false })}
                 className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
               >
-                Cancel
+                {t("gps_tracker.cancel")}
               </button>
               <button
                 disabled={!addData.data.imei}
@@ -636,7 +653,7 @@ export default function Vehicle() {
                     : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
-                Save
+                {t("gps_tracker.save")}
               </button>
             </div>
           </div>
@@ -659,10 +676,10 @@ export default function Vehicle() {
           <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
             <div className="font-semibold flex gap-2 items-center mb-2 text-base">
               <Info size={18} color="#00A1FE" />
-              Update GPS Tracker
+              {t("gps_tracker.modal_update_title")}
             </div>
             <p className="text-[#64748B]">
-              Modify the details of an existing GPS Tracker data.
+              {t("gps_tracker.modal_update_description")}
             </p>
           </div>
           <div className="space-y-4 px-6 py-6">
@@ -670,12 +687,13 @@ export default function Vehicle() {
               {/* IMEI */}
               <div className="w-full">
                 <label className="block mb-2">
-                  GPS IMEI <span className="text-red-500">*</span>
+                  {t("gps_tracker.gps_imei")}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   autoComplete="off"
                   type="number"
-                  placeholder="Enter IMEI number"
+                  placeholder={t("gps_tracker.enter_imei")}
                   value={updateData.data.imei}
                   onChange={(e) =>
                     setUpdateData({
@@ -689,7 +707,7 @@ export default function Vehicle() {
 
               {/* VEHICLE */}
               <Select
-                label="Select Vehicle"
+                label={t("gps_tracker.select_vehicle")}
                 data={availableVehicles}
                 value={updateData.data.vehicle_id}
                 onChange={(val) => {
@@ -714,7 +732,7 @@ export default function Vehicle() {
                 onClick={() => setUpdateData({ ...updateData, open: false })}
                 className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
               >
-                Cancel
+                {t("gps_tracker.cancel")}
               </button>
               <button
                 disabled={!updateData.data.imei}
@@ -725,7 +743,7 @@ export default function Vehicle() {
                     : "hover:bg-[#048ad8] cursor-pointer"
                 }`}
               >
-                Save
+                {t("gps_tracker.save")}
               </button>
             </div>
           </div>
@@ -746,8 +764,8 @@ export default function Vehicle() {
 
       {/* Confirm Alert */}
       <ConfirmationAlert
-        title="Are you sure you want to delete this item?"
-        subtitle="This action cannot be undone"
+        title={t("gps_tracker.delete_confirm")}
+        subtitle={t("gps_tracker.delete_warning")}
         type="delete"
         visible={confirmAlert.visible}
         onCancel={() => {

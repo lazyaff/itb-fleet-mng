@@ -8,6 +8,7 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { useLanguage } from "@/context/Language";
 
 type dashboardData = {
   vehicle: {
@@ -43,13 +44,14 @@ export default function Dashboard() {
   const { setPageInfo } = useContext(PageInfoContext);
   const router = useRouter();
   const [data, setData] = useState<dashboardData>();
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     setPageInfo({
-      title: "Dashboard Overview",
-      subtitle: "Dashboard Overview",
+      title: t("sidebar.dashboard_overview"),
+      subtitle: t("sidebar.dashboard_overview"),
     });
-  }, []);
+  }, [lang]);
 
   const fetchData = async () => {
     try {
@@ -89,22 +91,22 @@ export default function Dashboard() {
       <div className="flex flex-row gap-4">
         {[
           {
-            title: "Total Vehicles",
+            title: t("dashboard.total_vehicles"),
             value: data?.vehicle.total || "-",
             icon: "/image/icon-cars.png",
           },
           {
-            title: "Rented",
+            title: t("dashboard.rented"),
             value: data?.vehicle.status.in_use || "-",
             icon: "/image/icon-car-key.png",
           },
           {
-            title: "Vehicles Available",
+            title: t("dashboard.vehicles_available"),
             value: data?.vehicle.status.available || "-",
             icon: "/image/icon-check.png",
           },
           {
-            title: "Under Maintenance",
+            title: t("dashboard.under_maintenance"),
             value: data?.vehicle.status.under_maintenance || "-",
             icon: "/image/icon-tools.png",
           },
@@ -130,11 +132,13 @@ export default function Dashboard() {
       <div className="flex flex-row gap-4 flex-1">
         <div className="flex flex-col gap-4 w-[30%]">
           <div className="bg-white rounded-xl shadow p-5">
-            <h2 className="font-semibold mb-3">Maintenance Health</h2>
+            <h2 className="font-semibold mb-3">
+              {t("dashboard.maintenance_health")}
+            </h2>
             <div className="flex flex-col gap-2">
               <div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="w-24">Healthy</span>
+                  <span className="w-24">{t("dashboard.healthy")}</span>
                   <div className="h-2 bg-gray-200 rounded flex-1">
                     <div
                       className="h-2 bg-[#16A249] rounded"
@@ -150,7 +154,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="w-24">Near Service</span>
+                  <span className="w-24">{t("dashboard.near_service")}</span>
                   <div className="h-2 bg-gray-200 rounded flex-1">
                     <div
                       className="h-2 bg-[#F59F0A] rounded"
@@ -166,7 +170,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="w-24">Overdue</span>
+                  <span className="w-24">{t("dashboard.overdue")}</span>
                   <div className="h-2 bg-gray-200 rounded flex-1">
                     <div
                       className="h-2 bg-[#EF4444] rounded"
@@ -187,8 +191,8 @@ export default function Dashboard() {
             className={`bg-[#f5eef0] rounded-xl shadow p-4 flex flex-col border-[0.5px] border-[#EF4444]/20 h-full`}
           >
             <h2 className="font-semibold text-red-500 mb-3 flex items-center gap-2">
-              <TriangleAlert size={15} strokeWidth={2} /> Critical Alerts (
-              {data?.alert.length || 0})
+              <TriangleAlert size={15} strokeWidth={2} />{" "}
+              {t("dashboard.critical_alerts")} ({data?.alert.length || 0})
             </h2>
 
             <div className="flex flex-col gap-2">
@@ -209,7 +213,7 @@ export default function Dashboard() {
               ) : (
                 <div className="p-3 border-[0.1px] border-[#EF4444]/20 bg-[#f8f8f9] rounded-lg flex flex-col gap-2">
                   <span className="text-[#64748B] text-center h-14 flex items-center justify-center">
-                    No Critical Alerts
+                    {t("dashboard.no_critical_alerts")}
                   </span>
                 </div>
               )}
@@ -222,7 +226,7 @@ export default function Dashboard() {
                 router.push("/admin/vehicle");
               }}
             >
-              View All Alerts
+              {t("dashboard.view_all_alerts")}
             </button>
           </div>
         </div>
@@ -230,7 +234,9 @@ export default function Dashboard() {
         {/* RIGHT SIDE - MAP */}
         <div className="flex-1 bg-white rounded-xl shadow p-5 flex flex-col">
           <div className="flex justify-between mb-4">
-            <h2 className="font-semibold">Live Fleet Preview</h2>
+            <h2 className="font-semibold">
+              {t("dashboard.live_fleet_preview")}
+            </h2>
             <button
               className="text-[#00A1FE] flex flex-row items-center gap-2 cursor-pointer select-none hover:underline"
               onClick={() => {
@@ -238,7 +244,8 @@ export default function Dashboard() {
                 router.push("/admin/live-track");
               }}
             >
-              <span>Open Full Map</span> <MoveDiagonal size={20} />
+              <span>{t("dashboard.open_full_map")}</span>{" "}
+              <MoveDiagonal size={20} />
             </button>
           </div>
 

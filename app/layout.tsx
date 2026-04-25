@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { PageInfoProvider } from "@/context/PageInfo";
 import { Loading } from "@/components/Loading";
 import { Poppins } from "next/font/google";
+import { LanguageProvider } from "@/context/Language";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -27,7 +28,9 @@ export default function RootLayout({
         <LoadingProvider>
           <PageInfoProvider>
             <SessionProvider>
-              {children} <Loading />
+              <LanguageProvider>
+                {children} <Loading />
+              </LanguageProvider>
             </SessionProvider>
           </PageInfoProvider>
         </LoadingProvider>
