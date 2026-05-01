@@ -1,28 +1,61 @@
 export const vehicle_status = [
   {
-    name: "In Use",
+    en: "In Use",
+    id: "Sedang Digunakan",
   },
   {
-    name: "Under Maintenance",
+    en: "Under Maintenance",
+    id: "Dalam Perbaikan",
   },
   {
-    name: "Available",
+    en: "Available",
+    id: "Tersedia",
   },
 ];
+
+export const vehicle_status_color = {
+  "In Use": {
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
+  },
+  "Under Maintenance": {
+    color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    dot: "bg-yellow-500",
+  },
+  Available: {
+    color: "blue",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-400",
+    dot: "bg-blue-500",
+  },
+} as const;
 
 export const vehicle_health = [
   {
     label: "Healthy",
+    id: "Sehat",
+    en: "Healthy",
     min: 50,
     max: 100,
   },
   {
     label: "Near Service",
+    id: "Mendekati servis",
+    en: "Near Service",
     min: 25,
     max: 49,
   },
   {
     label: "Overdue",
+    id: "Terlambat",
+    en: "Overdue",
     min: 0,
     max: 24,
   },

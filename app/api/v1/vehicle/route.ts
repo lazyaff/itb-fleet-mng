@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         id: true,
         plate_number: true,
         name: true,
-        // image: true,
+        image: true,
         status: true,
         current_mileage: true,
         vehicle_parts: {
@@ -128,10 +128,9 @@ export async function GET(request: NextRequest) {
         id: item.id,
         plate_number: item.plate_number,
         name: item.name,
-        // image:
-        //   process.env.NEXTAUTH_URL! +
-        //   process.env.PUBLIC_STORAGE_PATH +
-        //   item.image,
+        image: item.image
+          ? process.env.PUBLIC_STORAGE_PATH! + item.image
+          : "/image/placeholder.webp",
         status: item.status,
         health: Math.floor(health / item.vehicle_parts.length),
         current_mileage: item.current_mileage,
@@ -144,6 +143,7 @@ export async function GET(request: NextRequest) {
                 )
               : -1,
         },
+        updated: true,
       };
     });
 
@@ -185,12 +185,12 @@ export async function POST(request: NextRequest) {
     }
 
     const form = await request.formData();
-    const plate_number = form.get("plate_number") as string;
+    const id = form.get("id") as string;
     const name = form.get("name") as string;
     const current_milage = form.get("current_milage") as string;
     const last_service = form.get("last_service") as string;
 
-    if (!plate_number || !name || !current_milage || !last_service) {
+    if (!id || !name || !current_milage || !last_service) {
       return NextResponse.json(
         {
           success: false,
@@ -203,9 +203,9 @@ export async function POST(request: NextRequest) {
 
     // check if data exist
     const exist_plate_number = await prisma.vehicle.findFirst({
-      where: { plate_number, deleted_at: null },
+      where: { id, deleted_at: null },
     });
-    if (exist_plate_number) return errorResponse("Plate number already used!");
+    if (!exist_plate_number) return errorResponse("Data does not exist!");
 
     // get part data
     const parts = await prisma.general_vehicle_part.findMany({
@@ -216,6 +216,7 @@ export async function POST(request: NextRequest) {
     });
 
     const partData = parts.map((part) => ({
+      vehicle_id: id,
       general_vehicle_part_id: part.id,
       name: part.name,
       last_service: new Date(last_service),
@@ -225,21 +226,20 @@ export async function POST(request: NextRequest) {
       notes: null,
     }));
 
-    // save file
-    const id = uuidv4();
-
     // save data
-    await prisma.vehicle.create({
-      data: {
+    await prisma.vehicle.update({
+      where: {
         id: id,
-        plate_number: plate_number,
+      },
+      data: {
         name: name,
         status: "Available",
         current_mileage: Number(current_milage),
-        vehicle_parts: {
-          create: partData,
-        },
       },
+    });
+
+    await prisma.vehicle_part.createMany({
+      data: partData,
     });
 
     return NextResponse.json(
@@ -280,13 +280,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const form = await request.formData();
-    const id = form.get("id") as string;
-    const plate_number = form.get("plate_number") as string;
-    const name = form.get("name") as string;
-    const current_milage = form.get("current_milage") as string;
+    const { id, name, current_mileage } = await request.json();
 
-    if (!id || !plate_number || !name || !current_milage) {
+    if (!id || !name || current_mileage === null || current_mileage === "") {
       return NextResponse.json(
         {
           success: false,
@@ -298,31 +294,20 @@ export async function PUT(request: NextRequest) {
     }
 
     // jalankan paralel
-    const [vehicle, exist_plate_number] = await Promise.all([
+    const [vehicle] = await Promise.all([
       prisma.vehicle.findFirst({
         where: { id, deleted_at: null },
-      }),
-      prisma.vehicle.findFirst({
-        where: {
-          id: {
-            not: id,
-          },
-          plate_number,
-          deleted_at: null,
-        },
       }),
     ]);
 
     if (!vehicle) return errorResponse("Vehicle not found!");
-    if (exist_plate_number) return errorResponse("Plate number already used!");
 
     // update data
     await prisma.vehicle.update({
       where: { id },
       data: {
-        plate_number: plate_number,
         name: name,
-        current_mileage: Number(current_milage),
+        current_mileage: Number(current_mileage),
       },
     });
 

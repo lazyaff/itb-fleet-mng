@@ -305,7 +305,10 @@ export default function Inspection() {
             {/* Body */}
             <tbody>
               {filteredData.map((item) => (
-                <tr key={item.id} className="border-b border-gray-300">
+                <tr
+                  key={item.id}
+                  className={`border-b border-gray-300 ${item.conclusion === "Dilarang Jalan" ? "bg-[#EF4444]/5" : ""}`}
+                >
                   <td className="px-6 py-3 text-gray-800 text-center">
                     {item.no}
                   </td>

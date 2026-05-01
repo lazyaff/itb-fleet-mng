@@ -151,7 +151,6 @@ export async function POST(request: NextRequest) {
                   {
                     general_vehicle_part: {
                       deleted_at: null,
-                      active: true,
                     },
                   },
                   {

@@ -7,6 +7,7 @@ import { PageInfoProvider } from "@/context/PageInfo";
 import { Loading } from "@/components/Loading";
 import { Poppins } from "next/font/google";
 import { LanguageProvider } from "@/context/Language";
+import { VehiclePageProvider } from "@/context/VehiclePage";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,7 +30,9 @@ export default function RootLayout({
           <PageInfoProvider>
             <SessionProvider>
               <LanguageProvider>
-                {children} <Loading />
+                <VehiclePageProvider>
+                  {children} <Loading />
+                </VehiclePageProvider>
               </LanguageProvider>
             </SessionProvider>
           </PageInfoProvider>
