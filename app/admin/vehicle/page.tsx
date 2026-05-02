@@ -30,6 +30,7 @@ import { SelectForm } from "@/components/Form";
 
 type DataProps = {
   alert: {
+    vehicle_id: string;
     title: string;
     plate_number: string;
   }[];
@@ -499,9 +500,17 @@ export default function Vehicle() {
             <div className="flex flex-col gap-2">
               {data?.alert && data?.alert.length > 0 ? (
                 data?.alert.map((alert, i) => (
-                  <div
+                  <button
                     key={i}
-                    className="p-3 border-[0.1px] border-[#EF4444]/20 bg-[#f8f8f9] rounded-lg flex flex-col gap-2"
+                    onClick={() => {
+                      setLoading(true);
+                      router.push(
+                        "/admin/vehicle/" +
+                          alert.vehicle_id +
+                          "?section=alerts",
+                      );
+                    }}
+                    className="text-start p-3 border-[0.1px] border-[#EF4444]/20 bg-[#f8f8f9] rounded-lg flex flex-col gap-2 select-none cursor-pointer hover:bg-[#f8f8f9]/10"
                   >
                     <span className="font-semibold text-red-500">
                       {alert.title}
@@ -509,7 +518,7 @@ export default function Vehicle() {
                     <span className="text-xs text-[#64748B]">
                       Vehicle: {alert.plate_number}
                     </span>
-                  </div>
+                  </button>
                 ))
               ) : (
                 <div className="p-3 border-[0.1px] border-[#EF4444]/20 bg-[#f8f8f9] rounded-lg flex flex-col gap-2">
@@ -689,7 +698,7 @@ export default function Vehicle() {
                           <div className="flex flex-row items-center justify-between gap-2">
                             <div className="h-2 bg-gray-200 rounded flex-1">
                               <div
-                                className={`h-2 ${item.health > 50 ? "bg-[#16A249]" : item.health > 25 ? "bg-[#FFC107]" : "bg-[#DC3545]"} rounded`}
+                                className={`h-2 ${item.health > 50 ? "bg-[#16A249]" : item.health >= 25 ? "bg-[#FFC107]" : "bg-[#DC3545]"} rounded`}
                                 style={{
                                   width: `${item.health}%`,
                                 }}
@@ -746,14 +755,10 @@ export default function Vehicle() {
                           <div className="flex items-center justify-center gap-3">
                             <button
                               className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                              // onClick={async () => {
-                              //   const detail = await fetchDetailData(item.id);
-                              //   if (!detail) return;
-                              //   setOpenList(false);
-                              //   setTimeout(() => {
-                              //     setOpenDetail(true);
-                              //   }, 500);
-                              // }}
+                              onClick={async () => {
+                                setLoading(true);
+                                router.push(`/admin/vehicle/${item.id}`);
+                              }}
                             >
                               <Eye size={18} />
                             </button>

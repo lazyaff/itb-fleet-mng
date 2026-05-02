@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
     });
 
     const alert: {
+      vehicle_id: string;
       title: string;
       plate_number: string;
     }[] = [];
@@ -114,6 +115,7 @@ export async function GET(request: NextRequest) {
         );
         if (healthPoint < 25) {
           alert.push({
+            vehicle_id: item.id,
             title: part.name,
             plate_number: item.plate_number,
           });

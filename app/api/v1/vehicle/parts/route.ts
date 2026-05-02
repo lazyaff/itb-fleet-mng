@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         id: true,
         plate_number: true,
         name: true,
-        // image: true,
+        image: true,
         status: true,
         current_mileage: true,
         vehicle_parts: {
@@ -149,12 +149,15 @@ export async function GET(request: NextRequest) {
       id: rawData.id,
       plate_number: rawData.plate_number,
       name: rawData.name,
+      image: rawData.image
+        ? process.env.PUBLIC_STORAGE_PATH! + rawData.image
+        : "/image/placeholder.webp",
       status: rawData.status,
       last_update: rawData.live_tracks[0]?.created_at
         ? rawData.live_tracks[0]?.created_at
         : null,
       health: Math.floor(health / rawData.vehicle_parts.length),
-      current_mileage: Math.floor(rawData.current_mileage / 1000),
+      current_mileage: rawData.current_mileage,
       next_service: {
         time_limit: time_limit && time_limit > 0 ? time_limit : -1,
         distance_limit:

@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          is_all: true,
         },
       }),
       prisma.service_history.count({
@@ -97,6 +98,7 @@ export async function GET(request: NextRequest) {
           name: part.vehicle_part.name,
         };
       }),
+      is_all: item.is_all,
     }));
 
     const totalPage = limit ? Math.ceil(totalRecords / limit) : 1;
