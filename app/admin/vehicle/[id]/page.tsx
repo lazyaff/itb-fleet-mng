@@ -1,10 +1,15 @@
 "use client";
 
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
+import { DatePicker } from "@/components/Dropdown";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { vehicle_status, vehicle_status_color } from "@/src/dropdown";
+import {
+  usage_reconciliation_source_color,
+  vehicle_status,
+  vehicle_status_color,
+} from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
 import {
   Activity,
@@ -62,6 +67,13 @@ export type VehicleAlert = {
   health: number;
 };
 
+export type UsageReconciliation = {
+  id: string;
+  name: string;
+  source: string;
+  total_difference: number;
+};
+
 export type ServiceHistory = {
   no: number;
   id: string;
@@ -103,6 +115,8 @@ export default function VehicleDetail({
     const { t, lang } = useLanguage();
     const [section, setSection] = useState(current_section || "parts");
     const [data, setData] = useState<VehicleDetail>();
+    const [usageData, setUsageData] = useState<UsageReconciliation[]>([]);
+    const [usageDate, setUsageDate] = useState("");
     const [serviceData, setServiceData] = useState<ServiceHistory[]>();
     const [servicePagination, setServicePagination] = useState({
       page: 1,
@@ -261,12 +275,48 @@ export default function VehicleDetail({
       }
     };
 
+    const fetchUsageData = async () => {
+      try {
+        const response = await fetch(
+          `/api/v1/vehicle/usage-reconciliation?id=${id}&date=${usageDate}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${session.user.access_token}`,
+            },
+            cache: "no-store",
+          },
+        );
+        const result = await response.json();
+        if (result.success) {
+          setUsageData(result.data);
+        } else {
+          if (result.status === 401) {
+            handleLogout();
+          } else {
+            throw new Error("Failed to fetch data");
+          }
+        }
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     useEffect(() => {
       if (session && !data) {
         fetchData();
         fetchServiceData();
       }
     }, [session]);
+
+    useEffect(() => {
+      if (session) {
+        console.log(usageDate);
+        fetchUsageData();
+      }
+    }, [session, usageDate]);
 
     const handleUpdateKM = async () => {
       try {
@@ -737,8 +787,10 @@ export default function VehicleDetail({
                             data: {
                               id: id,
                               name: data?.vehicle.name || "",
-                              current_mileage: Math.floor(
-                                (data?.vehicle.current_mileage || 0) / 1000,
+                              current_mileage: Number(
+                                (
+                                  (data?.vehicle.current_mileage || 0) / 1000
+                                ).toFixed(3),
                               ),
                             },
                           });
@@ -759,9 +811,14 @@ export default function VehicleDetail({
                 <h3 className="font-semibold text-base">
                   {t("vehicle_detail.user_usage.title")}
                 </h3>
-                <button className="text-sm border border-gray-300 px-4 py-1 rounded-md text-[#00A1FE] cursor-pointer select-none">
-                  {t("vehicle_detail.user_usage.view")}
-                </button>
+                <div className="w-1/3">
+                  <DatePicker
+                    value={usageDate}
+                    onChange={(val) => {
+                      setUsageDate(val);
+                    }}
+                  />
+                </div>
               </div>
 
               <table className="w-full text-sm border border-gray-200">
@@ -773,7 +830,7 @@ export default function VehicleDetail({
                       ).toUpperCase()}
                     </th>
                     <th className="text-center py-4">
-                      {t("vehicle_detail.user_usage.table.date").toUpperCase()}
+                      {t("vehicle_detail.user_usage.table.type").toUpperCase()}
                     </th>
                     <th className="text-center py-4">
                       {t(
@@ -784,15 +841,51 @@ export default function VehicleDetail({
                 </thead>
 
                 <tbody>
-                  {[1, 2, 3, 4, 6, 7, 8, 9, 10].map((_, i) => (
-                    <tr key={i} className="border-t border-gray-200">
-                      <td className="py-4 text-center">Renter {i + 1}</td>
-                      <td className="py-4 text-center">12/12/2025</td>
-                      <td className="font-semibold py-4 text-center">
-                        +100 km
+                  {usageData.length > 0 ? (
+                    usageData.map((usage, i) => (
+                      <tr key={usage.id} className="border-t border-gray-200">
+                        <td className="py-4 text-center">{usage.name}</td>
+                        <td className="py-4 text-center">
+                          {(() => {
+                            const config =
+                              usage_reconciliation_source_color[
+                                usage.source as keyof typeof usage_reconciliation_source_color
+                              ];
+
+                            if (!config) return usage.source;
+
+                            return (
+                              <span
+                                className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                                />
+                                {usage.source}
+                              </span>
+                            );
+                          })()}
+                        </td>
+                        <td className="font-semibold py-4 text-center">
+                          {usage.total_difference > 0 && "+"}
+                          {Number(usage.total_difference / 1000).toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}{" "}
+                          km
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="text-center p-6">
+                        {t("common.no_data")}
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -857,7 +950,7 @@ export default function VehicleDetail({
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto relative min-h-0">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
               <div
                 className={`min-h-full transition-all duration-500 z-20 absolute top-0 left-0 w-full ${
                   section === "parts"
@@ -960,8 +1053,10 @@ export default function VehicleDetail({
                                       general_vehicle_part_id:
                                         part.general_vehicle_part_id,
                                       name: part.title,
-                                      current_distance: Math.floor(
-                                        part.current_mileage / 1000,
+                                      current_distance: Number(
+                                        (part.current_mileage / 1000).toFixed(
+                                          3,
+                                        ),
                                       ),
                                       distance_limit: part.distance_limit,
                                       last_service: part.last_service,

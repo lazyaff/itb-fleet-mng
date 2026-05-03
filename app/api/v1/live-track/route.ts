@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { validateBasicAuth, validateJWT } from "@/utils/auth";
 import { NextResponse, NextRequest } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: NextRequest) {
   try {
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
         vehicle: {
           select: {
             id: true,
+            current_mileage: true,
             vehicle_parts: {
               select: {
                 id: true,
@@ -157,6 +159,27 @@ export async function POST(request: NextRequest) {
                     general_vehicle_part: null,
                   },
                 ],
+              },
+            },
+            usage_reconciliations: {
+              where: {
+                deleted_at: null,
+                source: "INITIAL",
+              },
+            },
+            vehicle_usage_histories: {
+              where: {
+                deleted_at: null,
+                start_date: {
+                  lte: new Date(),
+                },
+                end_date: {
+                  gte: new Date(),
+                },
+              },
+              take: 1,
+              orderBy: {
+                created_at: "desc",
               },
             },
           },
@@ -186,6 +209,7 @@ export async function POST(request: NextRequest) {
     };
 
     const data: {
+      id: string;
       vehicle_id: string | null;
       gps_tracker_id: string;
       speed: number;
@@ -243,6 +267,7 @@ export async function POST(request: NextRequest) {
         }
 
         data.push({
+          id: uuidv4(),
           vehicle_id: device.vehicle?.id || null,
           gps_tracker_id: device.id,
           speed,
@@ -312,7 +337,7 @@ export async function POST(request: NextRequest) {
         diff = currentMileage;
       }
 
-      if (device.vehicle) {
+      if (device.vehicle && device.vehicle.usage_reconciliations.length > 0) {
         const vehicleInput = isReset
           ? { current_mileage: currentMileage }
           : {
@@ -344,6 +369,51 @@ export async function POST(request: NextRequest) {
           },
           data: partInput,
         });
+
+        const usage = await tx.usage_reconciliation.create({
+          data: {
+            vehicle_id: device.vehicle.id,
+            source: "GPS",
+            previous_mileage: device.vehicle.current_mileage,
+            current_mileage: isReset
+              ? currentMileage
+              : device.vehicle.current_mileage + diff,
+            difference: diff,
+            vehicle_usage_history_id:
+              device.vehicle.vehicle_usage_histories.length > 0
+                ? device.vehicle.vehicle_usage_histories[0].id
+                : null,
+          },
+        });
+
+        if (device.vehicle.vehicle_usage_histories.length > 0) {
+          const inserted = await tx.live_track_history.findMany({
+            where: {
+              id: {
+                in: data.map((item) => item.id),
+              },
+              ...(lastData && {
+                created_at: {
+                  gt: lastData.created_at,
+                },
+              }),
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          await tx.live_track_history.updateMany({
+            where: {
+              id: {
+                in: inserted.map((item) => item.id),
+              },
+            },
+            data: {
+              usage_reconciliation_id: usage.id,
+            },
+          });
+        }
       }
     });
 

@@ -100,19 +100,23 @@ export default function Vehicle() {
   });
   const [updateData, setUpdateData] = useState<{
     open: boolean;
+    type: "add" | "update";
     data: {
       id: string;
       plate_number: string;
       name: string;
       current_mileage: number;
+      last_service: string;
     };
   }>({
     open: false,
+    type: "add",
     data: {
       id: "",
       plate_number: "",
       name: "",
       current_mileage: 0,
+      last_service: "",
     },
   });
   const [searchInput, setSearchInput] = useState("");
@@ -378,7 +382,7 @@ export default function Vehicle() {
 
   const handleUpdateData = async () => {
     try {
-      const { id, name, current_mileage } = updateData.data;
+      const { id, name, current_mileage, last_service } = updateData.data;
       if (!id || !name || current_mileage === null || loading) {
         return;
       }
@@ -387,7 +391,7 @@ export default function Vehicle() {
       setLoading(true);
 
       const response = await fetch(`/api/v1/vehicle`, {
-        method: "PUT",
+        method: updateData.type === "add" ? "POST" : "PUT",
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,
           "Content-Type": "application/json",
@@ -396,6 +400,7 @@ export default function Vehicle() {
           id,
           name,
           current_mileage: current_mileage * 1000,
+          last_service: last_service,
         }),
       });
 
@@ -764,16 +769,18 @@ export default function Vehicle() {
                             </button>
                             <button
                               className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                              onClick={async () => {
+                              onClick={() => {
                                 setUpdateData({
                                   open: true,
+                                  type: "update",
                                   data: {
                                     id: item.id,
                                     plate_number: item.plate_number,
                                     name: item.name,
-                                    current_mileage: Math.floor(
-                                      item.current_mileage / 1000,
+                                    current_mileage: Number(
+                                      (item.current_mileage / 1000).toFixed(3),
                                     ),
+                                    last_service: "",
                                   },
                                 });
                               }}
@@ -784,14 +791,19 @@ export default function Vehicle() {
                         ) : (
                           <button
                             className="cursor-pointer text-[#00A1FE]"
-                            // onClick={async () => {
-                            //   const detail = await fetchDetailData(item.id);
-                            //   if (!detail) return;
-                            //   setOpenList(false);
-                            //   setTimeout(() => {
-                            //     setOpenDetail(true);
-                            //   }, 500);
-                            // }}
+                            onClick={() => {
+                              setUpdateData({
+                                open: true,
+                                type: "add",
+                                data: {
+                                  id: item.id,
+                                  plate_number: item.plate_number,
+                                  name: item.name,
+                                  current_mileage: 0,
+                                  last_service: "",
+                                },
+                              });
+                            }}
                           >
                             + {t("vehicle.add_data")}
                           </button>
@@ -977,6 +989,29 @@ export default function Vehicle() {
                   }
                 />
               </div>
+              {updateData.type === "add" && (
+                <div className="w-full">
+                  <label className="block mb-2">
+                    {t("vehicle.modal.update_data.last_service")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    autoComplete="off"
+                    type="date"
+                    value={updateData.data.last_service}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    onChange={(e) =>
+                      setUpdateData({
+                        ...updateData,
+                        data: {
+                          ...updateData.data,
+                          last_service: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -991,13 +1026,15 @@ export default function Vehicle() {
                 disabled={
                   loading ||
                   !updateData.data.name ||
-                  !updateData.data.current_mileage
+                  !updateData.data.current_mileage ||
+                  (updateData.type === "add" && !updateData.data.last_service)
                 }
                 onClick={handleUpdateData}
                 className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                   loading ||
                   !updateData.data.name ||
-                  !updateData.data.current_mileage
+                  !updateData.data.current_mileage ||
+                  (updateData.type === "add" && !updateData.data.last_service)
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-[#048ad8] cursor-pointer"
                 }`}

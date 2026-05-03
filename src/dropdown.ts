@@ -102,3 +102,29 @@ export const inspectionConclusionForm = [
     value: "Dilarang Jalan",
   },
 ];
+
+export const usage_reconciliation_source = ["GPS", "MANUAL", "INITIAL"];
+
+export const usage_reconciliation_source_color = {
+  INITIAL: {
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
+  },
+  MANUAL: {
+    color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    dot: "bg-yellow-500",
+  },
+  GPS: {
+    color: "blue",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-400",
+    dot: "bg-blue-500",
+  },
+} as const;

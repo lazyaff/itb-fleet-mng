@@ -9,6 +9,7 @@
   "common.back": "Back",
   "common.all": "All",
   "common.add": "Add",
+  "common.no_data": "No data found",
 
   "form.add_success": "Congratulations! You have successfully added a new data.",
   "form.success_title": "Successful",
@@ -83,6 +84,7 @@
   "vehicle.modal.update_data.enter_name": "Enter vehicle name/label",
   "vehicle.modal.update_data.current_mileage": "Current Mileage (km)",
   "vehicle.modal.update_data.enter_current_mileage": "Enter current mileage (km)",
+  "vehicle.modal.update_data.last_service": "Last Service",
 
   "vehicle_detail.overview.close_overview": "Close Overview",
   "vehicle_detail.overview.last_update": "Last update",
@@ -90,8 +92,8 @@
   "vehicle_detail.overview.overall_health": "Overall Health",
   "vehicle_detail.user_usage.title": "User Usage Reconcilliation",
   "vehicle_detail.user_usage.view": "View Detail",
-  "vehicle_detail.user_usage.table.renter": "Renter",
-  "vehicle_detail.user_usage.table.date": "Date",
+  "vehicle_detail.user_usage.table.renter": "User",
+  "vehicle_detail.user_usage.table.type": "Type",
   "vehicle_detail.user_usage.table.distance": "Distance",
   "vehicle_detail.navbar.part_health": "Part Health",
   "vehicle_detail.navbar.service_history": "Service History",

@@ -57,6 +57,12 @@ export async function GET(request: NextRequest) {
             ],
           },
         },
+        usage_reconciliations: {
+          where: {
+            deleted_at: null,
+            source: "INITIAL",
+          },
+        },
       },
       orderBy: [
         {
@@ -145,7 +151,7 @@ export async function GET(request: NextRequest) {
                 )
               : -1,
         },
-        updated: true,
+        updated: item.usage_reconciliations.length > 0,
       };
     });
 
@@ -186,13 +192,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const form = await request.formData();
-    const id = form.get("id") as string;
-    const name = form.get("name") as string;
-    const current_milage = form.get("current_milage") as string;
-    const last_service = form.get("last_service") as string;
+    const { id, name, current_mileage, last_service } = await request.json();
 
-    if (!id || !name || !current_milage || !last_service) {
+    if (
+      !id ||
+      !name ||
+      current_mileage === null ||
+      current_mileage === "" ||
+      !last_service
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -206,8 +214,28 @@ export async function POST(request: NextRequest) {
     // check if data exist
     const exist_plate_number = await prisma.vehicle.findFirst({
       where: { id, deleted_at: null },
+      include: {
+        usage_reconciliations: {
+          where: {
+            deleted_at: null,
+            source: "INITIAL",
+          },
+        },
+      },
     });
     if (!exist_plate_number) return errorResponse("Data does not exist!");
+
+    // check if already initiated
+    if (exist_plate_number.usage_reconciliations.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Data already initiated!",
+        },
+        { status: 400 },
+      );
+    }
 
     // get part data
     const parts = await prisma.general_vehicle_part.findMany({
@@ -222,7 +250,7 @@ export async function POST(request: NextRequest) {
       general_vehicle_part_id: part.id,
       name: part.name,
       last_service: new Date(last_service),
-      current_distance: 0,
+      current_distance: Number(current_mileage),
       distance_limit: part.distance_limit,
       time_limit: part.time_limit,
       notes: null,
@@ -236,12 +264,23 @@ export async function POST(request: NextRequest) {
       data: {
         name: name,
         status: "Available",
-        current_mileage: Number(current_milage),
+        current_mileage: Number(current_mileage),
       },
     });
 
     await prisma.vehicle_part.createMany({
       data: partData,
+    });
+
+    await prisma.usage_reconciliation.createMany({
+      data: {
+        vehicle_id: id,
+        source: "INITIAL",
+        previous_mileage: 0,
+        current_mileage: Number(current_mileage),
+        difference: Number(current_mileage),
+        user_id: isAuthorized?.user?.id || null,
+      },
     });
 
     return NextResponse.json(
@@ -312,6 +351,29 @@ export async function PUT(request: NextRequest) {
         current_mileage: Number(current_mileage),
       },
     });
+
+    const diff = Number(current_mileage) - vehicle.current_mileage;
+    if (vehicle.current_mileage !== Number(current_mileage)) {
+      await prisma.usage_reconciliation.create({
+        data: {
+          vehicle_id: id,
+          source: "MANUAL",
+          previous_mileage: vehicle.current_mileage,
+          current_mileage: Number(current_mileage),
+          difference: diff,
+          user_id: isAuthorized?.user?.id || null,
+        },
+      });
+
+      await prisma.vehicle_part.updateMany({
+        where: { vehicle_id: id },
+        data: {
+          current_distance: {
+            increment: diff,
+          },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

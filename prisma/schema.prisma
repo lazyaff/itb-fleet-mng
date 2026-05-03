@@ -32,6 +32,7 @@ model user {
   vehicles                    vehicle[]
   service_histories           service_history[]
   inspection_reports          inspection_report[]
+  usage_reconciliations       usage_reconciliation[]
 }
 
 model role {
@@ -89,10 +90,29 @@ model vehicle {
   vehicle_parts               vehicle_part[]
   service_histories           service_history[]
   inspection_reports          inspection_report[]
+  vehicle_usage_histories     vehicle_usage_history[]
+  usage_reconciliations       usage_reconciliation[]
+}
+
+model vehicle_usage_history {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  name                        String
+  phone                       String
+  image                       String?
+  start_date                  DateTime
+  end_date                    DateTime
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
+  usage_reconciliations       usage_reconciliation[]
 }
 
 model live_track_history {
   id                          String             @id @default(uuid())
+  usage_reconciliation_id     String?            @unique
   vehicle_id                  String?
   gps_tracker_id              String
   speed                       Int
@@ -108,10 +128,30 @@ model live_track_history {
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
 
-  vehicle                     vehicle?           @relation(fields: [vehicle_id], references: [id])
-  gps_tracker                 gps_tracker        @relation(fields: [gps_tracker_id], references: [id])
+  vehicle                     vehicle?                         @relation(fields: [vehicle_id], references: [id])
+  gps_tracker                 gps_tracker                      @relation(fields: [gps_tracker_id], references: [id])
+  usage_reconciliation        usage_reconciliation?            @relation(fields: [usage_reconciliation_id], references: [id])
 
   @@unique([gps_tracker_id, created_at])
+}
+
+model usage_reconciliation {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  user_id                     String?
+  vehicle_usage_history_id    String?
+  source                      String
+  previous_mileage            Int
+  current_mileage             Int
+  difference                  Int
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  live_track_history          live_track_history?
+  vehicle                     vehicle                          @relation(fields: [vehicle_id], references: [id])
+  vehicle_usage_history       vehicle_usage_history?           @relation(fields: [vehicle_usage_history_id], references: [id])
+  user                        user?                            @relation(fields: [user_id], references: [id])
 }
 
 model general_vehicle_part {
