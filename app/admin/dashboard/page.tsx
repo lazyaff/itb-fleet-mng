@@ -92,22 +92,22 @@ export default function Dashboard() {
         {[
           {
             title: t("dashboard.total_vehicles"),
-            value: data?.vehicle.total || "-",
+            value: data?.vehicle.total ?? "-",
             icon: "/image/icon-cars.png",
           },
           {
             title: t("dashboard.rented"),
-            value: data?.vehicle.status.in_use || "-",
+            value: data?.vehicle.status.in_use ?? "-",
             icon: "/image/icon-car-key.png",
           },
           {
             title: t("dashboard.vehicles_available"),
-            value: data?.vehicle.status.available || "-",
+            value: data?.vehicle.status.available ?? "-",
             icon: "/image/icon-check.png",
           },
           {
             title: t("dashboard.under_maintenance"),
-            value: data?.vehicle.status.under_maintenance || "-",
+            value: data?.vehicle.status.under_maintenance ?? "-",
             icon: "/image/icon-tools.png",
           },
         ].map((item, i) => (

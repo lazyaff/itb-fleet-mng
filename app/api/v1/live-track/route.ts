@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { validateBasicAuth, validateJWT } from "@/utils/auth";
+import { formatedDate } from "@/utils/date";
 import { NextResponse, NextRequest } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
       },
       select: {
         id: true,
+        image: true,
         plate_number: true,
         name: true,
         current_mileage: true,
@@ -50,6 +52,27 @@ export async function GET(request: NextRequest) {
             movement: true,
           },
         },
+        vehicle_usage_histories: {
+          select: {
+            image: true,
+            name: true,
+            phone: true,
+            end_date: true,
+          },
+          where: {
+            deleted_at: null,
+            start_date: {
+              lte: new Date(),
+            },
+            end_date: {
+              gte: new Date(),
+            },
+          },
+          take: 1,
+          orderBy: {
+            created_at: "desc",
+          },
+        },
       },
     });
 
@@ -57,6 +80,9 @@ export async function GET(request: NextRequest) {
       id: item.id,
       plate_number: item.plate_number,
       name: item.name,
+      image: item.image
+        ? process.env.PUBLIC_STORAGE_PATH! + item.image
+        : "/image/placeholder.webp",
       current_mileage: item.current_mileage,
       status: item.live_tracks[0]
         ? item.live_tracks[0]?.movement
@@ -64,14 +90,27 @@ export async function GET(request: NextRequest) {
           : "Stopped"
         : "No GPS",
       speed: item.live_tracks[0]?.speed || null,
-      total_mileage: item.live_tracks[0]?.total_mileage || null,
       battery_voltage: item.live_tracks[0]?.battery_voltage || null,
-      created_at: item.live_tracks[0]?.created_at || null,
+      last_updated: item.live_tracks[0]?.created_at || null,
       lat: item.live_tracks[0]?.lat || null,
       long: item.live_tracks[0]?.long || null,
       angle: item.live_tracks[0]?.angle || null,
       gsm_signal_strength: item.live_tracks[0]?.gsm_signal_strength || null,
       movement: item.live_tracks[0]?.movement || null,
+      usage: {
+        name: item.vehicle_usage_histories[0]?.name || null,
+        phone: item.vehicle_usage_histories[0]?.phone || null,
+        image:
+          item.vehicle_usage_histories[0]?.image ||
+          "/image/profile-placeholder.jpg",
+        // "/image/placeholder.webp",
+        end_date: item.vehicle_usage_histories[0]?.end_date
+          ? formatedDate(
+              item.vehicle_usage_histories[0]?.end_date,
+              "dd MMM yyyy",
+            )
+          : null,
+      },
     }));
 
     return NextResponse.json({
