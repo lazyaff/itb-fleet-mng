@@ -677,21 +677,23 @@ export default function Vehicle() {
                                       (x) => x.en === item.status,
                                     )?.[lang] || item.status}
                                   </span>
-                                  <button
-                                    className="cursor-pointer text-[#00A1FE] text-xs"
-                                    onClick={async () => {
-                                      setUpdateStatus({
-                                        open: true,
-                                        data: {
-                                          id: item.id,
-                                          plate_number: item.plate_number,
-                                          status: item.status,
-                                        },
-                                      });
-                                    }}
-                                  >
-                                    {t("vehicle.change_status")}
-                                  </button>
+                                  {session?.user?.role_id === "SADM" && (
+                                    <button
+                                      className="cursor-pointer text-[#00A1FE] text-xs"
+                                      onClick={async () => {
+                                        setUpdateStatus({
+                                          open: true,
+                                          data: {
+                                            id: item.id,
+                                            plate_number: item.plate_number,
+                                            status: item.status,
+                                          },
+                                        });
+                                      }}
+                                    >
+                                      {t("vehicle.change_status")}
+                                    </button>
+                                  )}
                                 </div>
                               );
                             })()
@@ -767,28 +769,33 @@ export default function Vehicle() {
                             >
                               <Eye size={18} />
                             </button>
-                            <button
-                              className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                              onClick={() => {
-                                setUpdateData({
-                                  open: true,
-                                  type: "update",
-                                  data: {
-                                    id: item.id,
-                                    plate_number: item.plate_number,
-                                    name: item.name,
-                                    current_mileage: Number(
-                                      (item.current_mileage / 1000).toFixed(3),
-                                    ),
-                                    last_service: "",
-                                  },
-                                });
-                              }}
-                            >
-                              <SquarePen size={18} />
-                            </button>
+
+                            {session?.user?.role_id === "SADM" && (
+                              <button
+                                className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                onClick={() => {
+                                  setUpdateData({
+                                    open: true,
+                                    type: "update",
+                                    data: {
+                                      id: item.id,
+                                      plate_number: item.plate_number,
+                                      name: item.name,
+                                      current_mileage: Number(
+                                        (item.current_mileage / 1000).toFixed(
+                                          3,
+                                        ),
+                                      ),
+                                      last_service: "",
+                                    },
+                                  });
+                                }}
+                              >
+                                <SquarePen size={18} />
+                              </button>
+                            )}
                           </div>
-                        ) : (
+                        ) : session?.user?.role_id === "SADM" ? (
                           <button
                             className="cursor-pointer text-[#00A1FE]"
                             onClick={() => {
@@ -807,7 +814,7 @@ export default function Vehicle() {
                           >
                             + {t("vehicle.add_data")}
                           </button>
-                        )}
+                        ) : null}
                       </td>
                     </tr>
                   ))}

@@ -779,25 +779,27 @@ export default function VehicleDetail({
                           (data?.vehicle.current_mileage || 0) / 1000,
                         ).toLocaleString("en-US")}
                       </p>
-                      <button
-                        className="cursor-pointer text-[#00A1FE] text-xs"
-                        onClick={async () => {
-                          setUpdateKM({
-                            open: true,
-                            data: {
-                              id: id,
-                              name: data?.vehicle.name || "",
-                              current_mileage: Number(
-                                (
-                                  (data?.vehicle.current_mileage || 0) / 1000
-                                ).toFixed(3),
-                              ),
-                            },
-                          });
-                        }}
-                      >
-                        Edit
-                      </button>
+                      {session?.user?.role_id === "SADM" && (
+                        <button
+                          className="cursor-pointer text-[#00A1FE] text-xs"
+                          onClick={async () => {
+                            setUpdateKM({
+                              open: true,
+                              data: {
+                                id: id,
+                                name: data?.vehicle.name || "",
+                                current_mileage: Number(
+                                  (
+                                    (data?.vehicle.current_mileage || 0) / 1000
+                                  ).toFixed(3),
+                                ),
+                              },
+                            });
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
                     </div>
                     <TrendingUp size={20} className="text-gray-400" />
                   </div>
@@ -929,25 +931,27 @@ export default function VehicleDetail({
                   {t("vehicle_detail.navbar.active_alerts")}
                 </button>
               </div>
-              <button
-                onClick={() => {
-                  if (section === "parts") {
-                    setAddPart({
-                      open: true,
-                      data: {
-                        name: "",
-                        current_distance: 0,
-                        distance_limit: 0,
-                        last_service: "",
-                        time_limit: 0,
-                      },
-                    });
-                  }
-                }}
-                className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-              >
-                + {t("common.add")}
-              </button>
+              {session?.user?.role_id === "SADM" && (
+                <button
+                  onClick={() => {
+                    if (section === "parts") {
+                      setAddPart({
+                        open: true,
+                        data: {
+                          name: "",
+                          current_distance: 0,
+                          distance_limit: 0,
+                          last_service: "",
+                          time_limit: 0,
+                        },
+                      });
+                    }
+                  }}
+                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                >
+                  + {t("common.add")}
+                </button>
+              )}
             </div>
 
             <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
@@ -1018,56 +1022,60 @@ export default function VehicleDetail({
                               ).toLocaleString("en-US")}
                               /{(part.time_limit * 30).toLocaleString("en-US")}
                             </p>
-                            <div className="flex gap-2 justify-end mt-2">
-                              {!part.general_vehicle_part_id && (
+                            {session?.user?.role_id === "SADM" && (
+                              <div className="flex gap-2 justify-end mt-2">
+                                {!part.general_vehicle_part_id && (
+                                  <button
+                                    className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                    onClick={() => {
+                                      setConfirmAlert({
+                                        visible: true,
+                                        message: t(
+                                          "gps_tracker.delete_confirm",
+                                        ),
+                                        onConfirm: async () => {
+                                          await handleDeletePart(part.id);
+                                        },
+                                        onCancel: () => {
+                                          setConfirmAlert({
+                                            visible: false,
+                                            message: "",
+                                            onConfirm: () => {},
+                                            onCancel: () => {},
+                                          });
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                )}
                                 <button
                                   className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
                                   onClick={() => {
-                                    setConfirmAlert({
-                                      visible: true,
-                                      message: t("gps_tracker.delete_confirm"),
-                                      onConfirm: async () => {
-                                        await handleDeletePart(part.id);
-                                      },
-                                      onCancel: () => {
-                                        setConfirmAlert({
-                                          visible: false,
-                                          message: "",
-                                          onConfirm: () => {},
-                                          onCancel: () => {},
-                                        });
+                                    setUpdatePart({
+                                      open: true,
+                                      data: {
+                                        id: part.id,
+                                        general_vehicle_part_id:
+                                          part.general_vehicle_part_id,
+                                        name: part.title,
+                                        current_distance: Number(
+                                          (part.current_mileage / 1000).toFixed(
+                                            3,
+                                          ),
+                                        ),
+                                        distance_limit: part.distance_limit,
+                                        last_service: part.last_service,
+                                        time_limit: part.time_limit,
                                       },
                                     });
                                   }}
                                 >
-                                  <Trash2 size={18} />
+                                  <SquarePen className="mt-0.5" size={18} />
                                 </button>
-                              )}
-                              <button
-                                className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                onClick={() => {
-                                  setUpdatePart({
-                                    open: true,
-                                    data: {
-                                      id: part.id,
-                                      general_vehicle_part_id:
-                                        part.general_vehicle_part_id,
-                                      name: part.title,
-                                      current_distance: Number(
-                                        (part.current_mileage / 1000).toFixed(
-                                          3,
-                                        ),
-                                      ),
-                                      distance_limit: part.distance_limit,
-                                      last_service: part.last_service,
-                                      time_limit: part.time_limit,
-                                    },
-                                  });
-                                }}
-                              >
-                                <SquarePen className="mt-0.5" size={18} />
-                              </button>
-                            </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

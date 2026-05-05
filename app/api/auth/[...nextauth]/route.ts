@@ -97,6 +97,7 @@ const authOptions: NextAuthOptions = {
 
     async session({ session, token }: any) {
       session.user.id = token.id;
+      session.user.role_id = token.role_id;
       session.user.access_token = token.access_token;
       return session;
     },

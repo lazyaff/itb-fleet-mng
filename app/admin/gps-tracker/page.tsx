@@ -416,21 +416,23 @@ export default function Vehicle() {
             }}
           />
         </div>
-        <button
-          className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
-          onClick={async () => {
-            await fetchVehicleData("");
-            setAddData({
-              open: true,
-              data: {
-                imei: "",
-                vehicle_id: "",
-              },
-            });
-          }}
-        >
-          <Plus size={20} /> <span>{t("gps_tracker.add_tracker")}</span>
-        </button>
+        {session?.user?.role_id === "SADM" && (
+          <button
+            className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
+            onClick={async () => {
+              await fetchVehicleData("");
+              setAddData({
+                open: true,
+                data: {
+                  imei: "",
+                  vehicle_id: "",
+                },
+              });
+            }}
+          >
+            <Plus size={20} /> <span>{t("gps_tracker.add_tracker")}</span>
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 flex-1">
@@ -452,9 +454,11 @@ export default function Vehicle() {
               <th className="px-6 py-3 text-center">
                 {t("gps_tracker.table.connected_car").toUpperCase()}
               </th>
-              <th className="px-6 py-3 text-center">
-                {t("gps_tracker.table.actions").toUpperCase()}
-              </th>
+              {session?.user?.role_id === "SADM" && (
+                <th className="px-6 py-3 text-center">
+                  {t("gps_tracker.table.actions").toUpperCase()}
+                </th>
+              )}
             </tr>
           </thead>
 
@@ -493,8 +497,55 @@ export default function Vehicle() {
                       <span className="italic text-gray-800">
                         {t("gps_tracker.none")}
                       </span>
+                      {session?.user?.role_id === "SADM" && (
+                        <button
+                          className="text-xs text-blue-500 hover:underline cursor-pointer"
+                          onClick={async () => {
+                            await fetchVehicleData(item.vehicle.id || "");
+                            setUpdateData({
+                              open: true,
+                              data: {
+                                id: item.id,
+                                imei: item.imei,
+                                vehicle_id: item.vehicle.id,
+                              },
+                            });
+                          }}
+                        >
+                          {t("gps_tracker.select_vehicle")}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </td>
+
+                {session?.user?.role_id === "SADM" && (
+                  <td className="px-6 py-3 text-center align-middle">
+                    <div className="flex items-center justify-center gap-3">
                       <button
-                        className="text-xs text-blue-500 hover:underline cursor-pointer"
+                        className="cursor-pointer text-gray-600 hover:text-red-500"
+                        onClick={() => {
+                          setConfirmAlert({
+                            visible: true,
+                            message: t("gps_tracker.delete_confirm"),
+                            onConfirm: async () => {
+                              await handleDeleteData(item.id);
+                            },
+                            onCancel: () => {
+                              setConfirmAlert({
+                                visible: false,
+                                message: "",
+                                onConfirm: () => {},
+                                onCancel: () => {},
+                              });
+                            },
+                          });
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                      <button
+                        className="cursor-pointer text-gray-600 hover:text-blue-500"
                         onClick={async () => {
                           await fetchVehicleData(item.vehicle.id || "");
                           setUpdateData({
@@ -507,54 +558,11 @@ export default function Vehicle() {
                           });
                         }}
                       >
-                        {t("gps_tracker.select_vehicle")}
+                        <SquarePen size={18} />
                       </button>
                     </div>
-                  )}
-                </td>
-
-                <td className="px-6 py-3 text-center align-middle">
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      className="cursor-pointer text-gray-600 hover:text-red-500"
-                      onClick={() => {
-                        setConfirmAlert({
-                          visible: true,
-                          message: t("gps_tracker.delete_confirm"),
-                          onConfirm: async () => {
-                            await handleDeleteData(item.id);
-                          },
-                          onCancel: () => {
-                            setConfirmAlert({
-                              visible: false,
-                              message: "",
-                              onConfirm: () => {},
-                              onCancel: () => {},
-                            });
-                          },
-                        });
-                      }}
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                    <button
-                      className="cursor-pointer text-gray-600 hover:text-blue-500"
-                      onClick={async () => {
-                        await fetchVehicleData(item.vehicle.id || "");
-                        setUpdateData({
-                          open: true,
-                          data: {
-                            id: item.id,
-                            imei: item.imei,
-                            vehicle_id: item.vehicle.id,
-                          },
-                        });
-                      }}
-                    >
-                      <SquarePen size={18} />
-                    </button>
-                  </div>
-                </td>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

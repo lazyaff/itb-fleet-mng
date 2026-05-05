@@ -65,11 +65,11 @@ const Sidebar = () => {
           title: t("sidebar.vehicle_parts"),
           url: "/admin/vehicle-part",
         },
-        {
-          id: "user_inspection",
-          title: t("sidebar.user_inspection"),
-          url: "/admin/inspector",
-        },
+        // {
+        //   id: "user_inspection",
+        //   title: t("sidebar.user_inspection"),
+        //   url: "/admin/inspector",
+        // },
         {
           id: "gps_tracker",
           title: t("sidebar.gps_tracker"),
