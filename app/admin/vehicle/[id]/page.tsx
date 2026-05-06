@@ -2,6 +2,7 @@
 
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
 import { DatePicker } from "@/components/Dropdown";
+import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
@@ -13,17 +14,21 @@ import {
 import { formatedDate } from "@/utils/date";
 import {
   Activity,
+  ChevronLeft,
   Circle,
   Clock,
   Info,
+  ScrollText,
   ShieldAlert,
   SquarePen,
   Trash2,
   TrendingUp,
   TriangleAlert,
+  X,
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { use, useContext, useEffect, useState } from "react";
 
@@ -118,6 +123,10 @@ export default function VehicleDetail({
     const [usageData, setUsageData] = useState<UsageReconciliation[]>([]);
     const [usageDate, setUsageDate] = useState("");
     const [serviceData, setServiceData] = useState<ServiceHistory[]>();
+    const [currentServiceData, setCurrentServiceData] = useState<{
+      section: string;
+      data: ServiceHistory;
+    }>({ section: "", data: {} as ServiceHistory });
     const [servicePagination, setServicePagination] = useState({
       page: 1,
       totalPages: 1,
@@ -258,7 +267,7 @@ export default function VehicleDetail({
           setServiceData(result.data.records);
           setServicePagination({
             ...servicePagination,
-            totalPages: result.data.totalPages,
+            totalPages: result.data.totalPage,
             totalRecords: result.data.totalRecords,
           });
         } else {
@@ -313,10 +322,15 @@ export default function VehicleDetail({
 
     useEffect(() => {
       if (session) {
-        console.log(usageDate);
         fetchUsageData();
       }
     }, [session, usageDate]);
+
+    useEffect(() => {
+      if (session) {
+        fetchServiceData();
+      }
+    }, [session, servicePagination.page]);
 
     const handleUpdateKM = async () => {
       try {
@@ -344,6 +358,7 @@ export default function VehicleDetail({
         const result = await response.json();
         if (result.success) {
           await fetchData();
+          await fetchUsageData();
           setAlert({
             visible: true,
             type: "success",
@@ -911,21 +926,39 @@ export default function VehicleDetail({
 
                 {/* BUTTONS */}
                 <button
-                  onClick={() => setSection("parts")}
+                  onClick={() => {
+                    setCurrentServiceData({
+                      ...currentServiceData,
+                      section: "",
+                    });
+                    setSection("parts");
+                  }}
                   className={`relative z-10 flex-1 px-1 py-1 rounded-xl text-sm cursor-pointer ${section !== "parts" ? "text-[#64748B]" : ""}`}
                 >
                   {t("vehicle_detail.navbar.part_health")}
                 </button>
 
                 <button
-                  onClick={() => setSection("services")}
+                  onClick={() => {
+                    setCurrentServiceData({
+                      ...currentServiceData,
+                      section: "",
+                    });
+                    setSection("services");
+                  }}
                   className={`relative z-10 flex-1 px-1 py-1 rounded-xl text-sm cursor-pointer ${section !== "services" ? "text-[#64748B]" : ""}`}
                 >
                   {t("vehicle_detail.navbar.service_history")}
                 </button>
 
                 <button
-                  onClick={() => setSection("alerts")}
+                  onClick={() => {
+                    setCurrentServiceData({
+                      ...currentServiceData,
+                      section: "",
+                    });
+                    setSection("alerts");
+                  }}
                   className={`relative z-10 flex-1 px-1 py-1 rounded-xl text-sm cursor-pointer ${section !== "alerts" ? "text-[#64748B]" : ""}`}
                 >
                   {t("vehicle_detail.navbar.active_alerts")}
@@ -1134,7 +1167,7 @@ export default function VehicleDetail({
 
               <div
                 className={`min-h-full transition-all duration-500 z-22 absolute top-0 left-0 w-full ${
-                  section === "services"
+                  section === "services" && currentServiceData.section === ""
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
                 }`}
@@ -1154,9 +1187,13 @@ export default function VehicleDetail({
                       <th className="text-center py-4">
                         {t("vehicle_detail.service.table.part").toUpperCase()}
                       </th>
-                      <th className="text-center py-4">
-                        {t("vehicle_detail.service.table.action").toUpperCase()}
-                      </th>
+                      {session?.user?.role_id === "SADM" && (
+                        <th className="text-center py-4">
+                          {t(
+                            "vehicle_detail.service.table.action",
+                          ).toUpperCase()}
+                        </th>
+                      )}
                     </tr>
                   </thead>
 
@@ -1174,82 +1211,185 @@ export default function VehicleDetail({
                             <button
                               className="cursor-pointer text-[#00A1FE]"
                               onClick={async () => {
-                                setUpdateKM({
-                                  open: true,
-                                  data: {
-                                    id: id,
-                                    name: data?.vehicle.name || "",
-                                    current_mileage: Math.floor(
-                                      (data?.vehicle.current_mileage || 0) /
-                                        1000,
-                                    ),
-                                  },
+                                setCurrentServiceData({
+                                  section: "invoice",
+                                  data: service,
                                 });
                               }}
                             >
-                              See Invoice
+                              {t("vehicle_detail.service.see_invoice")}
                             </button>
                           </td>
                           <td className="py-4 text-center">
                             {formatedDate(new Date(service.date), "dd/MM/yyyy")}
                           </td>
                           <td className="py-4 text-center">
-                            <p>
+                            <button
+                              className="underline cursor-pointer font-semibold"
+                              onClick={async () => {
+                                setCurrentServiceData({
+                                  section: "detail",
+                                  data: service,
+                                });
+                              }}
+                            >
                               {service.is_all
-                                ? "All"
+                                ? t("vehicle_detail.service.all")
                                 : service.parts.length + " Parts"}
-                            </p>
+                            </button>
                           </td>
-                          <td className="py-4 text-center">
-                            <div className="flex gap-2 justify-center">
-                              <button
-                                className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                onClick={() => {
-                                  // setConfirmAlert({
-                                  //   visible: true,
-                                  //   message: t("gps_tracker.delete_confirm"),
-                                  //   onConfirm: async () => {
-                                  //     await handleDeletePart(part.id);
-                                  //   },
-                                  //   onCancel: () => {
-                                  //     setConfirmAlert({
-                                  //       visible: false,
-                                  //       message: "",
-                                  //       onConfirm: () => {},
-                                  //       onCancel: () => {},
-                                  //     });
-                                  //   },
-                                  // });
-                                }}
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                              <button
-                                className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                onClick={() => {
-                                  // setUpdatePart({
-                                  //   open: true,
-                                  //   data: {
-                                  //     id: part.id,
-                                  //     general_vehicle_part_id:
-                                  //       part.general_vehicle_part_id,
-                                  //     name: part.title,
-                                  //     current_distance: Math.floor(
-                                  //       part.current_mileage / 1000,
-                                  //     ),
-                                  //     distance_limit: part.distance_limit,
-                                  //     last_service: part.last_service,
-                                  //     time_limit: part.time_limit,
-                                  //   },
-                                  // });
-                                }}
-                              >
-                                <SquarePen className="mt-0.5" size={18} />
-                              </button>
-                            </div>
-                          </td>
+                          {session?.user?.role_id === "SADM" && (
+                            <td className="py-4 text-center">
+                              <div className="flex gap-2 justify-center">
+                                <button
+                                  className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                  onClick={() => {
+                                    // setConfirmAlert({
+                                    //   visible: true,
+                                    //   message: t("gps_tracker.delete_confirm"),
+                                    //   onConfirm: async () => {
+                                    //     await handleDeletePart(part.id);
+                                    //   },
+                                    //   onCancel: () => {
+                                    //     setConfirmAlert({
+                                    //       visible: false,
+                                    //       message: "",
+                                    //       onConfirm: () => {},
+                                    //       onCancel: () => {},
+                                    //     });
+                                    //   },
+                                    // });
+                                  }}
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                                <button className="cursor-pointer text-gray-600 hover:text-[#00A1FE]">
+                                  <ScrollText className="mt-0.5" size={18} />
+                                </button>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))}
+                  </tbody>
+                </table>
+
+                {serviceData && serviceData.length !== 0 && (
+                  <Pagination
+                    totalPages={servicePagination.totalPages}
+                    currentPage={servicePagination.page}
+                    onPageChange={(page) => {
+                      setServicePagination({ ...servicePagination, page });
+                    }}
+                  />
+                )}
+              </div>
+
+              <div
+                className={`min-h-full transition-all duration-500 z-23 absolute top-0 left-0 w-full ${
+                  currentServiceData.section === "invoice"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                <div className="w-full bg-gray-200 p-4">
+                  <button
+                    className="select-none flex items-center gap-1 cursor-pointer mb-4"
+                    onClick={() => {
+                      setCurrentServiceData({
+                        ...currentServiceData,
+                        section: "",
+                      });
+                    }}
+                  >
+                    <ChevronLeft />
+                    <p className="font-bold">
+                      {t("vehicle_detail.service.back")}
+                    </p>
+                  </button>
+                  <img
+                    src={
+                      currentServiceData?.data.image ||
+                      "/image/placeholder.webp"
+                    }
+                    width={500}
+                    height={500}
+                    alt="Invoice"
+                    className="w-full h-auto px-2 pb-3"
+                  />
+                </div>
+              </div>
+
+              <div
+                className={`min-h-full transition-all duration-500 z-24 absolute top-0 left-0 w-full  ${
+                  currentServiceData.section === "detail"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                <div className="flex flex-row justify-between items-start w-full">
+                  <div className="">
+                    <p className="text-lg font-semibold">
+                      {t("vehicle_detail.service.title")}
+                    </p>
+                    <p className="text-gray-500">
+                      {t("vehicle_detail.service.subtitle")}
+                    </p>
+                  </div>
+                  <button
+                    className="cursor-pointer p-1 pr-2"
+                    onClick={() => {
+                      setCurrentServiceData({
+                        ...currentServiceData,
+                        section: "",
+                      });
+                    }}
+                  >
+                    <X size={18} color="gray" />
+                  </button>
+                </div>
+                <table className="w-full text-sm border border-gray-200 mt-4">
+                  <thead className="bg-[#E2E8F0]/20">
+                    <tr>
+                      <th className="text-center py-4 w-1/3">
+                        {t("vehicle_detail.service.table.part").toUpperCase()}
+                      </th>
+                      <th className="text-center py-4 w-2/3">
+                        {t("vehicle_detail.service.notes").toUpperCase()}
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="font-medium">
+                    <tr className="border-t border-gray-200">
+                      <td className="py-4 text-left px-6 border border-gray-200 align-top">
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                          {currentServiceData?.data?.parts?.map((part) => (
+                            <li key={part.id}>{part.name}</li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="py-4 text-left px-6 align-top">
+                        {currentServiceData && currentServiceData?.data?.notes
+                          ? currentServiceData?.data?.notes
+                          : "-"}
+                      </td>
+                    </tr>
+                    <tr className="border-t border-gray-200">
+                      <td className="py-4 text-left px-6 border border-gray-200">
+                        {t(
+                          "vehicle_detail.service.total_service_cost",
+                        ).toUpperCase()}
+                      </td>
+                      <td className="py-4 text-left px-6">
+                        Rp.{" "}
+                        {currentServiceData && currentServiceData?.data?.notes
+                          ? currentServiceData?.data?.cost.toLocaleString(
+                              "en-US",
+                            )
+                          : "0"}
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
