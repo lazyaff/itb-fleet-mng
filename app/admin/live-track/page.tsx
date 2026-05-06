@@ -8,8 +8,11 @@ import { vehicle_gps_status_color } from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
 import {
   Calendar,
+  ChevronLeft,
   CircleGauge,
   Clock,
+  Gauge,
+  MapPin,
   Phone,
   Search,
   Timer,
@@ -50,6 +53,31 @@ type Vehicle = {
   usage: VehicleUsage;
 };
 
+export type VehicleHistoryItem = {
+  id: string;
+  speed: number;
+  total_mileage: number;
+  created_at: string;
+  lat: number;
+  long: number;
+  angle: number;
+  movement: boolean;
+  renter: string;
+};
+
+export type VehicleDetail = {
+  vehicle: {
+    total_mileage: number;
+    average_speed: number;
+  };
+  history: VehicleHistoryItem[];
+};
+
+type TrackItem = {
+  lat: number;
+  long: number;
+};
+
 export default function LiveTrack() {
   const { data: session } = useSession() as { data: any };
   const { setLoading } = useContext(LoadingContext);
@@ -59,8 +87,25 @@ export default function LiveTrack() {
   const [rawVehicleData, setRawVehicleData] = useState<Vehicle[]>([]);
   const [filteredVehicle, setFilteredVehicle] = useState<Vehicle[]>([]);
   const [activeVehicle, setActiveVehicle] = useState<Vehicle | null>(null);
+  const [track, setTrack] = useState<TrackItem[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [vehicleStatus, setVehicleStatus] = useState("");
+  const [history, setHistory] = useState<{
+    open: boolean;
+    data: VehicleDetail | null;
+  }>({
+    open: false,
+    data: null,
+  });
+  const [playbackMode, setPlaybackMode] = useState<{
+    active: boolean;
+    status: "playing" | "paused";
+    currentIdx: number;
+  }>({
+    active: false,
+    status: "paused",
+    currentIdx: 0,
+  });
   const { t, lang } = useLanguage();
 
   const vehicleStatusOption = [
@@ -108,6 +153,75 @@ export default function LiveTrack() {
     }
   };
 
+  const fetchHistory = async (date: string, id: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `/api/v1/live-track/history?id=${id}&date=${date}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.user.access_token}`,
+          },
+        },
+      );
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          handleLogout();
+          return;
+        }
+        throw new Error(res.statusText);
+      }
+
+      const response = await res.json();
+      const data = response.data;
+      setHistory({
+        open: true,
+        data: data,
+      });
+      setTrack(
+        data.history.map((item: any) => ({
+          lat: item.lat,
+          long: item.long,
+        })),
+      );
+      if (data.history.length > 0) {
+        const rawData = data.history[data.history.length - 1];
+        const vehicleData: any = {
+          id: activeVehicle?.id || "",
+          name: activeVehicle?.name || "",
+          plate_number: activeVehicle?.plate_number || "",
+          lat: rawData.lat as number,
+          long: rawData.long as number,
+          angle: rawData.angle ?? 0,
+          movement: rawData.movement ?? false,
+          image: "",
+          current_mileage: 0,
+          status: "Moving",
+          speed: null,
+          battery_voltage: null,
+          last_updated: null,
+          gsm_signal_strength: null,
+          usage: {
+            name: null,
+            phone: null,
+            image: "",
+            end_date: null,
+          },
+        };
+        setFilteredVehicle([vehicleData]);
+      } else {
+        setFilteredVehicle([]);
+      }
+    } catch (error) {
+      console.log("Fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (session) fetchData();
   }, [session]);
@@ -132,6 +246,7 @@ export default function LiveTrack() {
   };
 
   useEffect(() => {
+    if (activeVehicle) return;
     applyFilter();
   }, [searchInput, vehicleStatus, rawVehicleData]);
 
@@ -139,206 +254,377 @@ export default function LiveTrack() {
     <div className="relative h-full w-full max-h-full max-w-full">
       <div className="absolute left-4 top-4 bottom-4 z-401 flex flex-row items-end gap-4">
         {activeVehicle ? (
-          <div className="bg-[rgb(249,250,251)] w-88 rounded-xl flex flex-col items-start gap-4 p-4">
-            <div className="flex flex-row justify-between items-start w-full">
-              <div className="w-[80%] flex items-center gap-2">
-                <Image
-                  src={activeVehicle.image}
-                  alt={activeVehicle.id}
-                  width={200}
-                  height={200}
-                  draggable={false}
-                  className="w-10 h-10 object-cover rounded-lg select-none"
-                />
-                <div className="flex flex-col justify-start items-start">
-                  <span className="text-gray-800 text-sm">
-                    {activeVehicle.name}
-                  </span>
-                  <div className="flex flex-wrap justify-end gap-2 pt-1">
-                    <span className="inline-flex items-center px-1.5 rounded-md border text-xs font-medium bg-gray-100 text-black border-black">
-                      {activeVehicle.plate_number}
-                    </span>
-
-                    {(() => {
-                      const config =
-                        vehicle_gps_status_color[
-                          activeVehicle.status as keyof typeof vehicle_gps_status_color
-                        ];
-
-                      if (!config) return activeVehicle.status;
-
-                      return (
-                        <span
-                          className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
-                          />
-                          {
-                            vehicleStatusOption.find(
-                              (item) => item.id === activeVehicle.status,
-                            )?.name
-                          }
-                        </span>
-                      );
-                    })()}
-                  </div>
+          <div className="bg-[rgb(249,250,251)] w-88 rounded-xl">
+            {history.open ? (
+              <div className="w-full flex flex-col items-start gap-6 p-4 relative">
+                <button
+                  className="select-none flex items-center gap-1 cursor-pointer"
+                  onClick={() => {
+                    setHistory({
+                      ...history,
+                      open: false,
+                    });
+                    setPlaybackMode({
+                      active: false,
+                      status: "paused",
+                      currentIdx: 0,
+                    });
+                    setTrack([]);
+                    const vehicle: any = rawVehicleData.find(
+                      (item) => item.id === activeVehicle.id,
+                    );
+                    setFilteredVehicle([vehicle]);
+                    setActiveVehicle(vehicle);
+                  }}
+                >
+                  <ChevronLeft />
+                  <p className="font-bold text-lg">
+                    {t("live_track.trip_history")}
+                  </p>
+                </button>
+                <div className="w-1/2">
+                  <label className="block mb-2 font-semibold">
+                    {t("live_track.select_date").toUpperCase()}
+                  </label>
+                  <input
+                    autoComplete="off"
+                    type="date"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    onChange={async (e) => {
+                      const date = e.target.value
+                        ? e.target.value
+                        : formatedDate(new Date(), "yyyy-MM-dd");
+                      await fetchHistory(date, activeVehicle.id);
+                    }}
+                  />
                 </div>
-              </div>
-              <button
-                className="cursor-pointer p-1 pr-0"
-                onClick={() => {
-                  setActiveVehicle(null);
-                }}
-              >
-                <X size={18} color="gray" />
-              </button>
-            </div>
-            {activeVehicle.usage.name && (
-              <div className="border-t border-gray-200 w-full pt-4 gap-2 flex flex-col">
-                <div className="w-[80%] flex items-center gap-2">
+                <div className="w-full flex items-center gap-2 bg-gray-100 border border-gray-200 p-2 rounded-xl">
                   <Image
-                    src={activeVehicle.usage.image}
+                    src={activeVehicle.image}
                     alt={activeVehicle.id}
                     width={200}
                     height={200}
                     draggable={false}
-                    className="w-8 h-8 object-cover rounded-full select-none"
+                    className="w-14 h-14 object-cover rounded-lg select-none"
                   />
-                  <p>{activeVehicle.usage.name}</p>
+                  <div className="flex flex-col justify-start items-start w-full">
+                    <div className="flex justify-between w-full items-center">
+                      <span className="text-gray-800 text-sm font-semibold">
+                        {activeVehicle.plate_number}
+                      </span>
+                      {(() => {
+                        const currentHistory = playbackMode.active
+                          ? history?.data?.history?.[playbackMode.currentIdx]
+                          : history?.data?.history?.[
+                              history.data.history.length - 1
+                            ];
+
+                        const currentStatus = currentHistory?.movement
+                          ? "Moving"
+                          : "Stopped";
+
+                        const config =
+                          vehicle_gps_status_color[
+                            currentStatus as keyof typeof vehicle_gps_status_color
+                          ];
+
+                        const statusName =
+                          vehicleStatusOption.find(
+                            (item) => item.id === currentStatus,
+                          )?.name ?? currentStatus;
+
+                        if (!config) return statusName;
+
+                        return (
+                          <span
+                            className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                            />
+                            {statusName}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <span className="text-gray-800 text-sm">
+                      {activeVehicle.name}
+                    </span>
+                    <span className="text-gray-800 text-sm">
+                      <span className="font-semibold">
+                        {t("live_track.renter")}
+                      </span>
+                      :{" "}
+                      {(playbackMode.active
+                        ? history?.data?.history?.[playbackMode.currentIdx]
+                            ?.renter
+                        : history?.data?.history?.slice(-1)[0]?.renter) ?? "-"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex w-full justify-between">
-                  <p className="text-gray-500">
-                    <Phone className="inline mr-1 mb-0.5" size={14} />{" "}
-                    {t("live_track.phone_number")}
-                  </p>
-                  <p>{activeVehicle.usage.phone}</p>
+                {(history?.data?.history?.length || 0) > 0 ? (
+                  <div className="w-full text-gray-500">
+                    <div className="w-full flex justify-between items-center mb-2">
+                      <div className="flex gap-2 items-center">
+                        <Gauge size={18} />
+                        <span>{t("live_track.speed")}</span>
+                      </div>
+                      <p className="text-black font-semibold">
+                        {playbackMode.active
+                          ? history?.data?.history?.[playbackMode.currentIdx]
+                              .speed
+                          : (history.data?.vehicle?.average_speed ?? 0)}{" "}
+                        km/h
+                      </p>
+                    </div>
+                    <div className="w-full flex justify-between items-center">
+                      <div className="flex gap-2 items-center">
+                        <MapPin size={18} />
+                        <span>{t("live_track.distance")}</span>
+                      </div>
+                      <p className="text-black font-semibold">
+                        {(
+                          ((playbackMode.active
+                            ? history?.data?.history?.[playbackMode.currentIdx]
+                                ?.total_mileage
+                            : history.data?.vehicle?.total_mileage) ?? 0) / 1000
+                        ).toLocaleString("en-US", {
+                          minimumFractionDigits: 3,
+                          maximumFractionDigits: 3,
+                        })}{" "}
+                        km
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center justify-center gap-2 mt-2 mb-5">
+                    <span className="text-gray-500">No history found</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full flex flex-col items-start gap-4 p-4 relative">
+                <div className="flex flex-row justify-between items-start w-full">
+                  <div className="w-[80%] flex items-center gap-2">
+                    <Image
+                      src={activeVehicle.image}
+                      alt={activeVehicle.id}
+                      width={200}
+                      height={200}
+                      draggable={false}
+                      className="w-10 h-10 object-cover rounded-lg select-none"
+                    />
+                    <div className="flex flex-col justify-start items-start">
+                      <span className="text-gray-800 text-sm">
+                        {activeVehicle.name}
+                      </span>
+                      <div className="flex flex-wrap justify-end gap-2 pt-1">
+                        <span className="inline-flex items-center px-1.5 rounded-md border text-xs font-medium bg-gray-100 text-black border-black">
+                          {activeVehicle.plate_number}
+                        </span>
+
+                        {(() => {
+                          const config =
+                            vehicle_gps_status_color[
+                              activeVehicle.status as keyof typeof vehicle_gps_status_color
+                            ];
+
+                          if (!config) return activeVehicle.status;
+
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                              />
+                              {
+                                vehicleStatusOption.find(
+                                  (item) => item.id === activeVehicle.status,
+                                )?.name
+                              }
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className="cursor-pointer p-1 pr-0"
+                    onClick={() => {
+                      setActiveVehicle(null);
+                      applyFilter();
+                    }}
+                  >
+                    <X size={18} color="gray" />
+                  </button>
                 </div>
-                <div className="flex w-full justify-between">
-                  <p className="text-gray-500">
-                    <Calendar className="inline mr-1 mb-1" size={14} />{" "}
-                    {t("live_track.due_date")}
-                  </p>
-                  <p>{activeVehicle.usage.end_date}</p>
+                {activeVehicle.usage.name && (
+                  <div className="border-t border-gray-200 w-full pt-4 gap-2 flex flex-col">
+                    <div className="w-[80%] flex items-center gap-2">
+                      <Image
+                        src={activeVehicle.usage.image}
+                        alt={activeVehicle.id}
+                        width={200}
+                        height={200}
+                        draggable={false}
+                        className="w-8 h-8 object-cover rounded-full select-none"
+                      />
+                      <p>{activeVehicle.usage.name}</p>
+                    </div>
+                    <div className="flex w-full justify-between">
+                      <p className="text-gray-500">
+                        <Phone className="inline mr-1 mb-0.5" size={14} />{" "}
+                        {t("live_track.phone_number")}
+                      </p>
+                      <p>{activeVehicle.usage.phone}</p>
+                    </div>
+                    <div className="flex w-full justify-between">
+                      <p className="text-gray-500">
+                        <Calendar className="inline mr-1 mb-1" size={14} />{" "}
+                        {t("live_track.due_date")}
+                      </p>
+                      <p>{activeVehicle.usage.end_date}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="border-t border-gray-200 w-full pt-4 gap-4 flex flex-col">
+                  <div>
+                    <div className="flex justify-between text-gray-500">
+                      <p>{t("live_track.gsm_signal")}</p>
+                      <p>
+                        {activeVehicle.gsm_signal_strength
+                          ? (Math.min(activeVehicle.gsm_signal_strength, 5) /
+                              5) *
+                            100
+                          : 0}
+                        %
+                      </p>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded mt-2">
+                      <div
+                        className={`h-2 ${activeVehicle.gsm_signal_strength && activeVehicle.gsm_signal_strength >= 3 ? "bg-[#16A249]" : activeVehicle.gsm_signal_strength && activeVehicle.gsm_signal_strength >= 2 ? "bg-[#FFC107]" : "bg-[#DC3545]"} rounded`}
+                        style={{
+                          width: `${activeVehicle.gsm_signal_strength ? (Math.min(activeVehicle.gsm_signal_strength, 5) / 5) * 100 : 0}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div
+                      className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
+                    >
+                      <div className="flex flex-row justify-between items-center">
+                        <span>{t("live_track.current_speed")}</span>
+                        <span>
+                          <CircleGauge className=" text-gray-400" size={16} />
+                        </span>
+                      </div>
+                      <div className="flex flex-row justify-between items-end">
+                        <span className="font-bold text-4xl">
+                          {activeVehicle.speed || 0}
+                        </span>
+                        <span>km/h</span>
+                      </div>
+                    </div>
+                    <div
+                      className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
+                    >
+                      <div className="flex flex-row justify-between items-center">
+                        <span>Total KM</span>
+                        <span>
+                          <TrendingUp className=" text-gray-400" size={16} />
+                        </span>
+                      </div>
+                      <div className="flex flex-row justify-between items-end">
+                        <span
+                          className={`font-bold ${activeVehicle.current_mileage > 99000000 ? "text-2xl" : "text-4xl"}`}
+                        >
+                          {Math.floor(
+                            activeVehicle.current_mileage / 1000,
+                          ).toLocaleString("en-US")}
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-start`}
+                    >
+                      <div className="flex flex-row justify-between items-center">
+                        <span>{t("live_track.battery_voltage")}</span>
+                        <span>
+                          <Zap className=" text-gray-400" size={16} />
+                        </span>
+                      </div>
+                      <div className="flex flex-row justify-between items-end">
+                        <span className="font-bold text-4xl">
+                          {activeVehicle.battery_voltage || 0}V
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
+                    >
+                      <div className="flex flex-row justify-between items-center">
+                        <span>{t("live_track.last_updated")}</span>
+                      </div>
+                      <div className="flex flex-col justify-between items-start">
+                        <span className="font-bold text-4xl">
+                          {activeVehicle.last_updated
+                            ? formatedDate(
+                                new Date(activeVehicle.last_updated),
+                                "HH:mm",
+                              )
+                            : "--:--"}
+                        </span>
+                        <span>
+                          {activeVehicle.last_updated
+                            ? formatedDate(
+                                new Date(activeVehicle.last_updated),
+                                "dd MMM yyyy",
+                              )
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row justify-between gap-4">
+                    <button
+                      onClick={() => {
+                        setLoading(true);
+                        router.push("/admin/vehicle/" + activeVehicle.id);
+                      }}
+                      className="font-semibold bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer w-full"
+                    >
+                      {t("live_track.view_vehicle")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        fetchHistory(
+                          formatedDate(new Date(), "yyyy-MM-dd"),
+                          activeVehicle.id,
+                        );
+
+                        if (
+                          !mapRef.current ||
+                          !activeVehicle.lat ||
+                          !activeVehicle.long
+                        )
+                          return;
+
+                        mapRef.current.focusTo(
+                          activeVehicle.lat,
+                          activeVehicle.long,
+                          15,
+                        );
+                      }}
+                      className={`font-semibold bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer w-full`}
+                    >
+                      {t("live_track.view_history")}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
-            <div className="border-t border-gray-200 w-full pt-4 gap-4 flex flex-col">
-              <div>
-                <div className="flex justify-between text-gray-500">
-                  <p>{t("live_track.gsm_signal")}</p>
-                  <p>
-                    {activeVehicle.gsm_signal_strength
-                      ? (Math.min(activeVehicle.gsm_signal_strength, 5) / 5) *
-                        100
-                      : 0}
-                    %
-                  </p>
-                </div>
-                <div className="h-2 bg-gray-200 rounded mt-2">
-                  <div
-                    className={`h-2 ${activeVehicle.gsm_signal_strength && activeVehicle.gsm_signal_strength >= 3 ? "bg-[#16A249]" : activeVehicle.gsm_signal_strength && activeVehicle.gsm_signal_strength >= 2 ? "bg-[#FFC107]" : "bg-[#DC3545]"} rounded`}
-                    style={{
-                      width: `${activeVehicle.gsm_signal_strength ? (Math.min(activeVehicle.gsm_signal_strength, 5) / 5) * 100 : 0}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div
-                  className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span>{t("live_track.current_speed")}</span>
-                    <span>
-                      <CircleGauge className=" text-gray-400" size={16} />
-                    </span>
-                  </div>
-                  <div className="flex flex-row justify-between items-end">
-                    <span className="font-bold text-4xl">
-                      {activeVehicle.speed || 0}
-                    </span>
-                    <span>km/h</span>
-                  </div>
-                </div>
-                <div
-                  className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span>Total KM</span>
-                    <span>
-                      <TrendingUp className=" text-gray-400" size={16} />
-                    </span>
-                  </div>
-                  <div className="flex flex-row justify-between items-end">
-                    <span
-                      className={`font-bold ${activeVehicle.current_mileage > 99000000 ? "text-2xl" : "text-4xl"}`}
-                    >
-                      {Math.floor(
-                        activeVehicle.current_mileage / 1000,
-                      ).toLocaleString("en-US")}
-                    </span>
-                  </div>
-                </div>
-                <div
-                  className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-start`}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span>{t("live_track.battery_voltage")}</span>
-                    <span>
-                      <Zap className=" text-gray-400" size={16} />
-                    </span>
-                  </div>
-                  <div className="flex flex-row justify-between items-end">
-                    <span className="font-bold text-4xl">
-                      {activeVehicle.battery_voltage || 0}V
-                    </span>
-                  </div>
-                </div>
-                <div
-                  className={`bg-white border border-gray-300 rounded-lg py-2.5 px-3 flex flex-col gap-2 justify-between`}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span>{t("live_track.last_updated")}</span>
-                  </div>
-                  <div className="flex flex-col justify-between items-start">
-                    <span className="font-bold text-4xl">
-                      {activeVehicle.last_updated
-                        ? formatedDate(
-                            new Date(activeVehicle.last_updated),
-                            "HH:mm",
-                          )
-                        : "--:--"}
-                    </span>
-                    <span>
-                      {activeVehicle.last_updated
-                        ? formatedDate(
-                            new Date(activeVehicle.last_updated),
-                            "dd MMM yyyy",
-                          )
-                        : ""}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row justify-between gap-4">
-                <button
-                  onClick={() => {
-                    setLoading(true);
-                    router.push("/admin/vehicle/" + activeVehicle.id);
-                  }}
-                  className="font-semibold bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer w-full"
-                >
-                  {t("live_track.view_vehicle")}
-                </button>
-                <button
-                  // onClick={handleUpdateData}
-                  className={`font-semibold bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer w-full`}
-                >
-                  {t("live_track.view_history")}
-                </button>
-              </div>
-            </div>
           </div>
         ) : (
           <div className="bg-[rgb(249,250,251)] w-88 rounded-xl flex flex-col items-start gap-6 h-full">
@@ -391,6 +677,7 @@ export default function LiveTrack() {
                       mapRef.current?.focusTo(item.lat, item.long);
                     }
                     setActiveVehicle(item);
+                    setFilteredVehicle([item]);
                   }}
                 >
                   <div className="flex flex-row items-center gap-2">
@@ -456,9 +743,10 @@ export default function LiveTrack() {
           if (!id) return;
           const vehicle = rawVehicleData.find((item) => item.id === id);
           if (!vehicle) return;
-          console.log(vehicle);
           setActiveVehicle(vehicle);
+          setFilteredVehicle([vehicle]);
         }}
+        track={track}
       />
     </div>
   );

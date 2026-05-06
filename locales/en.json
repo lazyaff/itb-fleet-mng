@@ -66,6 +66,11 @@
   "live_track.last_updated": "Last Updated",
   "live_track.view_vehicle": "View Vehicle",
   "live_track.view_history": "View History",
+  "live_track.trip_history": "Trip History",
+  "live_track.select_date": "Select Date",
+  "live_track.renter": "Renter",
+  "live_track.speed": "Speed",
+  "live_track.distance": "Distance",
 
   "vehicle.fleet_status": "Fleet Status",
   "vehicle.search_placeholder": "Search vehicles...",

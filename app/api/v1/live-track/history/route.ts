@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
       select: {
         plate_number: true,
         name: true,
+        image: true,
       },
     });
     if (!vehicle) {
@@ -87,21 +88,30 @@ export async function GET(request: NextRequest) {
         long: true,
         angle: true,
         movement: true,
+        usage_reconciliation: {
+          select: {
+            vehicle_usage_history: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    let totalMovementMs = 0;
+    // let totalMovementMs = 0;
     const data = rawData.map((item, index) => {
-      if (index > 0) {
-        const prev = rawData[index - 1];
-        const diff =
-          new Date(item.created_at).getTime() -
-          new Date(prev.created_at).getTime();
+      // if (index > 0) {
+      //   const prev = rawData[index - 1];
+      //   const diff =
+      //     new Date(item.created_at).getTime() -
+      //     new Date(prev.created_at).getTime();
 
-        if (prev.movement) {
-          totalMovementMs += diff;
-        }
-      }
+      //   if (prev.movement) {
+      //     totalMovementMs += diff;
+      //   }
+      // }
 
       return {
         id: item.id,
@@ -112,7 +122,8 @@ export async function GET(request: NextRequest) {
         long: item.long,
         angle: item.angle,
         movement: item.movement,
-        duration: totalMovementMs / 1000,
+        renter: item.usage_reconciliation?.vehicle_usage_history?.name || "-",
+        // duration: totalMovementMs / 1000,
       };
     });
 
@@ -124,6 +135,21 @@ export async function GET(request: NextRequest) {
         vehicle: {
           plate_number: vehicle.plate_number,
           name: vehicle.name,
+          image: vehicle.image
+            ? process.env.PUBLIC_STORAGE_PATH! + vehicle.image
+            : "/image/placeholder.webp",
+          total_mileage:
+            data.length >= 2
+              ? Math.max(
+                  data[data.length - 1].total_mileage - data[0].total_mileage,
+                  0,
+                )
+              : 0,
+          average_speed:
+            data.length > 0
+              ? data.reduce((acc, item) => acc + (item.speed || 0), 0) /
+                data.length
+              : 0,
         },
         history: data,
       },

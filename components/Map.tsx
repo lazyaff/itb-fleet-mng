@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
-import { TileLayer } from "react-leaflet";
+import { CircleMarker, Polyline, TileLayer } from "react-leaflet";
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 type Vehicle = {
@@ -15,10 +15,20 @@ type Vehicle = {
   movement: boolean;
 };
 
+type TrackItem = {
+  lat: number;
+  long: number;
+};
+
 type Props = {
   vehicles: Vehicle[];
+  track?: TrackItem[];
   active_vehicle_id?: string;
   onVehicleClick?: (id: string | null) => void;
+};
+
+export type MapRef = {
+  focusTo: (lat: number, long: number, zoom?: number) => void;
 };
 
 const MapComponent = dynamic(
@@ -61,7 +71,7 @@ const MapComponent = dynamic(
                 position={[item.lat, item.long]}
                 icon={item.icon}
                 {...({
-                  rotationAngle: item.angle - 90,
+                  rotationAngle: item.angle,
                   rotationOrigin: "center",
                 } as any)}
               >
@@ -80,10 +90,6 @@ const MapComponent = dynamic(
   { ssr: false },
 );
 
-export type MapRef = {
-  focusTo: (lat: number, long: number, zoom?: number) => void;
-};
-
 export const InteractiveMapComponent = dynamic(
   async () => {
     const RL = await import("react-leaflet");
@@ -91,7 +97,7 @@ export const InteractiveMapComponent = dynamic(
     await import("leaflet-rotatedmarker");
 
     const InnerMap = forwardRef<MapRef, Props>(
-      ({ vehicles, active_vehicle_id, onVehicleClick }, ref) => {
+      ({ vehicles, track, active_vehicle_id, onVehicleClick }, ref) => {
         const mapRef = useRef<any>(null);
 
         // expose function ke luar
@@ -100,7 +106,7 @@ export const InteractiveMapComponent = dynamic(
             if (!mapRef.current) return;
 
             mapRef.current.flyTo([lat, long], zoom, {
-              duration: 1.25,
+              duration: 1,
               easeLinearity: 0.25,
             });
           },
@@ -129,6 +135,15 @@ export const InteractiveMapComponent = dynamic(
           }),
         }));
 
+        const trackPositions: [number, number][] =
+          track?.map((item) => [item.lat, item.long]) || [];
+
+        // const stopPoints =
+        //   track?.filter((item) => item.movement === false) || [];
+
+        const startPoint = track?.[0];
+        const endPoint = track?.[track.length - 1];
+
         return (
           <div style={{ height: "100%", width: "100%" }}>
             <RL.MapContainer
@@ -137,6 +152,51 @@ export const InteractiveMapComponent = dynamic(
               zoomControl={false}
               style={{ height: "100%", width: "100%" }}
             >
+              {trackPositions.length > 1 && (
+                <Polyline
+                  color="#16A249"
+                  weight={5}
+                  positions={trackPositions}
+                />
+              )}
+
+              {/* {stopPoints.map((item, index) => (
+                <CircleMarker
+                  key={`stop-${index}`}
+                  center={[item.lat, item.long]}
+                  radius={6}
+                  pathOptions={{
+                    color: "white",
+                    fillColor: "red",
+                    fillOpacity: 1,
+                  }}
+                />
+              ))} */}
+
+              {startPoint && (
+                <CircleMarker
+                  center={[startPoint.lat, startPoint.long]}
+                  radius={6}
+                  pathOptions={{
+                    color: "white",
+                    fillColor: "#16A249",
+                    fillOpacity: 1,
+                  }}
+                />
+              )}
+
+              {endPoint && (
+                <CircleMarker
+                  center={[endPoint.lat, endPoint.long]}
+                  radius={6}
+                  pathOptions={{
+                    color: "white",
+                    fillColor: "#16A249",
+                    fillOpacity: 1,
+                  }}
+                />
+              )}
+
               <MapSetter />
 
               <RL.ZoomControl position="topright" />
@@ -144,7 +204,7 @@ export const InteractiveMapComponent = dynamic(
 
               {vehicleData.map((item, index) => (
                 <RL.Marker
-                  key={index}
+                  key={item.id}
                   position={[item.lat, item.long]}
                   icon={item.icon}
                   eventHandlers={{
@@ -160,7 +220,7 @@ export const InteractiveMapComponent = dynamic(
                     },
                   }}
                   {...({
-                    rotationAngle: item.angle - 90,
+                    rotationAngle: item.angle,
                     rotationOrigin: "center",
                   } as any)}
                 />

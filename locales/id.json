@@ -66,6 +66,11 @@
   "live_track.last_updated": "Terakhir Diperbarui",
   "live_track.view_vehicle": "Lihat Kendaraan",
   "live_track.view_history": "Lihat Riwayat",
+  "live_track.trip_history": "Riwayat Perjalanan",
+  "live_track.select_date": "Pilih Tanggal",
+  "live_track.renter": "Penyewa",
+  "live_track.speed": "Kecepatan",
+  "live_track.distance": "Jarak",
 
   "vehicle.fleet_status": "Status Kendaraan",
   "vehicle.search_placeholder": "Cari kendaraan...",
