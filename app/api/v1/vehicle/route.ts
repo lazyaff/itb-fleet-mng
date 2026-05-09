@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const partData = parts.map((part) => ({
+    const partData = parts.map((part: any) => ({
       vehicle_id: id,
       general_vehicle_part_id: part.id,
       name: part.name,

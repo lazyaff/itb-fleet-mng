@@ -79,16 +79,16 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((section) => ({
+    const data = rawData.map((section: any) => ({
       id: section.id,
       title: section.title,
       order: section.order,
       icon: process.env.PUBLIC_STORAGE_PATH! + section.icon,
-      questions: section.questions.map((question) => ({
+      questions: section.questions.map((question: any) => ({
         id: question.id,
         title: question.title,
         order: question.order,
-        options: question.options.map((option) => ({
+        options: question.options.map((option: any) => ({
           id: option.id,
           label: option.label,
           description: option.description,

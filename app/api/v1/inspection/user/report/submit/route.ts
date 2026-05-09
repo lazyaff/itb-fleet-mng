@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      const answerData = answers.map((option) => ({
+      const answerData = answers.map((option: any) => ({
         report_id: report.id,
         question_id: option.question.id,
         option_id: option.id,

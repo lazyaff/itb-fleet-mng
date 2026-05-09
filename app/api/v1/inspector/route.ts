@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
         name: item.name,
         email: item.email,
         active: item.active,
-        vehicles: item.vehicles.map((vehicle) => ({
+        vehicles: item.vehicles.map((vehicle: any) => ({
           id: vehicle.id,
           name: vehicle.name,
           plate_number: vehicle.plate_number,
@@ -512,7 +512,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (isExist.vehicles.length > 0) {
-      const vehicle_ids = isExist.vehicles.map((vehicle) => vehicle.id);
+      const vehicle_ids = isExist.vehicles.map((vehicle: any) => vehicle.id);
       await prisma.vehicle.updateMany({
         where: {
           id: {

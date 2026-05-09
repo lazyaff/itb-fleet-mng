@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
       type: item.type,
       cost: item.cost,
       notes: item.notes,
-      parts: item.vehicle_parts.map((part) => {
+      parts: item.vehicle_parts.map((part: any) => {
         return {
           id: part.vehicle_part.id,
           name: part.vehicle_part.name,

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const offset = (parseInt(page) - 1) * limit;
 
     const vehicleIdArray = vehicle_ids
-      ? vehicle_ids.split(",").map((id) => id.trim())
+      ? vehicle_ids.split(",").map((id: any) => id.trim())
       : [];
 
     const sortMap: Record<string, any> = {
