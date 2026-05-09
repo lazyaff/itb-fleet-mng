@@ -16,14 +16,18 @@ import {
   Activity,
   ChevronLeft,
   Circle,
+  CircleUser,
   Clock,
+  ImagePlus,
   Info,
+  NotebookText,
   ScrollText,
   ShieldAlert,
   SquarePen,
   Trash2,
   TrendingUp,
   TriangleAlert,
+  Truck,
   X,
 } from "lucide-react";
 import { DateTime } from "luxon";
@@ -211,6 +215,61 @@ export default function VehicleDetail({
         time_limit: 0,
         last_service: "",
         current_distance: 0,
+      },
+    });
+    const [addService, setAddService] = useState<{
+      open: boolean;
+      data: {
+        image: File | string | null;
+        current_distance: number;
+        date: string;
+        cost: number;
+        notes: string | null;
+        part_ids: string[];
+      };
+    }>({
+      open: false,
+      data: {
+        image: null,
+        current_distance: 0,
+        date: "",
+        cost: 0,
+        notes: null,
+        part_ids: [],
+      },
+    });
+    const [updateService, setUpdateService] = useState<{
+      open: boolean;
+      data: {
+        id: string;
+        image: File | string | null;
+        current_distance: number;
+        date: string;
+        user: {
+          id: string;
+          name: string;
+        };
+        cost: number;
+        notes: string | null;
+        part_ids: {
+          id: string;
+          name: string;
+        }[];
+      };
+    }>({
+      open: false,
+      data: {
+        id: "",
+        image: null,
+        current_distance: 0,
+        date: "",
+        user: {
+          id: "",
+          name: "",
+        },
+        cost: 0,
+        notes: null,
+        part_ids: [],
       },
     });
 
@@ -657,6 +716,236 @@ export default function VehicleDetail({
       }
     };
 
+    const handleAddService = async () => {
+      try {
+        const { cost, current_distance, date, image, notes, part_ids } =
+          addService.data;
+        if (
+          cost < 0 ||
+          current_distance < 0 ||
+          !date ||
+          !image ||
+          part_ids.length === 0 ||
+          loading
+        ) {
+          return;
+        }
+
+        setLoading(true);
+
+        const formData = new FormData();
+        formData.append("vehicle_id", id);
+        formData.append("user_id", session.user.id);
+        formData.append("cost", cost.toString());
+        formData.append("current_distance", current_distance.toString());
+        formData.append("date", date);
+        formData.append("image", image as File);
+        formData.append("notes", notes || "");
+        formData.append("part_ids", part_ids.join(","));
+
+        const response = await fetch(`/api/v1/vehicle/service`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.user.access_token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          await Promise.all([fetchServiceData(), fetchData()]);
+          setAlert({
+            visible: true,
+            type: "success",
+            title: t("form.success_title"),
+            subtitle: t("form.add_success"),
+            onClose: () => {
+              setAddService({
+                ...addService,
+                open: false,
+              });
+            },
+          });
+        } else {
+          if (result.status === 401) {
+            handleLogout();
+          } else {
+            setAlert({
+              visible: true,
+              type: "error",
+              title: t("form.error_title"),
+              subtitle: result.message,
+              onClose: () => {},
+            });
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error adding bus:", error);
+        setAlert({
+          visible: true,
+          type: "error",
+          title: t("form.error_title"),
+          subtitle: t("form.error_generic"),
+          onClose: () => {},
+        });
+        setLoading(false);
+      }
+    };
+
+    const handleUpdateService = async () => {
+      try {
+        const { id, user, cost, date, image, notes } = updateService.data;
+        if (cost < 0 || !date || loading) {
+          return;
+        }
+
+        setLoading(true);
+
+        const formData = new FormData();
+        formData.append("id", id);
+        if (image instanceof File) {
+          formData.append("image", image);
+        } else {
+          formData.append("image", "");
+        }
+        // formData.append("current_distance", current_distance.toString());
+        formData.append("user_id", user.id);
+        formData.append("cost", cost.toString());
+        formData.append("date", date);
+        formData.append("notes", notes || "");
+
+        const response = await fetch(`/api/v1/vehicle/service`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${session.user.access_token}`,
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          await Promise.all([fetchServiceData(), fetchData()]);
+          setAlert({
+            visible: true,
+            type: "success",
+            title: t("form.success_title"),
+            subtitle: t("form.update_success"),
+            onClose: () => {
+              setUpdateService({
+                ...updateService,
+                open: false,
+              });
+            },
+          });
+        } else {
+          if (result.status === 401) {
+            handleLogout();
+          } else {
+            setAlert({
+              visible: true,
+              type: "error",
+              title: t("form.error_title"),
+              subtitle: result.message,
+              onClose: () => {},
+            });
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error adding bus:", error);
+        setAlert({
+          visible: true,
+          type: "error",
+          title: t("form.error_title"),
+          subtitle: t("form.error_generic"),
+          onClose: () => {},
+        });
+        setLoading(false);
+      }
+    };
+
+    const handleDeleteService = async (id: string) => {
+      try {
+        if (!id || loading) {
+          return;
+        }
+
+        setLoading(true);
+
+        const response = await fetch(`/api/v1/vehicle/service`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.user.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: id,
+          }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          await fetchData();
+          await fetchServiceData();
+          setAlert({
+            visible: true,
+            type: "success",
+            title: t("form.success_title"),
+            subtitle: t("form.delete_success"),
+            onClose: () => {
+              setAlert({
+                visible: false,
+                title: "",
+                subtitle: "",
+                type: "default",
+                onClose: () => {},
+              });
+            },
+          });
+        } else {
+          if (result.status === 401) {
+            handleLogout();
+          } else {
+            setAlert({
+              visible: true,
+              type: "error",
+              title: t("form.error_title"),
+              subtitle: result.message,
+              onClose: () => {
+                setAlert({
+                  visible: false,
+                  title: "",
+                  subtitle: "",
+                  type: "default",
+                  onClose: () => {},
+                });
+              },
+            });
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error adding bus:", error);
+        setAlert({
+          visible: true,
+          type: "error",
+          title: t("form.error_title"),
+          subtitle: t("form.error_generic"),
+          onClose: () => {
+            setAlert({
+              visible: false,
+              title: "",
+              subtitle: "",
+              type: "default",
+              onClose: () => {},
+            });
+          },
+        });
+        setLoading(false);
+      }
+    };
+
     return (
       <div className="flex flex-col gap-4 w-full h-full min-h-[70dvh]">
         <button
@@ -978,9 +1267,25 @@ export default function VehicleDetail({
                           time_limit: 0,
                         },
                       });
+                    } else if (section === "services") {
+                      setAddService({
+                        open: true,
+                        data: {
+                          image: null,
+                          current_distance: Number(
+                            (
+                              (data?.vehicle.current_mileage || 0) / 1000
+                            ).toFixed(3),
+                          ),
+                          date: "",
+                          cost: 0,
+                          notes: null,
+                          part_ids: [],
+                        },
+                      });
                     }
                   }}
-                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" && currentServiceData.section === "" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                 >
                   + {t("common.add")}
                 </button>
@@ -1244,26 +1549,53 @@ export default function VehicleDetail({
                                 <button
                                   className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
                                   onClick={() => {
-                                    // setConfirmAlert({
-                                    //   visible: true,
-                                    //   message: t("gps_tracker.delete_confirm"),
-                                    //   onConfirm: async () => {
-                                    //     await handleDeletePart(part.id);
-                                    //   },
-                                    //   onCancel: () => {
-                                    //     setConfirmAlert({
-                                    //       visible: false,
-                                    //       message: "",
-                                    //       onConfirm: () => {},
-                                    //       onCancel: () => {},
-                                    //     });
-                                    //   },
-                                    // });
+                                    setConfirmAlert({
+                                      visible: true,
+                                      message: t("gps_tracker.delete_confirm"),
+                                      onConfirm: async () => {
+                                        await handleDeleteService(service.id);
+                                      },
+                                      onCancel: () => {
+                                        setConfirmAlert({
+                                          visible: false,
+                                          message: "",
+                                          onConfirm: () => {},
+                                          onCancel: () => {},
+                                        });
+                                      },
+                                    });
                                   }}
                                 >
                                   <Trash2 size={18} />
                                 </button>
-                                <button className="cursor-pointer text-gray-600 hover:text-[#00A1FE]">
+                                <button
+                                  onClick={() => {
+                                    setUpdateService({
+                                      open: true,
+                                      data: {
+                                        id: service.id,
+                                        image: service.image,
+                                        current_distance: Number(
+                                          service.current_mileage,
+                                        ),
+                                        date: service.date,
+                                        user: {
+                                          id: service.user.id,
+                                          name: service.user.name,
+                                        },
+                                        cost: service.cost,
+                                        notes: service.notes,
+                                        part_ids: service.parts.map((part) => {
+                                          return {
+                                            id: part.id,
+                                            name: part.name,
+                                          };
+                                        }),
+                                      },
+                                    });
+                                  }}
+                                  className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                >
                                   <ScrollText className="mt-0.5" size={18} />
                                 </button>
                               </div>
@@ -1348,8 +1680,8 @@ export default function VehicleDetail({
                     <X size={18} color="gray" />
                   </button>
                 </div>
-                <table className="w-full text-sm border border-gray-200 mt-4">
-                  <thead className="bg-[#E2E8F0]/20">
+                <table className="w-full text-sm mt-4">
+                  <thead className="bg-[#E2E8F0]/20 border border-gray-200">
                     <tr>
                       <th className="text-center py-4 w-1/3">
                         {t("vehicle_detail.service.table.part").toUpperCase()}
@@ -1360,8 +1692,8 @@ export default function VehicleDetail({
                     </tr>
                   </thead>
 
-                  <tbody className="font-medium">
-                    <tr className="border-t border-gray-200">
+                  <tbody className="font-medium border-none">
+                    <tr className="border border-gray-200">
                       <td className="py-4 text-left px-6 border border-gray-200 align-top">
                         <ul className="list-disc pl-5 space-y-1 text-gray-700">
                           {currentServiceData?.data?.parts?.map((part) => (
@@ -1375,7 +1707,11 @@ export default function VehicleDetail({
                           : "-"}
                       </td>
                     </tr>
-                    <tr className="border-t border-gray-200">
+                    <tr className="border-none border-gray-200">
+                      <td className="py-2 text-left px-6 align-top"></td>
+                      <td className="py-2 text-left px-6 align-top"></td>
+                    </tr>
+                    <tr className="border border-gray-200">
                       <td className="py-4 text-left px-6 border border-gray-200">
                         {t(
                           "vehicle_detail.service.total_service_cost",
@@ -1886,6 +2222,643 @@ export default function VehicleDetail({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* add part */}
+        <div
+          className={`z-70 fixed inset-0 flex justify-between items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+            addService.open
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className="flex flex-row justify-center gap-4 opacity-0 pointer-events-none">
+            <button className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer">
+              {t("common.cancel")}
+            </button>
+            <button
+              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none `}
+            >
+              {t("common.save")}
+            </button>
+          </div>
+          <div className="flex flex-col gap-6 overflow-y-auto">
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <Info size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-1")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-1")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6">
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+
+                    const file = e.dataTransfer.files?.[0];
+
+                    if (file) {
+                      setAddService((prev) => ({
+                        ...prev,
+                        data: {
+                          ...prev.data,
+                          image: file,
+                        },
+                      }));
+                    }
+                  }}
+                  className="relative w-full min-h-60 bg-[#F8FAFC] border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden"
+                >
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    className="hidden"
+                    id="invoice-upload"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+
+                      if (file) {
+                        setAddService((prev) => ({
+                          ...prev,
+                          data: {
+                            ...prev.data,
+                            image: file,
+                          },
+                        }));
+                      }
+                    }}
+                  />
+
+                  <label
+                    htmlFor="invoice-upload"
+                    className="flex flex-col items-center justify-center w-full h-full min-h-60 cursor-pointer"
+                  >
+                    {addService.data.image ? (
+                      <div className="relative w-full h-60">
+                        <img
+                          src={
+                            typeof addService.data.image === "string"
+                              ? addService.data.image
+                              : URL.createObjectURL(addService.data.image)
+                          }
+                          alt="Invoice Preview"
+                          className="w-full h-full object-cover"
+                        />
+
+                        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-all flex items-center justify-center">
+                          <span className="text-white font-medium">
+                            Change Image
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center mb-5">
+                          <ImagePlus className="text-[#7B7B7B]" size={28} />
+                        </div>
+
+                        <h2 className="text-base font-semibold text-gray-800">
+                          {t("vehicle_detail.service.modal.image.label")}
+                        </h2>
+
+                        <p className="text-gray-500 mt-1">
+                          {t("vehicle_detail.service.modal.image.placeholder")}
+                        </p>
+                      </>
+                    )}
+                  </label>
+                </div>
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.current_distance.label")}
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="number"
+                      value={addService.data.current_distance}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      readOnly
+                    />
+                  </div>
+                  {data?.vehicle.plate_number && (
+                    <div className="w-full">
+                      <label className="block mb-2">
+                        {t("vehicle_detail.service.modal.plate_number.label")}
+                      </label>
+                      <input
+                        readOnly
+                        autoComplete="off"
+                        type="text"
+                        value={data?.vehicle.plate_number || ""}
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.service_date.label")}{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="date"
+                      value={addService.data.date}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      onChange={(e) =>
+                        setAddService({
+                          ...addService,
+                          data: {
+                            ...addService.data,
+                            date: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="w-full"></div>
+                </div>
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <CircleUser size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-2")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-2")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6">
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t(
+                        "vehicle_detail.service.modal.admin_responsible.label",
+                      )}
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="text"
+                      value={session?.user.name || ""}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      readOnly
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.cost.label")}{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="number"
+                      value={addService.data.cost}
+                      onChange={(e) =>
+                        setAddService({
+                          ...addService,
+                          data: {
+                            ...addService.data,
+                            cost: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <Truck size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-3")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-3")}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 px-6 py-6">
+                {data?.parts.map((part) => (
+                  <label
+                    key={part.id}
+                    className={`
+                        flex items-center gap-3 px-4 py-3
+                        cursor-pointer transition-all
+                        hover:border-blue-400
+                       
+                      `}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={addService.data.part_ids.includes(part.id)}
+                      onChange={(e) => {
+                        setAddService((prev) => ({
+                          ...prev,
+                          data: {
+                            ...prev.data,
+                            part_ids: e.target.checked
+                              ? [...prev.data.part_ids, part.id]
+                              : prev.data.part_ids.filter(
+                                  (id) => id !== part.id,
+                                ),
+                          },
+                        }));
+                      }}
+                      className="w-5 h-5 accent-blue-500 rounded-2xl"
+                    />
+
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">{part.title}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <NotebookText size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-4")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-4")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6 bg-white">
+                <div className="w-full">
+                  <label className="block mb-2">
+                    {t("vehicle_detail.service.modal.notes.label")}
+                  </label>
+                  <textarea
+                    autoComplete="off"
+                    value={addService.data.notes || ""}
+                    onChange={(e) =>
+                      setAddService({
+                        ...addService,
+                        data: {
+                          ...addService.data,
+                          notes: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder={t(
+                      "vehicle_detail.service.modal.notes.placeholder",
+                    )}
+                    rows={3}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-row justify-center gap-4">
+            <button
+              onClick={() => setAddService({ ...addService, open: false })}
+              className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+            >
+              {t("common.cancel")}
+            </button>
+            <button
+              disabled={
+                loading ||
+                !addService.data.date ||
+                !addService.data.image ||
+                addService.data.cost <= 0 ||
+                addService.data.part_ids.length === 0
+              }
+              onClick={handleAddService}
+              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                loading ||
+                !addService.data.date ||
+                !addService.data.image ||
+                addService.data.cost < 0 ||
+                addService.data.part_ids.length === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-[#048ad8] cursor-pointer"
+              }`}
+            >
+              {t("common.save")}
+            </button>
+          </div>
+        </div>
+
+        {/* update part */}
+        <div
+          className={`z-70 fixed inset-0 flex justify-between items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+            updateService.open
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className="flex flex-row justify-center gap-4 opacity-0 pointer-events-none">
+            <button className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer">
+              {t("common.cancel")}
+            </button>
+            <button
+              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none `}
+            >
+              {t("common.save")}
+            </button>
+          </div>
+          <div className="flex flex-col gap-6 overflow-y-auto">
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <Info size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-1")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-1")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6">
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) {
+                      setUpdateService((prev) => ({
+                        ...prev,
+                        data: {
+                          ...prev.data,
+                          image: file,
+                        },
+                      }));
+                    }
+                  }}
+                  className="relative w-full min-h-60 bg-[#F8FAFC] border-2 border-dashed border-gray-300 rounded-2xl overflow-hidden"
+                >
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    className="hidden"
+                    id="invoice-upload-2"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUpdateService((prev) => ({
+                          ...prev,
+                          data: {
+                            ...prev.data,
+                            image: file,
+                          },
+                        }));
+                      }
+                    }}
+                  />
+
+                  <label
+                    htmlFor="invoice-upload-2"
+                    className="flex flex-col items-center justify-center w-full h-full min-h-60 cursor-pointer"
+                  >
+                    {updateService.data.image ? (
+                      <div className="relative w-full h-60">
+                        <img
+                          src={
+                            typeof updateService.data.image === "string"
+                              ? updateService.data.image
+                              : URL.createObjectURL(updateService.data.image)
+                          }
+                          alt="Invoice Preview"
+                          className="w-full h-full object-cover"
+                        />
+
+                        <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-all flex items-center justify-center">
+                          <span className="text-white font-medium">
+                            Change Image
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center mb-5">
+                          <ImagePlus className="text-[#7B7B7B]" size={28} />
+                        </div>
+
+                        <h2 className="text-base font-semibold text-gray-800">
+                          {t("vehicle_detail.service.modal.image.label")}
+                        </h2>
+
+                        <p className="text-gray-500 mt-1">
+                          {t("vehicle_detail.service.modal.image.placeholder")}
+                        </p>
+                      </>
+                    )}
+                  </label>
+                </div>
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.current_distance.label")}
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="number"
+                      value={updateService.data.current_distance}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      readOnly
+                    />
+                  </div>
+                  {data?.vehicle.plate_number && (
+                    <div className="w-full">
+                      <label className="block mb-2">
+                        {t("vehicle_detail.service.modal.plate_number.label")}
+                      </label>
+                      <input
+                        readOnly
+                        autoComplete="off"
+                        type="text"
+                        value={data?.vehicle.plate_number || ""}
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.service_date.label")}{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="date"
+                      value={updateService.data.date}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      onChange={(e) =>
+                        setUpdateService({
+                          ...updateService,
+                          data: {
+                            ...updateService.data,
+                            date: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="w-full"></div>
+                </div>
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <CircleUser size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-2")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-2")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6">
+                <div className="flex flex-row justify-between gap-6">
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t(
+                        "vehicle_detail.service.modal.admin_responsible.label",
+                      )}
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="text"
+                      value={updateService.data.user.name}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      readOnly
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block mb-2">
+                      {t("vehicle_detail.service.modal.cost.label")}{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      autoComplete="off"
+                      type="number"
+                      value={updateService.data.cost}
+                      onChange={(e) =>
+                        setUpdateService({
+                          ...updateService,
+                          data: {
+                            ...updateService.data,
+                            cost: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <Truck size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-3")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-3")}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 px-6 py-6">
+                {updateService?.data.part_ids.map((part) => (
+                  <label
+                    key={part.id}
+                    className={`
+                        flex items-center gap-3 px-4 py-3
+                        cursor-pointer transition-all
+                        hover:border-blue-400
+                       
+                      `}
+                  >
+                    <input
+                      readOnly
+                      type="checkbox"
+                      checked={true}
+                      className="w-5 h-5 accent-blue-500 rounded-2xl"
+                    />
+
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">{part.name}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
+              <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+                <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+                  <NotebookText size={18} color="#00A1FE" />
+                  {t("vehicle_detail.service.modal.title-4")}
+                </div>
+                <p className="text-[#64748B]">
+                  {t("vehicle_detail.service.modal.subtitle-4")}
+                </p>
+              </div>
+              <div className="space-y-6 px-6 py-6 bg-white">
+                <div className="w-full">
+                  <label className="block mb-2">
+                    {t("vehicle_detail.service.modal.notes.label")}
+                  </label>
+                  <textarea
+                    autoComplete="off"
+                    value={updateService.data.notes || ""}
+                    onChange={(e) =>
+                      setUpdateService({
+                        ...updateService,
+                        data: {
+                          ...updateService.data,
+                          notes: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder={t(
+                      "vehicle_detail.service.modal.notes.placeholder",
+                    )}
+                    rows={3}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-row justify-center gap-4">
+            <button
+              onClick={() =>
+                setUpdateService({ ...updateService, open: false })
+              }
+              className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+            >
+              {t("common.cancel")}
+            </button>
+            <button
+              disabled={
+                loading ||
+                !updateService.data.date ||
+                updateService.data.cost <= 0
+              }
+              onClick={handleUpdateService}
+              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                loading ||
+                !updateService.data.date ||
+                updateService.data.cost < 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-[#048ad8] cursor-pointer"
+              }`}
+            >
+              {t("common.save")}
+            </button>
           </div>
         </div>
 

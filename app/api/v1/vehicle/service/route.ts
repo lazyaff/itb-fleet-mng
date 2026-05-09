@@ -34,9 +34,12 @@ export async function GET(request: NextRequest) {
         },
         ...(limit ? { take: limit } : {}),
         ...(offset ? { skip: offset } : {}),
-        orderBy: {
-          created_at: "desc",
-        },
+        orderBy: [
+          { date: "desc" },
+          {
+            created_at: "desc",
+          },
+        ],
         select: {
           id: true,
           vehicle: {
@@ -147,7 +150,6 @@ export async function POST(request: NextRequest) {
     const image = form.get("image") as File;
     const current_distance = form.get("current_distance") as string;
     const date = form.get("date") as string;
-    const type = form.get("type") as string;
     const user_id = form.get("user_id") as string;
     const cost = form.get("cost") as string;
     const notes = form.get("notes") as string;
@@ -157,7 +159,6 @@ export async function POST(request: NextRequest) {
       !image ||
       !current_distance ||
       !date ||
-      !type ||
       !user_id ||
       !cost
     ) {
@@ -294,7 +295,7 @@ export async function POST(request: NextRequest) {
           vehicle_id: vehicle_id,
           current_mileage: Number(current_distance),
           date: new Date(date),
-          type: type,
+          type: "-",
           user_id: user_id,
           cost: Number(cost),
           notes: notes,
@@ -364,12 +365,11 @@ export async function PUT(request: NextRequest) {
     const form = await request.formData();
     const id = form.get("id") as string;
     const image = form.get("image") as File;
-    const current_distance = form.get("current_distance") as string;
-    const type = form.get("type") as string;
+    const date = form.get("date") as string;
     const user_id = form.get("user_id") as string;
     const cost = form.get("cost") as string;
     const notes = form.get("notes") as string;
-    if (!id || !current_distance || !type || !user_id || !cost) {
+    if (!id || !date || !user_id || !cost) {
       return NextResponse.json(
         {
           success: false,
@@ -458,8 +458,8 @@ export async function PUT(request: NextRequest) {
         id: id,
       },
       data: {
-        current_mileage: Number(current_distance),
-        type: type,
+        date: new Date(date),
+        type: "-",
         user_id: user_id,
         cost: Number(cost),
         notes: notes,

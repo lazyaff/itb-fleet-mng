@@ -13,7 +13,7 @@ const main = async () => {
     console.log("Seeding...");
     await roleSeeder(prisma);
     await userSeeder(prisma);
-    await vehicleTypeSeeder(prisma);
+    // await vehicleTypeSeeder(prisma);
     await vehicleSeeder(prisma);
     await vehiclePartSeeder(prisma);
     await inspectionItemSeeder(prisma);
