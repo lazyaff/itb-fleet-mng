@@ -21,7 +21,7 @@ export default function withAuth(
     const pathname = req.nextUrl.pathname;
     const token = await getToken({
       req,
-      secret: process.env.JWT_SECRET,
+      secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
     });
 
     const role = token?.role_id as Role | undefined;
