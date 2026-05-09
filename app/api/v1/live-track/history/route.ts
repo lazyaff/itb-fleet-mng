@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
               : 0,
           average_speed:
             data.length > 0
-              ? data.reduce((acc: any, item) => acc + (item.speed || 0), 0) /
+              ? data.reduce((acc: any, item: any) => acc + (item.speed || 0), 0) /
                 data.length
               : 0,
         },
