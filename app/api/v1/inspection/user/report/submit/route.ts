@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // create report data
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const report = await tx.inspection_report.create({
         data: {
           date: new Date(date),

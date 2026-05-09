@@ -234,7 +234,7 @@ export async function POST(request: NextRequest) {
     }
 
     // create data
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const data = await tx.user.create({
         data: {
           name,
@@ -396,7 +396,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.user.update({
         where: { id },
         data: {

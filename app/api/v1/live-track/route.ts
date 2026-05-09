@@ -333,7 +333,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const lastData = await tx.live_track_history.findFirst({
         where: {
           gps_tracker_id: device.id,

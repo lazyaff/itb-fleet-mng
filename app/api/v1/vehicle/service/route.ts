@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
         id: true,
       },
     });
-    const foundParts = parts.filter((part) => part_ids.includes(part.id));
+    const foundParts = parts.filter((part: any) => part_ids.includes(part.id));
     if (foundParts.length !== part_ids.length) {
       return NextResponse.json(
         {
@@ -284,7 +284,7 @@ export async function POST(request: NextRequest) {
     }
 
     // create transaction
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // save file
       const id = uuidv4();
       const filepath = await saveFile(image, "service-history", id);

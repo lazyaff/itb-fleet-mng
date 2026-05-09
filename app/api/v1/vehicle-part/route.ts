@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     }
 
     // create data
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const distance = Number(distance_limit);
       const time = Number(time_limit);
 
@@ -275,7 +275,7 @@ export async function PUT(request: NextRequest) {
     const distance = Number(distance_limit);
     const time = Number(time_limit);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.general_vehicle_part.update({
         where: { id },
         data: {
@@ -361,7 +361,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.general_vehicle_part.update({
         where: { id },
         data: {

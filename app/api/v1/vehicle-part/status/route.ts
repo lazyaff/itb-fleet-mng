@@ -49,9 +49,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // update data
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       const newActive = !data.active;
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         await tx.general_vehicle_part.update({
           where: { id },
           data: {
