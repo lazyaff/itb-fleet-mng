@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     const groupedSections = Object.values(
-      rawData.answers.reduce((acc, item) => {
+      rawData.answers.reduce((acc: any, item) => {
         const sectionKey = `${item.section_order}-${item.section_title}`;
 
         // group section
