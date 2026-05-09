@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item, index) => {
+    const data = rawData.map((item: any, index: number) => {
       return {
         no: index + offset + 1,
         id: item.id,

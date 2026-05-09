@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     });
 
     // let totalMovementMs = 0;
-    const data = rawData.map((item, index) => {
+    const data = rawData.map((item: any, index: number) => {
       // if (index > 0) {
       //   const prev = rawData[index - 1];
       //   const diff =
