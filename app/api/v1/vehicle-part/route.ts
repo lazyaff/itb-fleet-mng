@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      const vehicle_part_data = vehicles.map((item) => {
+      const vehicle_part_data = vehicles.map((item: any) => {
         return {
           vehicle_id: item.id,
           general_vehicle_part_id: data.id,

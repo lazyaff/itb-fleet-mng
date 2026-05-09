@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       plate_number: string;
     }[] = [];
 
-    const vehicle = rawData.map((item) => {
+    const vehicle = rawData.map((item: any) => {
       let health = 0;
       let time_limit: null | number = null;
       let distance_limit: null | number = null;

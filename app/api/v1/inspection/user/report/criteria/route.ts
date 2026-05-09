@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
       })),
     }));
 
-    const VehicleData = rawVehicle.map((item) => {
+    const VehicleData = rawVehicle.map((item: any) => {
       return {
         id: item.id,
         plate_number: item.plate_number,

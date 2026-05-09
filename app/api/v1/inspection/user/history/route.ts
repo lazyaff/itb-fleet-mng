@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const data = rawData.map((item) => {
+    const data = rawData.map((item: any) => {
       return {
         id: item.id,
         date: formatedDate(item.date, "dd/MM/yy"),

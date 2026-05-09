@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const data = rawData.map((item) => ({
+    const data = rawData.map((item: any) => ({
       id: item.id,
       plate_number: item.plate_number,
       name: item.name,
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
     }
 
     const rawData = Array.from(
-      new Map(records.map((item) => [item.timestamp, item])).values(),
+      new Map(records.map((item: any) => [item.timestamp, item])).values(),
     ).sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
 
     const validateNumber = (value: any, param: string) => {
@@ -403,7 +403,7 @@ export async function POST(request: NextRequest) {
         await tx.vehicle_part.updateMany({
           where: {
             id: {
-              in: device.vehicle.vehicle_parts.map((item) => item.id),
+              in: device.vehicle.vehicle_parts.map((item: any) => item.id),
             },
           },
           data: partInput,
@@ -429,7 +429,7 @@ export async function POST(request: NextRequest) {
           const inserted = await tx.live_track_history.findMany({
             where: {
               id: {
-                in: data.map((item) => item.id),
+                in: data.map((item: any) => item.id),
               },
               ...(lastData && {
                 created_at: {
@@ -445,7 +445,7 @@ export async function POST(request: NextRequest) {
           await tx.live_track_history.updateMany({
             where: {
               id: {
-                in: inserted.map((item) => item.id),
+                in: inserted.map((item: any) => item.id),
               },
             },
             data: {
