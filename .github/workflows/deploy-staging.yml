@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install dependencies
         run: npm ci
@@ -44,7 +44,7 @@ jobs:
           host: ${{ secrets.HOST }}
           port: 22
           username: root
-          password: ${{ secrets.DEPLOY_SSH_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/komuto-fleet-management || exit 1
             git pull origin dev
@@ -55,3 +55,4 @@ jobs:
 
       - name: Verify deployment
         run: curl -f http://${{ secrets.HOST }}:3003/health || echo "Health check skipped"
+
