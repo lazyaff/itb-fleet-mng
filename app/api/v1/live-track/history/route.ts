@@ -147,8 +147,12 @@ export async function GET(request: NextRequest) {
               : 0,
           average_speed:
             data.length > 0
-              ? data.reduce((acc: any, item: any) => acc + (item.speed || 0), 0) /
-                data.length
+              ? (
+                  data.reduce(
+                    (acc: any, item: any) => acc + (item.speed || 0),
+                    0,
+                  ) / data.length
+                ).toFixed(2)
               : 0,
         },
         history: data,
