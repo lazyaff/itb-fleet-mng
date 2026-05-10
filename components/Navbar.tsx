@@ -77,14 +77,14 @@ const Navbar = () => {
           {/* Dropdown */}
           {open && (
             <div className="absolute right-0 top-14 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-70">
-              <button
+              {/* <button
                 onClick={() => {
                   setOpen(false);
                 }}
                 className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-sm flex flex-row gap-1.5 items-center cursor-pointer"
               >
                 <UserKey size={16} /> <span>{t("auth.change_password")}</span>
-              </button>
+              </button> */}
 
               <button
                 onClick={async () => {

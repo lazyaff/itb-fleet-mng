@@ -14,6 +14,7 @@ import {
   Gauge,
   MapPin,
   Phone,
+  Play,
   Search,
   Timer,
   TrendingUp,
@@ -51,6 +52,7 @@ type Vehicle = {
   gsm_signal_strength: number | null;
   movement: boolean | null;
   usage: VehicleUsage;
+  updated: boolean;
 };
 
 export type VehicleHistoryItem = {
@@ -84,6 +86,7 @@ export default function LiveTrack() {
   const { setPageInfo } = useContext(PageInfoContext);
   const router = useRouter();
   const mapRef = useRef<MapRef>(null);
+  const playbackInterval = useRef<NodeJS.Timeout | null>(null);
   const [rawVehicleData, setRawVehicleData] = useState<Vehicle[]>([]);
   const [filteredVehicle, setFilteredVehicle] = useState<Vehicle[]>([]);
   const [activeVehicle, setActiveVehicle] = useState<Vehicle | null>(null);
@@ -250,6 +253,104 @@ export default function LiveTrack() {
     applyFilter();
   }, [searchInput, vehicleStatus, rawVehicleData]);
 
+  const startPlayback = () => {
+    if (!history.data?.history.length) return;
+
+    if (playbackMode.currentIdx >= (history.data?.history.length || 1) - 1) {
+      setPlaybackMode((prev) => ({
+        currentIdx: 0,
+        active: true,
+        status: "playing",
+      }));
+    } else {
+      setPlaybackMode((prev) => ({
+        ...prev,
+        active: true,
+        status: "playing",
+      }));
+    }
+
+    playbackInterval.current = setInterval(() => {
+      setPlaybackMode((prev) => {
+        const maxIdx = (history.data?.history.length || 1) - 1;
+
+        if (prev.currentIdx >= maxIdx) {
+          if (playbackInterval.current) {
+            clearInterval(playbackInterval.current);
+          }
+
+          return {
+            ...prev,
+            status: "paused",
+          };
+        }
+
+        return {
+          ...prev,
+          currentIdx: prev.currentIdx + 1,
+        };
+      });
+    }, 500);
+  };
+
+  const pausePlayback = () => {
+    if (playbackInterval.current) {
+      clearInterval(playbackInterval.current);
+    }
+
+    setPlaybackMode((prev) => ({
+      ...prev,
+      status: "paused",
+    }));
+  };
+
+  useEffect(() => {
+    return () => {
+      if (playbackInterval.current) {
+        clearInterval(playbackInterval.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!playbackMode.active) return;
+    if (!history.data?.history.length) return;
+
+    const current = history.data.history[playbackMode.currentIdx];
+
+    if (!current) return;
+    console.log(current.angle);
+
+    const vehicleData: any = {
+      id: activeVehicle?.id || "",
+      name: activeVehicle?.name || "",
+      plate_number: activeVehicle?.plate_number || "",
+      lat: current.lat,
+      long: current.long,
+      angle: current.angle,
+      movement: current.movement ?? false,
+      image: "",
+      current_mileage: current.total_mileage,
+      status: current.movement ? "Moving" : "Stopped",
+      speed: current.speed,
+      battery_voltage: null,
+      last_updated: current.created_at,
+      gsm_signal_strength: null,
+      usage: {
+        name: null,
+        phone: null,
+        image: "",
+        end_date: null,
+      },
+    };
+
+    setFilteredVehicle([vehicleData]);
+
+    mapRef.current?.focusTo(current.lat, current.long, 15, false);
+    // if (playbackMode.currentIdx === 0) {
+    // }
+  }, [playbackMode.currentIdx]);
+
   return (
     <div className="relative h-full w-full max-h-full max-w-full">
       <div className="absolute left-4 top-4 bottom-4 z-401 flex flex-row items-end gap-4">
@@ -283,7 +384,7 @@ export default function LiveTrack() {
                   </p>
                 </button>
                 <div className="w-1/2">
-                  <label className="block mb-2 font-semibold">
+                  <label className="block mb-2 font-semibold text-sm">
                     {t("live_track.select_date").toUpperCase()}
                   </label>
                   <input
@@ -385,8 +486,14 @@ export default function LiveTrack() {
                       <p className="text-black font-semibold">
                         {(
                           ((playbackMode.active
-                            ? history?.data?.history?.[playbackMode.currentIdx]
-                                ?.total_mileage
+                            ? Math.max(
+                                0,
+                                (history?.data?.history?.[
+                                  playbackMode.currentIdx
+                                ]?.total_mileage ?? 0) -
+                                  (history?.data?.history?.[0]?.total_mileage ??
+                                    0),
+                              )
                             : history.data?.vehicle?.total_mileage) ?? 0) / 1000
                         ).toLocaleString("en-US", {
                           minimumFractionDigits: 3,
@@ -591,7 +698,11 @@ export default function LiveTrack() {
                     <button
                       onClick={() => {
                         setLoading(true);
-                        router.push("/admin/vehicle/" + activeVehicle.id);
+                        if (activeVehicle.updated) {
+                          router.push("/admin/vehicle/" + activeVehicle.id);
+                        } else {
+                          router.push("/admin/vehicle");
+                        }
                       }}
                       className="font-semibold bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer w-full"
                     >
@@ -721,6 +832,138 @@ export default function LiveTrack() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+        {activeVehicle && history.open && (
+          <div className="absolute left-92 bottom-0 z-402 flex flex-row items-end gap-4 w-[45vw] bg-[rgb(249,250,251)] rounded-xl p-6">
+            <div className="w-full flex flex-col gap-0">
+              {(() => {
+                const historyData = history.data?.history || [];
+
+                const firstData = historyData[0];
+                const middleData =
+                  historyData[Math.floor(historyData.length / 2)];
+                const lastData = historyData[historyData.length - 1];
+
+                return (
+                  <>
+                    <div className="flex justify-between text-xs text-gray-500 font-medium px-1">
+                      <span>
+                        {firstData
+                          ? formatedDate(
+                              new Date(firstData.created_at),
+                              "HH:mm",
+                            )
+                          : "--:--"}
+                      </span>
+
+                      <span>
+                        {middleData
+                          ? formatedDate(
+                              new Date(middleData.created_at),
+                              "HH:mm",
+                            )
+                          : "--:--"}
+                      </span>
+
+                      <span>
+                        {lastData
+                          ? formatedDate(new Date(lastData.created_at), "HH:mm")
+                          : "--:--"}
+                      </span>
+                    </div>
+
+                    <div className="relative w-full h-6 flex items-center">
+                      <div className="absolute w-full h-2 rounded-full overflow-hidden flex">
+                        {historyData.length > 0 ? (
+                          historyData.map((item: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className={`h-full flex-1 ${
+                                item.movement ? "bg-[#16A249]" : "bg-gray-300"
+                              }`}
+                            />
+                          ))
+                        ) : (
+                          <div className={`h-full flex-1 bg-gray-300`} />
+                        )}
+                      </div>
+
+                      {/* Slider */}
+                      <input
+                        type="range"
+                        min={0}
+                        max={Math.max(historyData.length - 1, 0)}
+                        value={playbackMode.currentIdx}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+
+                          setPlaybackMode((prev) => ({
+                            ...prev,
+                            active: true,
+                            currentIdx: value,
+                          }));
+                        }}
+                        className="absolute w-full appearance-none bg-transparent playback-slider cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="text-gray-600">
+                        <p>{t("live_track.playback").toUpperCase()}</p>
+                      </div>
+                      <div className="py-2 px-8 border border-gray-300 rounded-full">
+                        {playbackMode.status === "playing" ? (
+                          <button
+                            onClick={pausePlayback}
+                            className="bg-[#00A1FE] text-white h-12 w-12 rounded-full justify-center flex items-center cursor-pointer shadow-md hover:scale-105 transition"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-pause-icon lucide-pause"
+                            >
+                              <rect x="14" y="3" width="5" height="18" rx="1" />
+                              <rect x="5" y="3" width="5" height="18" rx="1" />
+                            </svg>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={startPlayback}
+                            className="bg-[#00A1FE] text-white h-12 w-12 rounded-full justify-center flex items-center cursor-pointer shadow-md hover:scale-105 transition"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="white"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="fill-white stroke-white"
+                            >
+                              <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                      <div className="text-gray-600 opacity-0">
+                        <p>{t("live_track.playback").toUpperCase()}</p>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}

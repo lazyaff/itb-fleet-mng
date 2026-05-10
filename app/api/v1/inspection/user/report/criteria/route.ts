@@ -62,6 +62,12 @@ export async function GET(request: NextRequest) {
         where: {
           deleted_at: null,
           user_id: isAuthorized.data.id,
+          usage_reconciliations: {
+            some: {
+              deleted_at: null,
+              source: "INITIAL",
+            },
+          },
         },
         select: {
           id: true,

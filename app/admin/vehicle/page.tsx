@@ -194,6 +194,10 @@ export default function Vehicle() {
       setData(response.data);
       const healthData = response.data.vehicle.reduce(
         (acc: any, item: any) => {
+          if (!item.updated) {
+            return acc;
+          }
+
           if (item.health > 50) {
             acc.healthy += 1;
           } else if (item.health >= 25) {
@@ -201,9 +205,14 @@ export default function Vehicle() {
           } else {
             acc.overdue += 1;
           }
+
           return acc;
         },
-        { healthy: 0, near_service: 0, overdue: 0 },
+        {
+          healthy: 0,
+          near_service: 0,
+          overdue: 0,
+        },
       );
       setVehicleHealth(healthData);
       setPagination({

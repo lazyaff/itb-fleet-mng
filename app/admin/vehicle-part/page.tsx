@@ -448,41 +448,147 @@ export default function VehicleParts() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      if (loading) {
+        return;
+      }
+
+      setLoading(true);
+      const response = await fetch(`/api/v1/vehicle-part`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        const data: DataProps[] = result.data.records || [];
+
+        const headers = [
+          "No",
+          "Nama",
+          "Frekuensi Servis (KM)",
+          "Frekuensi Servis (Bulan)",
+          "Status",
+        ];
+
+        const rows = data.map((item) => [
+          item.no,
+          item.name,
+          item.distance_limit,
+          item.time_limit,
+          item.active ? "Aktif" : "Tidak Aktif",
+        ]);
+
+        const csvContent = [
+          headers.join(","),
+          ...rows.map((row) =>
+            row
+              .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+              .join(","),
+          ),
+        ].join("\n");
+
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.setAttribute("download", `vehicle-part-${Date.now()}.csv`);
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: t("form.export_success"),
+          onClose: () => {},
+        });
+        setLoading(false);
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {},
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding bus:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {},
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-4 flex flex-col min-h-full">
-      <div className="mb-4 flex flex-row items-center gap-6">
-        <div className="flex items-center bg-white w-80 px-3 py-2 border border-gray-200 rounded-md shadow">
-          <Search className="w-4 h-4 text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder={t("vehicle_part.search_placeholder")}
-            className="w-full bg-transparent outline-none"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setSearchInput(e.currentTarget.value);
-                setPagination({ ...pagination, page: 1 });
-              }
-            }}
-          />
+      <div className="mb-4 flex flex-row justify-between items-center">
+        <div className="flex flex-row justify-start items-center gap-6">
+          <div className="flex items-center bg-white w-80 px-3 py-2 border border-gray-200 rounded-md shadow">
+            <Search className="w-4 h-4 text-gray-400 mr-2" />
+            <input
+              type="text"
+              placeholder={t("vehicle_part.search_placeholder")}
+              className="w-full bg-transparent outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setSearchInput(e.currentTarget.value);
+                  setPagination({ ...pagination, page: 1 });
+                }
+              }}
+            />
+          </div>
+          {session?.user?.role_id === "SADM" && (
+            <button
+              className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
+              onClick={async () => {
+                setAddData({
+                  open: true,
+                  data: {
+                    user_id: "",
+                    name: "",
+                    distance_limit: 0,
+                    time_limit: 0,
+                  },
+                });
+              }}
+            >
+              <Plus size={20} /> <span>{t("vehicle_part.add_part")}</span>
+            </button>
+          )}
         </div>
-        {session?.user?.role_id === "SADM" && (
-          <button
-            className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
-            onClick={async () => {
-              setAddData({
-                open: true,
-                data: {
-                  user_id: "",
-                  name: "",
-                  distance_limit: 0,
-                  time_limit: 0,
-                },
-              });
-            }}
-          >
-            <Plus size={20} /> <span>{t("vehicle_part.add_part")}</span>
-          </button>
-        )}
+        <button
+          onClick={handleExport}
+          className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+        >
+          {t("vehicle_part.export")}
+        </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 flex-1">

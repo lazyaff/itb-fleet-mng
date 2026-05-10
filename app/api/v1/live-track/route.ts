@@ -73,6 +73,12 @@ export async function GET(request: NextRequest) {
             created_at: "desc",
           },
         },
+        usage_reconciliations: {
+          where: {
+            deleted_at: null,
+            source: "INITIAL",
+          },
+        },
       },
     });
 
@@ -111,6 +117,7 @@ export async function GET(request: NextRequest) {
             )
           : null,
       },
+      updated: item.usage_reconciliations.length > 0,
     }));
 
     return NextResponse.json({

@@ -65,6 +65,12 @@ export async function GET(request: NextRequest) {
             movement: true,
           },
         },
+        usage_reconciliations: {
+          where: {
+            deleted_at: null,
+            source: "INITIAL",
+          },
+        },
       },
       orderBy: [
         {
@@ -129,7 +135,7 @@ export async function GET(request: NextRequest) {
           0,
         );
 
-        if (healthPoint < 25) {
+        if (healthPoint < 25 && item.usage_reconciliations.length > 0) {
           alert.push({
             title: part.name,
             plate_number: item.plate_number,
@@ -144,12 +150,14 @@ export async function GET(request: NextRequest) {
           ? health / item.vehicle_parts.length
           : 100;
 
-      if (avgHealth > 50) {
-        vehicleHealth.healthy += 1;
-      } else if (avgHealth >= 25) {
-        vehicleHealth.near_service += 1;
-      } else {
-        vehicleHealth.overdue += 1;
+      if (item.usage_reconciliations.length > 0) {
+        if (avgHealth > 50) {
+          vehicleHealth.healthy += 1;
+        } else if (avgHealth >= 25) {
+          vehicleHealth.near_service += 1;
+        } else {
+          vehicleHealth.overdue += 1;
+        }
       }
 
       switch (item.status) {

@@ -17,6 +17,13 @@ export async function userSeeder(prisma: PrismaClient) {
       name: "Admin 1",
       password: bcrypt.hashSync("admin", 10),
     },
+    {
+      id: "f3b8c6d2-7e41-4a9b-92fd-1c5e8a7d4b63",
+      role_id: "INSP",
+      email: "fulan@itb.ac.id",
+      name: "inspektor 1",
+      password: bcrypt.hashSync("inspektor", 10),
+    },
   ];
 
   console.log("Seeding users...");

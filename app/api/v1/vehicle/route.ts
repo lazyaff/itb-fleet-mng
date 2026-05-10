@@ -3,7 +3,6 @@ import { validateJWT } from "@/utils/auth";
 import { healthCount } from "@/utils/vehicle";
 import { DateTime } from "luxon";
 import { NextResponse, NextRequest } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 
 const errorResponse = (message: string) =>
   NextResponse.json(
@@ -119,7 +118,7 @@ export async function GET(request: NextRequest) {
           }),
           0,
         );
-        if (healthPoint < 25) {
+        if (healthPoint < 25 && item.usage_reconciliations.length > 0) {
           alert.push({
             vehicle_id: item.id,
             title: part.name,

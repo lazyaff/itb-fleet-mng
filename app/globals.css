@@ -17,3 +17,95 @@ body {
   color: var(--foreground);
   font-family: Poppins, Helvetica, sans-serif;
 }
+
+.playback-slider {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 100%;
+  height: 24px;
+
+  background: transparent;
+  outline: none;
+}
+
+/* =========================
+   TRACK
+========================= */
+
+.playback-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.playback-slider::-moz-range-track {
+  height: 8px;
+  background: transparent;
+  border-radius: 9999px;
+}
+
+/* =========================
+   THUMB
+========================= */
+
+.playback-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 16px;
+  height: 16px;
+
+  border-radius: 9999px;
+
+  background: white;
+  border: 2px solid #00a1fe;
+
+  cursor: pointer;
+
+  margin-top: -4px;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.playback-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.08);
+}
+
+.playback-slider::-webkit-slider-thumb:active {
+  transform: scale(1.15);
+}
+
+/* =========================
+   FIREFOX
+========================= */
+
+.playback-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+
+  border-radius: 9999px;
+
+  background: white;
+  border: 2px solid #00a1fe;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.18),
+    0 0 0 2px rgba(255, 255, 255, 0.95);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.playback-slider::-moz-range-thumb:hover {
+  transform: scale(1.08);
+}
+
+.playback-slider::-moz-range-thumb:active {
+  transform: scale(1.15);
+}

@@ -31,24 +31,24 @@ export async function vehiclePartSeeder(prisma: PrismaClient) {
     data,
   });
 
-  console.log("Seeding vehicle parts...");
+  // console.log("Seeding vehicle parts...");
 
-  const vehicle = await prisma.vehicle.findMany();
-  for (const v of vehicle) {
-    const vehiclePart = [];
-    for (const p of data) {
-      vehiclePart.push({
-        vehicle_id: v.id,
-        general_vehicle_part_id: p.id,
-        name: p.name,
-        last_service: new Date("2026-01-01"),
-        current_distance:
-          Math.floor(Math.random() * (60000 - 10000 + 1)) + 10000,
-        distance_limit: p.distance_limit,
-        time_limit: p.time_limit,
-        notes: "lorem ipsum",
-      });
-    }
-    await prisma.vehicle_part.createMany({ data: vehiclePart });
-  }
+  // const vehicle = await prisma.vehicle.findMany();
+  // for (const v of vehicle) {
+  //   const vehiclePart = [];
+  //   for (const p of data) {
+  //     vehiclePart.push({
+  //       vehicle_id: v.id,
+  //       general_vehicle_part_id: p.id,
+  //       name: p.name,
+  //       last_service: new Date("2026-01-01"),
+  //       current_distance:
+  //         Math.floor(Math.random() * (60000 - 10000 + 1)) + 10000,
+  //       distance_limit: p.distance_limit,
+  //       time_limit: p.time_limit,
+  //       notes: "lorem ipsum",
+  //     });
+  //   }
+  //   await prisma.vehicle_part.createMany({ data: vehiclePart });
+  // }
 }

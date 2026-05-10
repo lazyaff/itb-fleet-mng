@@ -28,7 +28,12 @@ type Props = {
 };
 
 export type MapRef = {
-  focusTo: (lat: number, long: number, zoom?: number) => void;
+  focusTo: (
+    lat: number,
+    long: number,
+    zoom?: number,
+    animated?: boolean,
+  ) => void;
 };
 
 const MapComponent = dynamic(
@@ -102,13 +107,19 @@ export const InteractiveMapComponent = dynamic(
 
         // expose function ke luar
         useImperativeHandle(ref, () => ({
-          focusTo: (lat: number, long: number, zoom = 18) => {
+          focusTo: (lat: number, long: number, zoom = 18, animated = true) => {
             if (!mapRef.current) return;
 
-            mapRef.current.flyTo([lat, long], zoom, {
-              duration: 1,
-              easeLinearity: 0.25,
-            });
+            if (animated) {
+              mapRef.current.flyTo([lat, long], zoom, {
+                duration: 1,
+                easeLinearity: 0.25,
+              });
+            } else {
+              mapRef.current.setView([lat, long], zoom, {
+                animate: true,
+              });
+            }
           },
         }));
 
@@ -204,7 +215,7 @@ export const InteractiveMapComponent = dynamic(
 
               {vehicleData.map((item, index) => (
                 <RL.Marker
-                  key={item.id}
+                  key={`${item.id}-${item.lat}-${item.long}-${item.angle}`}
                   position={[item.lat, item.long]}
                   icon={item.icon}
                   eventHandlers={{

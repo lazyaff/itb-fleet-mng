@@ -4,7 +4,7 @@ export async function vehicleSeeder(prisma: PrismaClient) {
   const data = [
     {
       id: "3e7f1a9c-5d24-4b8e-9a6f-2c1d7e8b4f90",
-      user_id: "d4a8f3c2-6e1b-4c7a-9d5f-2b8e0f1a7c63",
+      user_id: "f3b8c6d2-7e41-4a9b-92fd-1c5e8a7d4b63",
       plate_number: "D 2127 RNN",
       name: "Unit 01 - Fuso Truck",
       image: null,
@@ -16,7 +16,7 @@ export async function vehicleSeeder(prisma: PrismaClient) {
     },
     {
       id: "b6c2d9f1-8a34-4e7b-9f2c-1a6d3e5b7c80",
-      user_id: "d4a8f3c2-6e1b-4c7a-9d5f-2b8e0f1a7c63",
+      user_id: "f3b8c6d2-7e41-4a9b-92fd-1c5e8a7d4b63",
       plate_number: "D 1612 PRW",
       name: "Unit 02 - Mitsubishi Van",
       image: null,
@@ -28,7 +28,7 @@ export async function vehicleSeeder(prisma: PrismaClient) {
     },
     {
       id: "7a1e4d3c-9b5f-4c2a-8e6d-0f3b7c1a9d24",
-      user_id: "4c8e1b7f-2e3c-4d9c-9a8a-1c2b3d4e5fha",
+      user_id: "f3b8c6d2-7e41-4a9b-92fd-1c5e8a7d4b63",
       plate_number: "D 2109 NNZ",
       name: "Unit 03 - Suzuki Lorry",
       image: null,
@@ -40,7 +40,7 @@ export async function vehicleSeeder(prisma: PrismaClient) {
     },
     {
       id: "c9f4b1e7-2d6a-4a8c-b5e3-7d1f0a9c6b28",
-      user_id: "4c8e1b7f-2e3c-4d9c-9a8a-1c2b3d4e5fha",
+      user_id: "f3b8c6d2-7e41-4a9b-92fd-1c5e8a7d4b63",
       plate_number: "D 7654 GQF",
       name: "Unit 04 - Optimum Pride",
       image: null,

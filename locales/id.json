@@ -17,6 +17,7 @@
   "form.error_generic": "Ups! Terjadi kesalahan, silakan coba lagi nanti.",
   "form.update_success": "Selamat! Data berhasil diperbarui.",
   "form.delete_success": "Selamat! Data berhasil dihapus.",
+  "form.export_success": "Selamat! Data berhasil diekspor.",
 
   "auth.login": "Masuk",
   "auth.logout": "Keluar",
@@ -71,6 +72,7 @@
   "live_track.renter": "Penyewa",
   "live_track.speed": "Kecepatan",
   "live_track.distance": "Jarak",
+  "live_track.playback": "Pemutar Timeline",
 
   "vehicle.fleet_status": "Status Kendaraan",
   "vehicle.search_placeholder": "Cari kendaraan...",
@@ -194,6 +196,7 @@
 
   "vehicle_part.search_placeholder": "Cari nama suku cadang...",
   "vehicle_part.add_part": "Tambah Suku Cadang Baru",
+  "vehicle_part.export": "Ekspor",
   "vehicle_part.table.no": "NO.",
   "vehicle_part.table.part": "Suku Cadang",
   "vehicle_part.table.service_frequency_km": "Frekuensi Servis (KM)",
