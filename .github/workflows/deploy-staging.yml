@@ -44,7 +44,7 @@ jobs:
           host: ${{ secrets.HOST }}
           port: 22
           username: root
-          password: ${{ secrets.SSH_PASSWORD }}
+          password: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /opt/komuto-fleet-management || exit 1
             git pull origin dev
