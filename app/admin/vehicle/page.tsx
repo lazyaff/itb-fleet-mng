@@ -105,7 +105,7 @@ export default function Vehicle() {
       id: string;
       plate_number: string;
       name: string;
-      current_mileage: number;
+      current_mileage: string;
       last_service: string;
     };
   }>({
@@ -115,7 +115,7 @@ export default function Vehicle() {
       id: "",
       plate_number: "",
       name: "",
-      current_mileage: 0,
+      current_mileage: "",
       last_service: "",
     },
   });
@@ -408,7 +408,7 @@ export default function Vehicle() {
         body: JSON.stringify({
           id,
           name,
-          current_mileage: current_mileage * 1000,
+          current_mileage: Number(current_mileage) * 1000,
           last_service: last_service,
         }),
       });
@@ -790,11 +790,9 @@ export default function Vehicle() {
                                       id: item.id,
                                       plate_number: item.plate_number,
                                       name: item.name,
-                                      current_mileage: Number(
-                                        (item.current_mileage / 1000).toFixed(
-                                          3,
-                                        ),
-                                      ),
+                                      current_mileage: (
+                                        item.current_mileage / 1000
+                                      ).toFixed(3),
                                       last_service: "",
                                     },
                                   });
@@ -815,7 +813,7 @@ export default function Vehicle() {
                                   id: item.id,
                                   plate_number: item.plate_number,
                                   name: item.name,
-                                  current_mileage: 0,
+                                  current_mileage: "",
                                   last_service: "",
                                 },
                               });
@@ -878,7 +876,7 @@ export default function Vehicle() {
                   autoComplete="off"
                   type="text"
                   value={updateStatus.data.plate_number}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                   readOnly
                 />
               </div>
@@ -977,7 +975,7 @@ export default function Vehicle() {
                   autoComplete="off"
                   type="text"
                   value={updateData.data.plate_number}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                   readOnly
                 />
               </div>
@@ -999,7 +997,7 @@ export default function Vehicle() {
                       ...updateData,
                       data: {
                         ...updateData.data,
-                        current_mileage: Number(e.target.value),
+                        current_mileage: e.target.value,
                       },
                     })
                   }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/Language";
+import { formatedDate } from "@/utils/date";
 
 type SelectProps<T> = {
   label?: string;
@@ -188,7 +189,9 @@ export function DatePicker({
       onClick={handleOpen}
       className="w-full px-4 py-2 bg-white border border-gray-200 rounded-md shadow-sm text-sm text-gray-700 cursor-pointer flex justify-between items-center"
     >
-      <span className="mx-auto">{placeholder}</span>
+      <span className="mx-auto">
+        {value ? formatedDate(new Date(value), "dd/MM/yyyy") : placeholder}
+      </span>
 
       <Calendar className="w-4 h-4 text-gray-500" />
 

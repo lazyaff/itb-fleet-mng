@@ -16,7 +16,7 @@ export const healthCount = ({
 
   const lastService = DateTime.fromJSDate(last_service);
   const now = DateTime.now();
-  const diffDays = now.diff(lastService, "days").days;
+  const diffDays = Math.max(Math.floor(now.diff(lastService, "days").days), 0);
   const time = 100 - (diffDays / (time_limit * 30)) * 100;
   const timeRate = Math.floor(Math.min(Math.max(time, 0), 100));
 

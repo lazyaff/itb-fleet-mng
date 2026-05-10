@@ -6,7 +6,14 @@ import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { inspectionConclusion } from "@/src/dropdown";
-import { Award, Eye, Info, Search } from "lucide-react";
+import {
+  Award,
+  ClipboardCheck,
+  Eye,
+  Info,
+  ListTodo,
+  Search,
+} from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -459,10 +466,16 @@ export default function Inspection() {
               >
                 <div className="bg-[#F8FAFC] px-6 pt-6 pb-5 border-b border-gray-200 rounded-t-xl">
                   <div className="font-semibold flex gap-2 items-center text-base">
-                    <img
+                    {/* <img
                       src={section.icon}
                       alt=""
                       className="w-5 h-5 object-contain mb-1"
+                    /> */}
+                    <ClipboardCheck
+                      className="mb-0.5"
+                      strokeWidth={2}
+                      size={20}
+                      color="#00A1FE"
                     />
                     Bagian {section.order}: {section.title}
                   </div>

@@ -319,7 +319,6 @@ export default function LiveTrack() {
     const current = history.data.history[playbackMode.currentIdx];
 
     if (!current) return;
-    console.log(current.angle);
 
     const vehicleData: any = {
       id: activeVehicle?.id || "",
@@ -347,8 +346,6 @@ export default function LiveTrack() {
     setFilteredVehicle([vehicleData]);
 
     mapRef.current?.focusTo(current.lat, current.long, 15, false);
-    // if (playbackMode.currentIdx === 0) {
-    // }
   }, [playbackMode.currentIdx]);
 
   return (
@@ -365,6 +362,9 @@ export default function LiveTrack() {
                       ...history,
                       open: false,
                     });
+                    if (playbackInterval.current) {
+                      clearInterval(playbackInterval.current);
+                    }
                     setPlaybackMode({
                       active: false,
                       status: "paused",
@@ -392,6 +392,14 @@ export default function LiveTrack() {
                     type="date"
                     className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
                     onChange={async (e) => {
+                      if (playbackInterval.current) {
+                        clearInterval(playbackInterval.current);
+                      }
+                      setPlaybackMode({
+                        active: false,
+                        status: "paused",
+                        currentIdx: 0,
+                      });
                       const date = e.target.value
                         ? e.target.value
                         : formatedDate(new Date(), "yyyy-MM-dd");
@@ -755,12 +763,11 @@ export default function LiveTrack() {
                 <Search className="w-4 h-4 text-gray-400 mr-2" />
                 <input
                   type="text"
+                  value={searchInput}
                   placeholder={t("inspection.search_vehicle")}
                   className="w-full bg-transparent outline-none"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      setSearchInput(e.currentTarget.value);
-                    }
+                  onChange={(e) => {
+                    setSearchInput(e.currentTarget.value);
                   }}
                 />
               </div>

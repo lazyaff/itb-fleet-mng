@@ -165,33 +165,33 @@ export default function VehicleDetail({
       data: {
         id: string;
         name: string;
-        current_mileage: number;
+        current_mileage: string;
       };
     }>({
       open: false,
       data: {
         id: "",
         name: "",
-        current_mileage: 0,
+        current_mileage: "",
       },
     });
     const [addPart, setAddPart] = useState<{
       open: boolean;
       data: {
         name: string;
-        distance_limit: number;
-        time_limit: number;
+        distance_limit: string;
+        time_limit: string;
         last_service: string;
-        current_distance: number;
+        current_distance: string;
       };
     }>({
       open: false,
       data: {
         name: "",
-        distance_limit: 0,
-        time_limit: 0,
+        distance_limit: "",
+        time_limit: "",
         last_service: "",
-        current_distance: 0,
+        current_distance: "",
       },
     });
     const [updatePart, setUpdatePart] = useState<{
@@ -200,10 +200,10 @@ export default function VehicleDetail({
         id: string;
         general_vehicle_part_id: string;
         name: string;
-        distance_limit: number;
-        time_limit: number;
+        distance_limit: string;
+        time_limit: string;
         last_service: string;
-        current_distance: number;
+        current_distance: string;
       };
     }>({
       open: false,
@@ -211,19 +211,19 @@ export default function VehicleDetail({
         id: "",
         general_vehicle_part_id: "",
         name: "",
-        distance_limit: 0,
-        time_limit: 0,
+        distance_limit: "",
+        time_limit: "",
         last_service: "",
-        current_distance: 0,
+        current_distance: "",
       },
     });
     const [addService, setAddService] = useState<{
       open: boolean;
       data: {
         image: File | string | null;
-        current_distance: number;
+        current_distance: string;
         date: string;
-        cost: number;
+        cost: string;
         notes: string | null;
         part_ids: string[];
       };
@@ -231,9 +231,9 @@ export default function VehicleDetail({
       open: false,
       data: {
         image: null,
-        current_distance: 0,
+        current_distance: "",
         date: "",
-        cost: 0,
+        cost: "",
         notes: null,
         part_ids: [],
       },
@@ -243,13 +243,13 @@ export default function VehicleDetail({
       data: {
         id: string;
         image: File | string | null;
-        current_distance: number;
+        current_distance: string;
         date: string;
         user: {
           id: string;
           name: string;
         };
-        cost: number;
+        cost: string;
         notes: string | null;
         part_ids: {
           id: string;
@@ -261,13 +261,13 @@ export default function VehicleDetail({
       data: {
         id: "",
         image: null,
-        current_distance: 0,
+        current_distance: "",
         date: "",
         user: {
           id: "",
           name: "",
         },
-        cost: 0,
+        cost: "",
         notes: null,
         part_ids: [],
       },
@@ -410,7 +410,7 @@ export default function VehicleDetail({
           body: JSON.stringify({
             id,
             name,
-            current_mileage: current_mileage * 1000,
+            current_mileage: Number(current_mileage) * 1000,
           }),
         });
 
@@ -494,10 +494,10 @@ export default function VehicleDetail({
           body: JSON.stringify({
             vehicle_id: id,
             name,
-            distance_limit: distance_limit,
-            time_limit: time_limit,
+            distance_limit: Number(distance_limit),
+            time_limit: Number(time_limit),
             last_service: last_service,
-            current_distance: current_distance * 1000,
+            current_distance: Number(current_distance) * 1000,
           }),
         });
 
@@ -582,10 +582,10 @@ export default function VehicleDetail({
           body: JSON.stringify({
             id,
             name,
-            distance_limit: distance_limit,
-            time_limit: time_limit,
+            distance_limit: Number(distance_limit),
+            time_limit: Number(time_limit),
             last_service: last_service,
-            current_distance: current_distance * 1000,
+            current_distance: Number(current_distance) * 1000,
           }),
         });
 
@@ -721,8 +721,8 @@ export default function VehicleDetail({
         const { cost, current_distance, date, image, notes, part_ids } =
           addService.data;
         if (
-          cost < 0 ||
-          current_distance < 0 ||
+          Number(cost) < 0 ||
+          Number(current_distance) < 0 ||
           !date ||
           !image ||
           part_ids.length === 0 ||
@@ -796,7 +796,7 @@ export default function VehicleDetail({
     const handleUpdateService = async () => {
       try {
         const { id, user, cost, date, image, notes } = updateService.data;
-        if (cost < 0 || !date || loading) {
+        if (Number(cost) < 0 || !date || loading) {
           return;
         }
 
@@ -1092,11 +1092,9 @@ export default function VehicleDetail({
                               data: {
                                 id: id,
                                 name: data?.vehicle.name || "",
-                                current_mileage: Number(
-                                  (
-                                    (data?.vehicle.current_mileage || 0) / 1000
-                                  ).toFixed(3),
-                                ),
+                                current_mileage: (
+                                  (data?.vehicle.current_mileage || 0) / 1000
+                                ).toFixed(3),
                               },
                             });
                           }}
@@ -1261,10 +1259,10 @@ export default function VehicleDetail({
                         open: true,
                         data: {
                           name: "",
-                          current_distance: 0,
-                          distance_limit: 0,
+                          current_distance: "",
+                          distance_limit: "",
                           last_service: "",
-                          time_limit: 0,
+                          time_limit: "",
                         },
                       });
                     } else if (section === "services") {
@@ -1272,13 +1270,11 @@ export default function VehicleDetail({
                         open: true,
                         data: {
                           image: null,
-                          current_distance: Number(
-                            (
-                              (data?.vehicle.current_mileage || 0) / 1000
-                            ).toFixed(3),
-                          ),
+                          current_distance: (
+                            (data?.vehicle.current_mileage || 0) / 1000
+                          ).toFixed(3),
                           date: "",
-                          cost: 0,
+                          cost: "",
                           notes: null,
                           part_ids: [],
                         },
@@ -1343,9 +1339,13 @@ export default function VehicleDetail({
                             </p>
                             <p className="text-gray-600">
                               {t("vehicle_detail.part.limit_km")}:{" "}
-                              {Math.floor(
-                                part.current_mileage / 1000,
-                              ).toLocaleString("en-US")}
+                              {(part.current_mileage / 1000).toLocaleString(
+                                "en-US",
+                                {
+                                  minimumFractionDigits: 1,
+                                  maximumFractionDigits: 1,
+                                },
+                              )}
                               /{part.distance_limit.toLocaleString("en-US")}
                             </p>
                             <p className="text-gray-600">
@@ -1398,14 +1398,13 @@ export default function VehicleDetail({
                                         general_vehicle_part_id:
                                           part.general_vehicle_part_id,
                                         name: part.title,
-                                        current_distance: Number(
-                                          (part.current_mileage / 1000).toFixed(
-                                            3,
-                                          ),
-                                        ),
-                                        distance_limit: part.distance_limit,
+                                        current_distance: (
+                                          part.current_mileage / 1000
+                                        ).toFixed(3),
+                                        distance_limit:
+                                          part.distance_limit.toString(),
                                         last_service: part.last_service,
-                                        time_limit: part.time_limit,
+                                        time_limit: part.time_limit.toString(),
                                       },
                                     });
                                   }}
@@ -1575,15 +1574,14 @@ export default function VehicleDetail({
                                       data: {
                                         id: service.id,
                                         image: service.image,
-                                        current_distance: Number(
-                                          service.current_mileage,
-                                        ),
+                                        current_distance:
+                                          service.current_mileage.toString(),
                                         date: service.date,
                                         user: {
                                           id: service.user.id,
                                           name: service.user.name,
                                         },
-                                        cost: service.cost,
+                                        cost: service.cost.toString(),
                                         notes: service.notes,
                                         part_ids: service.parts.map((part) => {
                                           return {
@@ -1738,9 +1736,9 @@ export default function VehicleDetail({
                 }`}
               >
                 {data?.alert && data.alert.length > 0 ? (
-                  data.alert.map((alert) => (
+                  data.alert.map((alert: any, idx: number) => (
                     <div
-                      key={alert.title}
+                      key={alert.title + idx}
                       className="border rounded-lg mb-3 bg-[#EF4444]/5 border-[#EF4444]/20 p-4 text-red-500"
                     >
                       <div className="flex items-start justify-between w-full">
@@ -1822,7 +1820,7 @@ export default function VehicleDetail({
                         ...updateKM,
                         data: {
                           ...updateKM.data,
-                          current_mileage: Number(e.target.value),
+                          current_mileage: e.target.value,
                         },
                       })
                     }
@@ -1922,7 +1920,7 @@ export default function VehicleDetail({
                         ...addPart,
                         data: {
                           ...addPart.data,
-                          distance_limit: Number(e.target.value),
+                          distance_limit: e.target.value,
                         },
                       })
                     }
@@ -1946,7 +1944,7 @@ export default function VehicleDetail({
                         ...addPart,
                         data: {
                           ...addPart.data,
-                          time_limit: Number(e.target.value),
+                          time_limit: e.target.value,
                         },
                       })
                     }
@@ -1972,7 +1970,7 @@ export default function VehicleDetail({
                         ...addPart,
                         data: {
                           ...addPart.data,
-                          current_distance: Number(e.target.value),
+                          current_distance: e.target.value,
                         },
                       })
                     }
@@ -2073,7 +2071,7 @@ export default function VehicleDetail({
                     placeholder={t(
                       "vehicle_detail.part.modal.name_placeholder",
                     )}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    className={`w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none ${updatePart.data.general_vehicle_part_id !== null ? "bg-gray-100" : ""}`}
                     onChange={(e) =>
                       setUpdatePart({
                         ...updatePart,
@@ -2102,13 +2100,13 @@ export default function VehicleDetail({
                     placeholder={t(
                       "vehicle_detail.part.modal.distance_limit_placeholder",
                     )}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    className={`w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none ${updatePart.data.general_vehicle_part_id !== null ? "bg-gray-100" : ""}`}
                     onChange={(e) =>
                       setUpdatePart({
                         ...updatePart,
                         data: {
                           ...updatePart.data,
-                          distance_limit: Number(e.target.value),
+                          distance_limit: e.target.value,
                         },
                       })
                     }
@@ -2129,13 +2127,13 @@ export default function VehicleDetail({
                     placeholder={t(
                       "vehicle_detail.part.modal.time_limit_placeholder",
                     )}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    className={`w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none ${updatePart.data.general_vehicle_part_id !== null ? "bg-gray-100" : ""}`}
                     onChange={(e) =>
                       setUpdatePart({
                         ...updatePart,
                         data: {
                           ...updatePart.data,
-                          time_limit: Number(e.target.value),
+                          time_limit: e.target.value,
                         },
                       })
                     }
@@ -2162,7 +2160,7 @@ export default function VehicleDetail({
                         ...updatePart,
                         data: {
                           ...updatePart.data,
-                          current_distance: Number(e.target.value),
+                          current_distance: e.target.value,
                         },
                       })
                     }
@@ -2342,7 +2340,7 @@ export default function VehicleDetail({
                       autoComplete="off"
                       type="number"
                       value={addService.data.current_distance}
-                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       readOnly
                     />
                   </div>
@@ -2356,7 +2354,7 @@ export default function VehicleDetail({
                         autoComplete="off"
                         type="text"
                         value={data?.vehicle.plate_number || ""}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       />
                     </div>
                   )}
@@ -2409,7 +2407,7 @@ export default function VehicleDetail({
                       autoComplete="off"
                       type="text"
                       value={session?.user.name || ""}
-                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       readOnly
                     />
                   </div>
@@ -2427,7 +2425,7 @@ export default function VehicleDetail({
                           ...addService,
                           data: {
                             ...addService.data,
-                            cost: Number(e.target.value),
+                            cost: e.target.value,
                           },
                         })
                       }
@@ -2533,7 +2531,7 @@ export default function VehicleDetail({
                 loading ||
                 !addService.data.date ||
                 !addService.data.image ||
-                addService.data.cost <= 0 ||
+                Number(addService.data.cost || 0) <= 0 ||
                 addService.data.part_ids.length === 0
               }
               onClick={handleAddService}
@@ -2541,7 +2539,7 @@ export default function VehicleDetail({
                 loading ||
                 !addService.data.date ||
                 !addService.data.image ||
-                addService.data.cost < 0 ||
+                Number(addService.data.cost || 0) < 0 ||
                 addService.data.part_ids.length === 0
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-[#048ad8] cursor-pointer"
@@ -2666,7 +2664,7 @@ export default function VehicleDetail({
                       autoComplete="off"
                       type="number"
                       value={updateService.data.current_distance}
-                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       readOnly
                     />
                   </div>
@@ -2680,7 +2678,7 @@ export default function VehicleDetail({
                         autoComplete="off"
                         type="text"
                         value={data?.vehicle.plate_number || ""}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       />
                     </div>
                   )}
@@ -2733,7 +2731,7 @@ export default function VehicleDetail({
                       autoComplete="off"
                       type="text"
                       value={updateService.data.user.name}
-                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100"
                       readOnly
                     />
                   </div>
@@ -2751,7 +2749,7 @@ export default function VehicleDetail({
                           ...updateService,
                           data: {
                             ...updateService.data,
-                            cost: Number(e.target.value),
+                            cost: e.target.value,
                           },
                         })
                       }
@@ -2846,13 +2844,13 @@ export default function VehicleDetail({
               disabled={
                 loading ||
                 !updateService.data.date ||
-                updateService.data.cost <= 0
+                Number(updateService.data.cost || 0) <= 0
               }
               onClick={handleUpdateService}
               className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                 loading ||
                 !updateService.data.date ||
-                updateService.data.cost < 0
+                Number(updateService.data.cost || 0) < 0
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-[#048ad8] cursor-pointer"
               }`}
