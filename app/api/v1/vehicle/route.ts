@@ -364,14 +364,42 @@ export async function PUT(request: NextRequest) {
         },
       });
 
-      await prisma.vehicle_part.updateMany({
-        where: { vehicle_id: id },
-        data: {
-          current_distance: {
-            increment: diff,
-          },
+      const parts = await prisma.vehicle_part.findMany({
+        where: {
+          vehicle_id: id,
+          deleted_at: null,
+          OR: [
+            {
+              general_vehicle_part: {
+                active: true,
+                deleted_at: null,
+              },
+            },
+            {
+              general_vehicle_part: null,
+            },
+          ],
         },
       });
+
+      const partsData = parts.map((part) => ({
+        id: part.id,
+        current_distance:
+          part.current_distance + diff < 0 ? 0 : part.current_distance + diff,
+      }));
+
+      await Promise.all(
+        partsData.map((part) =>
+          prisma.vehicle_part.update({
+            where: {
+              id: part.id,
+            },
+            data: {
+              current_distance: part.current_distance,
+            },
+          }),
+        ),
+      );
     }
 
     return NextResponse.json({

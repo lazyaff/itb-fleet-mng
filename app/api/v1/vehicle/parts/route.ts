@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
       distance_limit,
       time_limit,
       last_service,
-      current_distance,
+      // current_distance,
       notes,
     } = await request.json();
     if (
@@ -251,13 +251,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const [firstTrack, lastTrack] = await Promise.all([
+      prisma.live_track_history.findFirst({
+        where: {
+          vehicle_id,
+        },
+        orderBy: {
+          created_at: "asc",
+        },
+      }),
+
+      prisma.live_track_history.findFirst({
+        where: {
+          vehicle_id,
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+      }),
+    ]);
+
+    const total_distance =
+      firstTrack && lastTrack
+        ? Math.max(0, lastTrack.total_mileage - firstTrack.total_mileage)
+        : 0;
+
     // create data
     await prisma.vehicle_part.create({
       data: {
         vehicle_id,
         name: name,
         last_service: new Date(last_service),
-        current_distance: current_distance || 0,
+        current_distance: total_distance,
         distance_limit: distance_limit,
         time_limit: time_limit,
         notes: notes || null,

@@ -272,6 +272,9 @@ export default function VehicleDetail({
         part_ids: [],
       },
     });
+    const [renderParts, setRenderParts] = useState(true);
+    const [renderServices, setRenderServices] = useState(false);
+    const [renderAlerts, setRenderAlerts] = useState(false);
 
     useEffect(() => {
       setPageInfo({
@@ -1288,9 +1291,9 @@ export default function VehicleDetail({
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
+            <div className="flex-1 relative min-h-0 overflow-hidden">
               <div
-                className={`min-h-full transition-all duration-500 z-20 absolute top-0 left-0 w-full ${
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
                   section === "parts"
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -1360,9 +1363,9 @@ export default function VehicleDetail({
                               ).toLocaleString("en-US")}
                               /{(part.time_limit * 30).toLocaleString("en-US")}
                             </p>
-                            {session?.user?.role_id === "SADM" && (
-                              <div className="flex gap-2 justify-end mt-2">
-                                {!part.general_vehicle_part_id && (
+                            {session?.user?.role_id === "SADM" &&
+                              !part.general_vehicle_part_id && (
+                                <div className="flex gap-2 justify-end mt-2">
                                   <button
                                     className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
                                     onClick={() => {
@@ -1387,32 +1390,32 @@ export default function VehicleDetail({
                                   >
                                     <Trash2 size={18} />
                                   </button>
-                                )}
-                                <button
-                                  className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                  onClick={() => {
-                                    setUpdatePart({
-                                      open: true,
-                                      data: {
-                                        id: part.id,
-                                        general_vehicle_part_id:
-                                          part.general_vehicle_part_id,
-                                        name: part.title,
-                                        current_distance: (
-                                          part.current_mileage / 1000
-                                        ).toFixed(3),
-                                        distance_limit:
-                                          part.distance_limit.toString(),
-                                        last_service: part.last_service,
-                                        time_limit: part.time_limit.toString(),
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <SquarePen className="mt-0.5" size={18} />
-                                </button>
-                              </div>
-                            )}
+                                  <button
+                                    className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                    onClick={() => {
+                                      setUpdatePart({
+                                        open: true,
+                                        data: {
+                                          id: part.id,
+                                          general_vehicle_part_id:
+                                            part.general_vehicle_part_id,
+                                          name: part.title,
+                                          current_distance: (
+                                            part.current_mileage / 1000
+                                          ).toFixed(3),
+                                          distance_limit:
+                                            part.distance_limit.toString(),
+                                          last_service: part.last_service,
+                                          time_limit:
+                                            part.time_limit.toString(),
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <SquarePen className="mt-0.5" size={18} />
+                                  </button>
+                                </div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -1470,7 +1473,7 @@ export default function VehicleDetail({
               </div>
 
               <div
-                className={`min-h-full transition-all duration-500 z-22 absolute top-0 left-0 w-full ${
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
                   section === "services" && currentServiceData.section === ""
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -1616,7 +1619,7 @@ export default function VehicleDetail({
               </div>
 
               <div
-                className={`min-h-full transition-all duration-500 z-23 absolute top-0 left-0 w-full ${
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
                   currentServiceData.section === "invoice"
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -1651,7 +1654,7 @@ export default function VehicleDetail({
               </div>
 
               <div
-                className={`min-h-full transition-all duration-500 z-24 absolute top-0 left-0 w-full  ${
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
                   currentServiceData.section === "detail"
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -1729,7 +1732,7 @@ export default function VehicleDetail({
               </div>
 
               <div
-                className={`min-h-full transition-all duration-500 z-21 absolute top-0 left-0 w-full ${
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
                   section === "alerts"
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -1900,6 +1903,27 @@ export default function VehicleDetail({
                     }
                   />
                 </div>
+                <div className="w-full">
+                  <label className="block mb-2">
+                    {t("vehicle_detail.part.modal.install_date")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    autoComplete="off"
+                    type="date"
+                    value={addPart.data.last_service}
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                    onChange={(e) =>
+                      setAddPart({
+                        ...addPart,
+                        data: {
+                          ...addPart.data,
+                          last_service: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
               </div>
               <div className="flex flex-row justify-between gap-6">
                 <div className="w-full">
@@ -1945,53 +1969,6 @@ export default function VehicleDetail({
                         data: {
                           ...addPart.data,
                           time_limit: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between gap-6">
-                <div className="w-full">
-                  <label className="block mb-2">
-                    {t("vehicle_detail.part.modal.initial_distance")}{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    autoComplete="off"
-                    type="number"
-                    value={addPart.data.current_distance}
-                    placeholder={t(
-                      "vehicle_detail.part.modal.initial_distance_placeholder",
-                    )}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
-                    onChange={(e) =>
-                      setAddPart({
-                        ...addPart,
-                        data: {
-                          ...addPart.data,
-                          current_distance: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="block mb-2">
-                    {t("vehicle_detail.part.modal.install_date")}{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    autoComplete="off"
-                    type="date"
-                    value={addPart.data.last_service}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
-                    onChange={(e) =>
-                      setAddPart({
-                        ...addPart,
-                        data: {
-                          ...addPart.data,
-                          last_service: e.target.value,
                         },
                       })
                     }
@@ -2138,53 +2115,6 @@ export default function VehicleDetail({
                       })
                     }
                     readOnly={updatePart.data.general_vehicle_part_id !== null}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between gap-6">
-                <div className="w-full">
-                  <label className="block mb-2">
-                    {t("vehicle_detail.part.modal.current_distance")}{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    autoComplete="off"
-                    type="number"
-                    value={updatePart.data.current_distance}
-                    placeholder={t(
-                      "vehicle_detail.part.modal.current_distance_placeholder",
-                    )}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
-                    onChange={(e) =>
-                      setUpdatePart({
-                        ...updatePart,
-                        data: {
-                          ...updatePart.data,
-                          current_distance: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="block mb-2">
-                    {t("vehicle_detail.part.modal.last_service_date")}{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    autoComplete="off"
-                    type="date"
-                    value={updatePart.data.last_service}
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
-                    onChange={(e) =>
-                      setUpdatePart({
-                        ...updatePart,
-                        data: {
-                          ...updatePart.data,
-                          last_service: e.target.value,
-                        },
-                      })
-                    }
                   />
                 </div>
               </div>

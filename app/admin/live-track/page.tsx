@@ -345,7 +345,9 @@ export default function LiveTrack() {
 
     setFilteredVehicle([vehicleData]);
 
-    mapRef.current?.focusTo(current.lat, current.long, 15, false);
+    if (playbackMode.currentIdx === 0) {
+      mapRef.current?.focusTo(current.lat, current.long, 15, false);
+    }
   }, [playbackMode.currentIdx]);
 
   return (
