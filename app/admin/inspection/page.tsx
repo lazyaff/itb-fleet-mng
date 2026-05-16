@@ -395,15 +395,12 @@ export default function Inspection() {
         </div>
       </div>
       <div
-        className={`p-4 gap-4 flex flex-row justify-between min-h-full w-full transition-all duration-500 z-50 absolute top-0 left-0 ${
+        className={`p-4 gap-4 flex flex-row justify-center min-h-full w-full transition-all duration-500 z-50 absolute top-0 left-0 ${
           openDetail
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
       >
-        <div>
-          <button className="bg-[#00A1FE] opacity-0 pointer-events-none w-40 justify-center hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"></button>
-        </div>
         {detailData && (
           <div className="space-y-4 w-2xl mb-4">
             <div className={`bg-white shadow-lg rounded-xl w-full max-w-2xl`}>
@@ -557,22 +554,23 @@ export default function Inspection() {
                 </div>
               </div>
             </div>
+
+            <div className="w-full flex justify-end mt-6">
+              <button
+                className="bg-[#00A1FE] w-40 justify-center hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
+                onClick={() => {
+                  setOpenDetail(false);
+                  setTimeout(() => {
+                    setOpenList(true);
+                    setDetailData(null);
+                  }, 500);
+                }}
+              >
+                {t("common.back")}
+              </button>
+            </div>
           </div>
         )}
-        <div>
-          <button
-            className="bg-[#00A1FE] w-40 justify-center hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
-            onClick={() => {
-              setOpenDetail(false);
-              setTimeout(() => {
-                setOpenList(true);
-                setDetailData(null);
-              }, 500);
-            }}
-          >
-            {t("common.back")}
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -137,9 +137,11 @@ const Sidebar = () => {
                   }
                 `}
               >
-                <div className="flex items-center text-sm font-medium gap-3">
+                <div className="flex items-center text-sm gap-3">
                   {menu.icon}
-                  {menu.title}
+                  <span className={`${menu.icon ? "" : "tracking-[0.1rem]"}`}>
+                    {menu.icon ? menu.title : menu.title.toUpperCase()}
+                  </span>
                 </div>
 
                 {isDropdown && (
@@ -161,10 +163,10 @@ const Sidebar = () => {
                       <div
                         key={sub.id}
                         onClick={() => handleNavigate(sub.url, sub.title)}
-                        className={`flex cursor-pointer items-center text-sm transition-colors
+                        className={`flex cursor-pointer items-center text-sm transition-colors font-medium
                           ${
                             active
-                              ? "font-medium text-blue-500"
+                              ? "text-blue-500"
                               : "text-gray-700 hover:text-blue-500"
                           }
                         `}

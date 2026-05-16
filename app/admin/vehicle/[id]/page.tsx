@@ -1019,20 +1019,20 @@ export default function VehicleDetail({
                 </div>
               </div>
 
-              <div className="w-full h-[23dvh] flex flex-row gap-4 overflow-hidden">
+              <div className="w-full h-[22.5dvh] flex flex-row gap-4 overflow-hidden">
                 <img
                   src={data?.vehicle.image || "/image/placeholder.webp"}
                   className="w-1/2 h-full object-cover rounded-lg"
                   alt="vehicle"
                 />
-                <div className="flex-1">
+                <div className="flex-1 justify-between flex flex-col">
                   <div className="grid grid-cols-2 gap-3 text-sm w-full">
                     <div>
                       <p className="text-gray-400 text-xs">
                         {t("vehicle_detail.overview.next_service")}
                       </p>
                       <p
-                        className={`text-sm font-semibold ${
+                        className={`text-sm font-medium ${
                           data?.vehicle.next_service.time_limit &&
                           data.vehicle.next_service.time_limit > 0
                             ? ""
@@ -1051,7 +1051,7 @@ export default function VehicleDetail({
                           : t("vehicle.overdue")}
                       </p>
                       <p
-                        className={`text-sm font-semibold ${
+                        className={`text-sm font-medium ${
                           data?.vehicle.next_service.distance_limit &&
                           data.vehicle.next_service.distance_limit > 0
                             ? ""
@@ -1081,7 +1081,7 @@ export default function VehicleDetail({
                   <div className="mt-2 border rounded-lg shadow p-3 border-gray-200 flex flex-row justify-between">
                     <div>
                       <p className="text-xs">Total KM</p>
-                      <p className="text-xl font-bold mt-2">
+                      <p className="text-2xl font-semibold mt-2">
                         {Math.floor(
                           (data?.vehicle.current_mileage || 0) / 1000,
                         ).toLocaleString("en-US")}
@@ -1201,7 +1201,7 @@ export default function VehicleDetail({
           {/* RIGHT SIDE (55%) */}
           <div className="w-[55%] bg-white rounded-xl shadow p-4 flex flex-col min-h-0 h-auto">
             <div className="flex justify-between items-center mb-4">
-              <div className="relative w-96 flex bg-gray-200 py-1.5 px-2 font-semibold rounded-2xl">
+              <div className="relative w-96 flex bg-gray-200 py-1.5 px-2 font-medium rounded-2xl">
                 <div
                   className="absolute top-1.5 bottom-1.5 left-1.5 w-[calc((100%-0.75rem)/3)] bg-white rounded-xl transition-transform duration-300 ease-in-out"
                   style={{
@@ -1311,15 +1311,15 @@ export default function VehicleDetail({
                             <p className="font-semibold text-base">
                               {part.title}
                             </p>
-                            <p className="text-gray-600">
-                              <Activity className="inline" size={14} />{" "}
+                            <p className="text-gray-600 text-[0.625rem]">
+                              <Activity className="inline" size={10} />{" "}
                               {Math.floor(
                                 part.current_mileage / 1000,
                               ).toLocaleString("en-US")}{" "}
                               {t("vehicle_detail.part.km_last_service")}
                             </p>
-                            <p className="text-gray-600">
-                              <Clock className="inline mb-1" size={14} />{" "}
+                            <p className="text-gray-600 text-[0.625rem]">
+                              <Clock className="inline mb-1" size={10} />{" "}
                               {Math.floor(
                                 DateTime.now().diff(
                                   require("luxon")
@@ -1340,7 +1340,7 @@ export default function VehicleDetail({
                             >
                               {part.health}% {t("vehicle_detail.alert.health")}
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-[0.625rem]">
                               {t("vehicle_detail.part.limit_km")}:{" "}
                               {(part.current_mileage / 1000).toLocaleString(
                                 "en-US",
@@ -1351,7 +1351,7 @@ export default function VehicleDetail({
                               )}
                               /{part.distance_limit.toLocaleString("en-US")}
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 text-[0.625rem]">
                               {t("vehicle_detail.part.limit_time")}:{" "}
                               {Math.floor(
                                 DateTime.now().diff(
@@ -2153,26 +2153,16 @@ export default function VehicleDetail({
           </div>
         </div>
 
-        {/* add part */}
+        {/* add service */}
         <div
-          className={`z-70 fixed inset-0 flex justify-between items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+          className={`z-70 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
             addService.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="flex flex-row justify-center gap-4 opacity-0 pointer-events-none">
-            <button className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer">
-              {t("common.cancel")}
-            </button>
-            <button
-              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none `}
-            >
-              {t("common.save")}
-            </button>
-          </div>
           <div className="flex flex-col gap-6 overflow-y-auto">
-            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-xl`}>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
               <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
                 <div className="font-semibold flex gap-2 items-center mb-2 text-base">
                   <Info size={18} color="#00A1FE" />
@@ -2448,58 +2438,48 @@ export default function VehicleDetail({
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-row justify-center gap-4">
-            <button
-              onClick={() => setAddService({ ...addService, open: false })}
-              className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
-            >
-              {t("common.cancel")}
-            </button>
-            <button
-              disabled={
-                loading ||
-                !addService.data.date ||
-                !addService.data.image ||
-                Number(addService.data.cost || 0) <= 0 ||
-                addService.data.part_ids.length === 0
-              }
-              onClick={handleAddService}
-              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
-                loading ||
-                !addService.data.date ||
-                !addService.data.image ||
-                Number(addService.data.cost || 0) < 0 ||
-                addService.data.part_ids.length === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-[#048ad8] cursor-pointer"
-              }`}
-            >
-              {t("common.save")}
-            </button>
+            <div className="flex flex-row justify-end gap-4">
+              <button
+                onClick={() => setAddService({ ...addService, open: false })}
+                className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                disabled={
+                  loading ||
+                  !addService.data.date ||
+                  !addService.data.image ||
+                  Number(addService.data.cost || 0) <= 0 ||
+                  addService.data.part_ids.length === 0
+                }
+                onClick={handleAddService}
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                  loading ||
+                  !addService.data.date ||
+                  !addService.data.image ||
+                  Number(addService.data.cost || 0) < 0 ||
+                  addService.data.part_ids.length === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#048ad8] cursor-pointer"
+                }`}
+              >
+                {t("common.save")}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* update part */}
+        {/* update service */}
         <div
-          className={`z-70 fixed inset-0 flex justify-between items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+          className={`z-70 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
             updateService.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="flex flex-row justify-center gap-4 opacity-0 pointer-events-none">
-            <button className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer">
-              {t("common.cancel")}
-            </button>
-            <button
-              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none `}
-            >
-              {t("common.save")}
-            </button>
-          </div>
           <div className="flex flex-col gap-6 overflow-y-auto">
-            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-xl`}>
+            <div className={`bg-white shadow-lg rounded-xl min-w-xl max-w-2xl`}>
               <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
                 <div className="font-semibold flex gap-2 items-center mb-2 text-base">
                   <Info size={18} color="#00A1FE" />
@@ -2760,33 +2740,33 @@ export default function VehicleDetail({
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-row justify-center gap-4">
-            <button
-              onClick={() =>
-                setUpdateService({ ...updateService, open: false })
-              }
-              className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
-            >
-              {t("common.cancel")}
-            </button>
-            <button
-              disabled={
-                loading ||
-                !updateService.data.date ||
-                Number(updateService.data.cost || 0) <= 0
-              }
-              onClick={handleUpdateService}
-              className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
-                loading ||
-                !updateService.data.date ||
-                Number(updateService.data.cost || 0) < 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-[#048ad8] cursor-pointer"
-              }`}
-            >
-              {t("common.save")}
-            </button>
+            <div className="flex flex-row justify-end gap-4">
+              <button
+                onClick={() =>
+                  setUpdateService({ ...updateService, open: false })
+                }
+                className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                disabled={
+                  loading ||
+                  !updateService.data.date ||
+                  Number(updateService.data.cost || 0) <= 0
+                }
+                onClick={handleUpdateService}
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                  loading ||
+                  !updateService.data.date ||
+                  Number(updateService.data.cost || 0) < 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#048ad8] cursor-pointer"
+                }`}
+              >
+                {t("common.save")}
+              </button>
+            </div>
           </div>
         </div>
 

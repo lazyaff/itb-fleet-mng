@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePicker, DatePicker2 } from "@/components/Dropdown";
 import { InteractiveMapComponent, MapRef } from "@/components/Map";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
@@ -14,7 +15,6 @@ import {
   Gauge,
   MapPin,
   Phone,
-  Play,
   Search,
   Timer,
   TrendingUp,
@@ -93,6 +93,7 @@ export default function LiveTrack() {
   const [track, setTrack] = useState<TrackItem[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [vehicleStatus, setVehicleStatus] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [history, setHistory] = useState<{
     open: boolean;
     data: VehicleDetail | null;
@@ -290,7 +291,7 @@ export default function LiveTrack() {
           currentIdx: prev.currentIdx + 1,
         };
       });
-    }, 500);
+    }, 200);
   };
 
   const pausePlayback = () => {
@@ -380,32 +381,35 @@ export default function LiveTrack() {
                     setActiveVehicle(vehicle);
                   }}
                 >
-                  <ChevronLeft />
-                  <p className="font-bold text-lg">
+                  <ChevronLeft size={16} className="mb-[0.05rem]" />
+                  <p className="font-bold text-base">
                     {t("live_track.trip_history")}
                   </p>
                 </button>
                 <div className="w-1/2">
-                  <label className="block mb-2 font-semibold text-sm">
+                  <label className="block mb-2 font-semibold text-[0.625rem]">
                     {t("live_track.select_date").toUpperCase()}
                   </label>
-                  <input
-                    autoComplete="off"
-                    type="date"
-                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
-                    onChange={async (e) => {
+                  <DatePicker2
+                    value={dateFilter}
+                    onChange={async (date) => {
                       if (playbackInterval.current) {
                         clearInterval(playbackInterval.current);
                       }
+
                       setPlaybackMode({
                         active: false,
                         status: "paused",
                         currentIdx: 0,
                       });
-                      const date = e.target.value
-                        ? e.target.value
+
+                      const selectedDate = date
+                        ? date
                         : formatedDate(new Date(), "yyyy-MM-dd");
-                      await fetchHistory(date, activeVehicle.id);
+
+                      await fetchHistory(selectedDate, activeVehicle.id);
+
+                      setDateFilter(selectedDate);
                     }}
                   />
                 </div>
@@ -416,12 +420,13 @@ export default function LiveTrack() {
                     width={200}
                     height={200}
                     draggable={false}
-                    className="w-14 h-14 object-cover rounded-lg select-none"
+                    className="w-18 h-18 object-cover rounded-lg select-none"
                   />
                   <div className="flex flex-col justify-start items-start w-full">
                     <div className="flex justify-between w-full items-center">
-                      <span className="text-gray-800 text-sm font-semibold">
-                        {activeVehicle.plate_number}
+                      <span className="text-[#64748B] text-[0.625rem] font-bold">
+                        {/* {activeVehicle.plate_number} */}
+                        SELECTED VEHICLE
                       </span>
                       {(() => {
                         const currentHistory = playbackMode.active
@@ -458,10 +463,13 @@ export default function LiveTrack() {
                         );
                       })()}
                     </div>
-                    <span className="text-gray-800 text-sm">
+                    <span className="text-gray-800 text-base font-bold">
+                      {activeVehicle.plate_number}
+                    </span>
+                    <span className="text-gray-800 text-sm font-medium">
                       {activeVehicle.name}
                     </span>
-                    <span className="text-gray-800 text-sm">
+                    <span className="text-gray-800 text-sm font-medium">
                       <span className="font-semibold">
                         {t("live_track.renter")}
                       </span>
@@ -480,7 +488,7 @@ export default function LiveTrack() {
                         <Gauge size={18} />
                         <span>{t("live_track.speed")}</span>
                       </div>
-                      <p className="text-black font-semibold">
+                      <p className="text-black font-bold">
                         {playbackMode.active
                           ? history?.data?.history?.[playbackMode.currentIdx]
                               .speed
@@ -493,7 +501,7 @@ export default function LiveTrack() {
                         <MapPin size={18} />
                         <span>{t("live_track.distance")}</span>
                       </div>
-                      <p className="text-black font-semibold">
+                      <p className="text-black font-bold">
                         {(
                           ((playbackMode.active
                             ? Math.max(
@@ -714,7 +722,7 @@ export default function LiveTrack() {
                           router.push("/admin/vehicle");
                         }
                       }}
-                      className="font-semibold bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer w-full"
+                      className="font-medium bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer w-full"
                     >
                       {t("live_track.view_vehicle")}
                     </button>
@@ -738,7 +746,7 @@ export default function LiveTrack() {
                           15,
                         );
                       }}
-                      className={`font-semibold bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer w-full`}
+                      className={`font-medium bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer w-full`}
                     >
                       {t("live_track.view_history")}
                     </button>
@@ -827,10 +835,10 @@ export default function LiveTrack() {
                     <span
                       className={`bg-${vehicleStatusOption.find((i) => i.id === item.status)?.color}-500 rounded-full w-2 h-2`}
                     ></span>
-                    <div className="flex items-end flex-col text-xs text-gray-400">
+                    <div className="flex items-end flex-col text-[0.625rem] text-gray-400">
                       {item.last_updated && (
                         <span>
-                          <Clock size={14} className="inline mb-0.5 mr-1" />
+                          <Clock size={10} className="inline mb-0.5 mr-1" />
                           {formatedDate(
                             new Date(item.last_updated),
                             "dd/MM/yyyy - HH:mm",

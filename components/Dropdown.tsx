@@ -206,3 +206,37 @@ export function DatePicker({
     </div>
   );
 }
+
+export function DatePicker2({
+  value,
+  onChange,
+  placeholder = "Date",
+}: DatePickerProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpen = () => {
+    inputRef.current?.showPicker?.(); // modern browser
+    inputRef.current?.focus(); // fallback
+  };
+
+  return (
+    <div
+      onClick={handleOpen}
+      className="w-full pl-3 pr-2 py-2 bg-white border border-gray-200 rounded-md shadow-sm text-sm text-gray-700 cursor-pointer flex justify-between items-center"
+    >
+      <span className="font-bold text-[0.725rem]">
+        {value ? formatedDate(new Date(value), "LLL dd, yyyy") : placeholder}
+      </span>
+      <ChevronDown className="w-4 h-4 text-gray-500" />
+
+      {/* Hidden real input */}
+      <input
+        ref={inputRef}
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="absolute opacity-0 pointer-events-none"
+      />
+    </div>
+  );
+}
