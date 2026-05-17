@@ -206,7 +206,7 @@ export default function Dashboard() {
                       {alert.title}
                     </span>
                     <span className="text-xs text-[#64748B]">
-                      Vehicle: {alert.plate_number}
+                      {t("inspection.vehicle")}: {alert.plate_number}
                     </span>
                   </div>
                 ))

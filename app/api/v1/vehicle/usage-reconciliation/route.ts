@@ -20,14 +20,6 @@ export async function GET(request: NextRequest) {
 
     const url = new URL(request.url);
     const id = url.searchParams.get("id") || "-";
-    const date = url.searchParams.get("date") || "";
-
-    const selectedDate = DateTime.fromISO(date || "", { zone: "Asia/Jakarta" });
-    const baseDate = selectedDate.isValid
-      ? selectedDate
-      : DateTime.now().setZone("Asia/Jakarta");
-    const start = baseDate.startOf("day").toUTC().toJSDate();
-    const end = baseDate.endOf("day").toUTC().toJSDate();
 
     const rawData = await prisma.vehicle.findFirst({
       where: {
@@ -38,13 +30,6 @@ export async function GET(request: NextRequest) {
         usage_reconciliations: {
           where: {
             deleted_at: null,
-            created_at: {
-              gte: start,
-              lte: end,
-            },
-          },
-          orderBy: {
-            created_at: "desc",
           },
           include: {
             user: true,
@@ -78,6 +63,7 @@ export async function GET(request: NextRequest) {
             name: usage.vehicle_usage_history?.name || "-",
             source: usage.source,
             total_difference: 0,
+            date: usage.created_at,
           };
         }
 
@@ -88,6 +74,7 @@ export async function GET(request: NextRequest) {
           name: usage.user?.name,
           source: usage.source,
           total_difference: usage.difference,
+          date: usage.created_at,
         });
       }
     }

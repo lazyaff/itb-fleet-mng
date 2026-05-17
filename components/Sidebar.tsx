@@ -93,7 +93,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="relative z-10 flex h-screen w-64 flex-col select-none bg-[#F7F7F7] shadow-[6px_0_15px_rgba(0,0,0,0.1)]">
+    <div className="relative z-10 flex h-screen w-64 flex-col select-none bg-white shadow-[6px_0_15px_rgba(0,0,0,0.1)]">
       <div className="h-16 border-b border-slate-400 px-6 py-3">
         <div className="flex items-center justify-center gap-3">
           <Image

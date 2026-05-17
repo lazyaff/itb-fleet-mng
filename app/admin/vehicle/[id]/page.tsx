@@ -1,7 +1,7 @@
 "use client";
 
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
-import { DatePicker } from "@/components/Dropdown";
+import { DatePicker, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
@@ -125,7 +125,10 @@ export default function VehicleDetail({
     const [section, setSection] = useState(current_section || "parts");
     const [data, setData] = useState<VehicleDetail>();
     const [usageData, setUsageData] = useState<UsageReconciliation[]>([]);
-    const [usageDate, setUsageDate] = useState("");
+    const [filteredUsageData, setFilteredUsageData] = useState<
+      UsageReconciliation[]
+    >([]);
+    const [usageDate, setUsageDate] = useState("date_desc");
     const [serviceData, setServiceData] = useState<ServiceHistory[]>();
     const [currentServiceData, setCurrentServiceData] = useState<{
       section: string;
@@ -272,9 +275,17 @@ export default function VehicleDetail({
         part_ids: [],
       },
     });
-    const [renderParts, setRenderParts] = useState(true);
-    const [renderServices, setRenderServices] = useState(false);
-    const [renderAlerts, setRenderAlerts] = useState(false);
+
+    const sortOptions = [
+      {
+        id: "date_desc",
+        name: t("inspection.sort.date_desc"),
+      },
+      {
+        id: "date_asc",
+        name: t("inspection.sort.date_asc"),
+      },
+    ];
 
     useEffect(() => {
       setPageInfo({
@@ -361,6 +372,17 @@ export default function VehicleDetail({
         const result = await response.json();
         if (result.success) {
           setUsageData(result.data);
+          const sortedData = [...result.data].sort((a: any, b: any) => {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+
+            if (usageDate === "date_asc") {
+              return dateA - dateB;
+            }
+
+            return dateB - dateA;
+          });
+          setFilteredUsageData(sortedData.slice(0, 4));
         } else {
           if (result.status === 401) {
             handleLogout();
@@ -1118,13 +1140,29 @@ export default function VehicleDetail({
                 <h3 className="font-semibold text-base">
                   {t("vehicle_detail.user_usage.title")}
                 </h3>
-                <div className="w-1/3">
-                  <DatePicker
+                <div className="w-1/3 flex justify-end">
+                  {/* <Select
+                    data={sortOptions}
                     value={usageDate}
                     onChange={(val) => {
                       setUsageDate(val);
                     }}
-                  />
+                    displayValue={(item) => item.name}
+                    searchKeys={["name"]}
+                    placeholder={t("inspection.sort_by")}
+                    searchable={false}
+                  /> */}
+                  <button
+                    onClick={() => {
+                      setLoading(true);
+                      router.push(
+                        "/admin/vehicle/" + id + "/usage-reconciliation",
+                      );
+                    }}
+                    className="px-6 font-medium bg-white text-[#00A1FE] border border-gray-400 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+                  >
+                    {t("vehicle_detail.user_usage.view")}
+                  </button>
                 </div>
               </div>
 
@@ -1148,8 +1186,8 @@ export default function VehicleDetail({
                 </thead>
 
                 <tbody>
-                  {usageData.length > 0 ? (
-                    usageData.map((usage, i) => (
+                  {filteredUsageData.length > 0 ? (
+                    filteredUsageData.map((usage, i) => (
                       <tr key={usage.id} className="border-t border-gray-200">
                         <td className="py-4 text-center">{usage.name}</td>
                         <td className="py-4 text-center">

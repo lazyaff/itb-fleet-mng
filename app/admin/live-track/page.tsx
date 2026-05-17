@@ -425,8 +425,7 @@ export default function LiveTrack() {
                   <div className="flex flex-col justify-start items-start w-full">
                     <div className="flex justify-between w-full items-center">
                       <span className="text-[#64748B] text-[0.625rem] font-bold">
-                        {/* {activeVehicle.plate_number} */}
-                        SELECTED VEHICLE
+                        {t("live_track.selected_vehicle")}
                       </span>
                       {(() => {
                         const currentHistory = playbackMode.active

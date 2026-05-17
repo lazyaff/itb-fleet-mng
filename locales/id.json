@@ -73,6 +73,7 @@
   "live_track.speed": "Kecepatan",
   "live_track.distance": "Jarak",
   "live_track.playback": "Pemutar Timeline",
+  "live_track.selected_vehicle": "Kendaraan Terpilih",
 
   "vehicle.fleet_status": "Status Kendaraan",
   "vehicle.search_placeholder": "Cari kendaraan...",
@@ -113,6 +114,7 @@
   "vehicle_detail.overview.overall_health": "Kondisi",
   "vehicle_detail.user_usage.title": "Rekonsiliasi Penggunaan Pengguna",
   "vehicle_detail.user_usage.view": "Lihat Detail",
+  "vehicle_detail.user_usage.table.date": "Tanggal",
   "vehicle_detail.user_usage.table.renter": "Pengguna",
   "vehicle_detail.user_usage.table.type": "Tipe",
   "vehicle_detail.user_usage.table.distance": "Jarak",
