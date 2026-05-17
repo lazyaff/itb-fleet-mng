@@ -33,9 +33,12 @@ type dashboardData = {
     movement: boolean;
   }[];
   alert: {
-    title: string;
-    plate_number: string;
-  }[];
+    total: number;
+    data: {
+      title: string;
+      plate_number: string;
+    }[];
+  };
 };
 
 export default function Dashboard() {
@@ -192,12 +195,12 @@ export default function Dashboard() {
           >
             <h2 className="font-semibold text-red-500 mb-3 flex items-center gap-2">
               <TriangleAlert size={15} strokeWidth={2} />{" "}
-              {t("dashboard.critical_alerts")} ({data?.alert.length || 0})
+              {t("dashboard.critical_alerts")} ({data?.alert.total || 0})
             </h2>
 
             <div className="flex flex-col gap-2">
-              {data?.alert && data?.alert.length > 0 ? (
-                data?.alert.map((alert, i) => (
+              {data?.alert && data?.alert.data.length > 0 ? (
+                data?.alert.data.map((alert, i) => (
                   <div
                     key={i}
                     className="p-3 border-[0.1px] border-[#EF4444]/20 bg-[#f8f8f9] rounded-lg flex flex-col gap-2"
@@ -251,7 +254,14 @@ export default function Dashboard() {
 
           <div className="w-full flex-1 bg-gray-200 rounded">
             {data?.live_track ? (
-              <MapComponent vehicles={data!.live_track!} />
+              <MapComponent
+                defaultPosition={
+                  data?.live_track?.length
+                    ? [data.live_track[0].lat, data.live_track[0].long]
+                    : [-6.918669, 107.683533]
+                }
+                vehicles={data!.live_track!}
+              />
             ) : (
               <></>
             )}

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { validateBasicAuth, validateJWT } from "@/utils/auth";
 import { formatedDate } from "@/utils/date";
+import { DateTime } from "luxon";
 import { NextResponse, NextRequest } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
@@ -91,9 +92,13 @@ export async function GET(request: NextRequest) {
         : "/image/placeholder.webp",
       current_mileage: item.current_mileage,
       status: item.live_tracks[0]
-        ? item.live_tracks[0]?.movement
-          ? "Moving"
-          : "Stopped"
+        ? DateTime.fromJSDate(item.live_tracks[0].created_at)
+            .setZone("Asia/Jakarta")
+            .hasSame(DateTime.now().setZone("Asia/Jakarta"), "day")
+          ? item.live_tracks[0].movement
+            ? "Moving"
+            : "Stopped"
+          : "No GPS"
         : "No GPS",
       speed: item.live_tracks[0]?.speed || null,
       battery_voltage: item.live_tracks[0]?.battery_voltage || null,

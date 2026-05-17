@@ -116,31 +116,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { user_id, name, distance_limit, time_limit } = await request.json();
-    if (!user_id || !name || !distance_limit || !time_limit) {
+    const { name, distance_limit, time_limit } = await request.json();
+    if (!name || !distance_limit || !time_limit) {
       return NextResponse.json(
         {
           success: false,
           status: 400,
           message: "Missing required fields!",
-        },
-        { status: 400 },
-      );
-    }
-
-    // check user data
-    const user = await prisma.user.findFirst({
-      where: {
-        id: user_id,
-        deleted_at: null,
-      },
-    });
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Admin not found!",
         },
         { status: 400 },
       );
@@ -153,7 +135,6 @@ export async function POST(request: NextRequest) {
 
       const data = await tx.general_vehicle_part.create({
         data: {
-          user_id: user_id,
           name,
           distance_limit: distance,
           time_limit: time,
@@ -221,10 +202,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const { id, user_id, name, distance_limit, time_limit } =
-      await request.json();
+    const { id, name, distance_limit, time_limit } = await request.json();
 
-    if (!id || !user_id || !name || !distance_limit || !time_limit) {
+    if (!id || !name || !distance_limit || !time_limit) {
       return NextResponse.json(
         {
           success: false,
@@ -254,24 +234,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // check user data
-    const user = await prisma.user.findFirst({
-      where: {
-        id: user_id,
-        deleted_at: null,
-      },
-    });
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Admin not found!",
-        },
-        { status: 400 },
-      );
-    }
-
     const distance = Number(distance_limit);
     const time = Number(time_limit);
 
@@ -280,7 +242,6 @@ export async function PUT(request: NextRequest) {
         where: { id },
         data: {
           name,
-          user_id,
           distance_limit: distance,
           time_limit: time,
         },

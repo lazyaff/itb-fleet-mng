@@ -846,7 +846,7 @@ export default function Vehicle() {
 
       {/* update status */}
       <div
-        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+        className={`z-9998 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
           updateStatus.open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -926,7 +926,7 @@ export default function Vehicle() {
 
       {/* update data */}
       <div
-        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+        className={`z-9998 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
           updateData.open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

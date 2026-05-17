@@ -289,13 +289,10 @@ export default function Inspection() {
             <thead className="bg-[#E2E8F0]/20">
               <tr className="border-b border-gray-300">
                 <th className="px-6 py-3 text-center">
-                  {t("inspection.table.no").toUpperCase()}
-                </th>
-                <th className="px-6 py-3 text-center">
                   {t("inspection.table.date").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
-                  {t("inspection.table.vehicle_part").toUpperCase()}
+                  {t("inspection.table.vehicle_plate").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
                   {t("inspection.table.inspector").toUpperCase()}
@@ -316,10 +313,6 @@ export default function Inspection() {
                   key={item.id}
                   className={`border-b border-gray-300 ${item.conclusion === "Dilarang Jalan" ? "bg-[#EF4444]/5" : ""}`}
                 >
-                  <td className="px-6 py-3 text-gray-800 text-center">
-                    {item.no}
-                  </td>
-
                   <td className="px-6 py-3 text-gray-800 text-center">
                     {item.date}
                   </td>

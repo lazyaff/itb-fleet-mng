@@ -93,7 +93,9 @@ export default function LiveTrack() {
   const [track, setTrack] = useState<TrackItem[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [vehicleStatus, setVehicleStatus] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState(
+    formatedDate(new Date(), "yyyy-MM-dd"),
+  );
   const [history, setHistory] = useState<{
     open: boolean;
     data: VehicleDetail | null;
@@ -681,7 +683,12 @@ export default function LiveTrack() {
                       </div>
                       <div className="flex flex-row justify-between items-end">
                         <span className="font-bold text-4xl">
-                          {activeVehicle.battery_voltage || 0}V
+                          {parseFloat(
+                            (
+                              (activeVehicle.battery_voltage || 0) / 1000
+                            ).toFixed(1),
+                          )}
+                          V
                         </span>
                       </div>
                     </div>
@@ -856,38 +863,17 @@ export default function LiveTrack() {
             <div className="w-full flex flex-col gap-0">
               {(() => {
                 const historyData = history.data?.history || [];
-
-                const firstData = historyData[0];
-                const middleData =
-                  historyData[Math.floor(historyData.length / 2)];
-                const lastData = historyData[historyData.length - 1];
-
                 return (
                   <>
-                    <div className="flex justify-between text-xs text-gray-500 font-medium px-1">
-                      <span>
-                        {firstData
-                          ? formatedDate(
-                              new Date(firstData.created_at),
-                              "HH:mm",
-                            )
-                          : "--:--"}
-                      </span>
-
-                      <span>
-                        {middleData
-                          ? formatedDate(
-                              new Date(middleData.created_at),
-                              "HH:mm",
-                            )
-                          : "--:--"}
-                      </span>
-
-                      <span>
-                        {lastData
-                          ? formatedDate(new Date(lastData.created_at), "HH:mm")
-                          : "--:--"}
-                      </span>
+                    <div className="text-xs text-white bg-[#333333]/34 px-3 py-1.5 rounded-2xl font-bold w-fit mx-auto mb-2">
+                      {historyData[playbackMode.currentIdx]
+                        ? formatedDate(
+                            new Date(
+                              historyData[playbackMode.currentIdx].created_at,
+                            ),
+                            "HH.mm.ss",
+                          )
+                        : "--:--:--"}
                     </div>
 
                     <div className="relative w-full h-6 flex items-center">

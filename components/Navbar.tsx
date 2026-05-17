@@ -29,7 +29,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex justify-between items-center bg-white shadow px-4 h-16 select-none sticky top-0 z-60">
+    <div className="flex justify-between items-center bg-white shadow px-4 h-16 select-none sticky top-0 z-9997">
       <div className="flex items-center flex-row py-8 px-4 gap-3 text-sm">
         <span className="text-[#64748B]">
           {pageInfo.title === "Dashboard Overview"

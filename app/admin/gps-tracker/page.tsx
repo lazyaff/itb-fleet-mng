@@ -440,9 +440,6 @@ export default function Vehicle() {
           <thead className="bg-[#E2E8F0]/20">
             <tr className="border-b border-gray-300">
               <th className="px-6 py-3 text-center">
-                {t("gps_tracker.table.no").toUpperCase()}
-              </th>
-              <th className="px-6 py-3 text-center">
                 {t("gps_tracker.table.date_added").toUpperCase()}
               </th>
               <th className="px-6 py-3 text-center">
@@ -466,10 +463,6 @@ export default function Vehicle() {
           <tbody>
             {filteredData.map((item) => (
               <tr key={item.id} className="border-b border-gray-300">
-                <td className="px-6 py-3 text-gray-800 text-center">
-                  {item.no}
-                </td>
-
                 <td className="px-6 py-3 text-gray-800 text-center">
                   {item.created_at}
                 </td>

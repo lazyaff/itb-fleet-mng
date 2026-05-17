@@ -25,6 +25,7 @@ type Props = {
   track?: TrackItem[];
   active_vehicle_id?: string;
   onVehicleClick?: (id: string | null) => void;
+  defaultPosition?: [number, number];
 };
 
 export type MapRef = {
@@ -44,9 +45,10 @@ const MapComponent = dynamic(
     const L = (await import("leaflet")).default;
     await import("leaflet-rotatedmarker");
 
-    const InnerMap = ({ vehicles }: Props) => {
-      const defaultPosition: [number, number] = [-6.918669, 107.683533];
-
+    const InnerMap = ({
+      vehicles,
+      defaultPosition = [-6.918669, 107.683533],
+    }: Props) => {
       const vehicleData = vehicles.map((item) => ({
         ...item,
         icon: new L.Icon({
@@ -64,8 +66,6 @@ const MapComponent = dynamic(
           <RL.MapContainer
             center={defaultPosition}
             zoom={12.6}
-            zoomSnap={0.1}
-            zoomDelta={0.1}
             style={{ height: "100%", width: "100%" }}
           >
             <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />

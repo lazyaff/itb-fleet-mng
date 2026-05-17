@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
     const alert: {
       title: string;
       plate_number: string;
+      health: number;
     }[] = [];
 
     const vehicleHealth = {
@@ -139,6 +140,7 @@ export async function GET(request: NextRequest) {
           alert.push({
             title: part.name,
             plate_number: item.plate_number,
+            health: healthPoint,
           });
         }
 
@@ -184,7 +186,10 @@ export async function GET(request: NextRequest) {
           status: status,
         },
         live_track: live_track,
-        alert: alert,
+        alert: {
+          total: alert.length,
+          data: alert.sort((a, b) => a.health - b.health).slice(0, 5),
+        },
       },
     });
   } catch (error) {

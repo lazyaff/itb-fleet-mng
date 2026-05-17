@@ -189,7 +189,7 @@ export default function VehicleParts() {
   const handleAddData = async () => {
     try {
       const { user_id, name, distance_limit, time_limit } = addData.data;
-      if (!user_id || !name || !distance_limit || !time_limit || loading) {
+      if (!name || !distance_limit || !time_limit || loading) {
         return;
       }
 
@@ -260,14 +260,7 @@ export default function VehicleParts() {
   const handleUpdateData = async () => {
     try {
       const { id, user_id, name, distance_limit, time_limit } = updateData.data;
-      if (
-        !id ||
-        !name ||
-        !user_id ||
-        !distance_limit ||
-        !time_limit ||
-        loading
-      ) {
+      if (!id || !name || !distance_limit || !time_limit || loading) {
         return;
       }
 
@@ -596,9 +589,6 @@ export default function VehicleParts() {
           <thead className="bg-[#E2E8F0]/20">
             <tr className="border-b border-gray-300">
               <th className="px-6 py-3 text-center">
-                {t("vehicle_part.table.no").toUpperCase()}
-              </th>
-              <th className="px-6 py-3 text-center">
                 {t("vehicle_part.table.part").toUpperCase()}
               </th>
               <th className="px-6 py-3 text-center">
@@ -622,10 +612,6 @@ export default function VehicleParts() {
           <tbody>
             {filteredData.map((item) => (
               <tr key={item.id} className="border-b border-gray-300">
-                <td className="px-6 py-3 text-gray-800 text-center">
-                  {item.no}
-                </td>
-
                 <td className="px-6 py-3 text-gray-800 text-center">
                   {item.name}
                 </td>
@@ -737,23 +723,6 @@ export default function VehicleParts() {
           </div>
           <div className="space-y-6 px-6 py-6">
             <div className="flex flex-row justify-between gap-6">
-              <Select
-                label={t("vehicle_part.admin_responsible")}
-                data={adminData}
-                value={addData.data.user_id}
-                onChange={(val) => {
-                  setAddData({
-                    ...addData,
-                    data: {
-                      ...addData.data,
-                      user_id: val,
-                    },
-                  });
-                }}
-                displayValue={(item: any) => `${item.name}`}
-                searchKeys={["name"]}
-                required={true}
-              />
               <div className="w-full">
                 <label className="block mb-2">
                   {t("vehicle_part.part_name")}{" "}
@@ -840,7 +809,6 @@ export default function VehicleParts() {
               <button
                 disabled={
                   loading ||
-                  !addData.data.user_id ||
                   !addData.data.name ||
                   !addData.data.distance_limit ||
                   !addData.data.time_limit
@@ -848,7 +816,6 @@ export default function VehicleParts() {
                 onClick={handleAddData}
                 className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                   loading ||
-                  !addData.data.user_id ||
                   !addData.data.name ||
                   !addData.data.distance_limit ||
                   !addData.data.time_limit
@@ -887,23 +854,6 @@ export default function VehicleParts() {
           </div>
           <div className="space-y-6 px-6 py-6">
             <div className="flex flex-row justify-between gap-6">
-              <Select
-                label={t("vehicle_part.admin_responsible")}
-                data={adminData}
-                value={updateData.data.user_id}
-                onChange={(val) => {
-                  setUpdateData({
-                    ...updateData,
-                    data: {
-                      ...updateData.data,
-                      user_id: val,
-                    },
-                  });
-                }}
-                displayValue={(item: any) => `${item.name}`}
-                searchKeys={["name"]}
-                required={true}
-              />
               <div className="w-full">
                 <label className="block mb-2">
                   {t("vehicle_part.part_name")}{" "}
@@ -990,7 +940,6 @@ export default function VehicleParts() {
               <button
                 disabled={
                   loading ||
-                  !updateData.data.user_id ||
                   !updateData.data.name ||
                   !updateData.data.distance_limit ||
                   !updateData.data.time_limit
@@ -998,7 +947,6 @@ export default function VehicleParts() {
                 onClick={handleUpdateData}
                 className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
                   loading ||
-                  !updateData.data.user_id ||
                   !updateData.data.name ||
                   !updateData.data.distance_limit ||
                   !updateData.data.time_limit

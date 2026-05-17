@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { use, useContext, useEffect, useState } from "react";
 
@@ -81,6 +80,7 @@ export type UsageReconciliation = {
   name: string;
   source: string;
   total_difference: number;
+  date: string;
 };
 
 export type ServiceHistory = {
@@ -408,7 +408,23 @@ export default function VehicleDetail({
       if (session) {
         fetchUsageData();
       }
-    }, [session, usageDate]);
+    }, [session]);
+
+    useEffect(() => {
+      if (session) {
+        const sortedData = [...usageData].sort((a: any, b: any) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+
+          if (usageDate === "date_asc") {
+            return dateA - dateB;
+          }
+
+          return dateB - dateA;
+        });
+        setFilteredUsageData(sortedData.slice(0, 4));
+      }
+    }, [usageDate]);
 
     useEffect(() => {
       if (session) {
@@ -1140,18 +1156,20 @@ export default function VehicleDetail({
                 <h3 className="font-semibold text-base">
                   {t("vehicle_detail.user_usage.title")}
                 </h3>
-                <div className="w-1/3 flex justify-end">
-                  {/* <Select
-                    data={sortOptions}
-                    value={usageDate}
-                    onChange={(val) => {
-                      setUsageDate(val);
-                    }}
-                    displayValue={(item) => item.name}
-                    searchKeys={["name"]}
-                    placeholder={t("inspection.sort_by")}
-                    searchable={false}
-                  /> */}
+                <div className="w-2/3 flex justify-end gap-2">
+                  <div className="w-40">
+                    <Select
+                      data={sortOptions}
+                      value={usageDate}
+                      onChange={(val) => {
+                        setUsageDate(val);
+                      }}
+                      displayValue={(item) => item.name}
+                      searchKeys={["name"]}
+                      placeholder={t("inspection.sort_by")}
+                      searchable={false}
+                    />
+                  </div>
                   <button
                     onClick={() => {
                       setLoading(true);
@@ -1159,7 +1177,7 @@ export default function VehicleDetail({
                         "/admin/vehicle/" + id + "/usage-reconciliation",
                       );
                     }}
-                    className="px-6 font-medium bg-white text-[#00A1FE] border border-gray-400 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+                    className="px-2 w-40 font-medium bg-white text-[#00A1FE] border border-gray-400 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
                   >
                     {t("vehicle_detail.user_usage.view")}
                   </button>
@@ -1175,6 +1193,9 @@ export default function VehicleDetail({
                       ).toUpperCase()}
                     </th>
                     <th className="text-center py-4">
+                      {t("common.date").toUpperCase()}
+                    </th>
+                    <th className="text-center py-4">
                       {t("vehicle_detail.user_usage.table.type").toUpperCase()}
                     </th>
                     <th className="text-center py-4">
@@ -1188,8 +1209,14 @@ export default function VehicleDetail({
                 <tbody>
                   {filteredUsageData.length > 0 ? (
                     filteredUsageData.map((usage, i) => (
-                      <tr key={usage.id} className="border-t border-gray-200">
+                      <tr
+                        key={usage.id}
+                        className="border-t border-gray-200 text-xs"
+                      >
                         <td className="py-4 text-center">{usage.name}</td>
+                        <td className="py-4 text-center">
+                          {formatedDate(new Date(usage.date), "dd/MM/yyyy")}
+                        </td>
                         <td className="py-4 text-center">
                           {(() => {
                             const config =
@@ -1823,7 +1850,7 @@ export default function VehicleDetail({
 
         {/* update km */}
         <div
-          className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          className={`z-9998 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
             updateKM.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -1895,7 +1922,7 @@ export default function VehicleDetail({
 
         {/* add part */}
         <div
-          className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          className={`z-9998 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
             addPart.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -2050,7 +2077,7 @@ export default function VehicleDetail({
 
         {/* update part */}
         <div
-          className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          className={`z-9998 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
             updatePart.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -2193,7 +2220,7 @@ export default function VehicleDetail({
 
         {/* add service */}
         <div
-          className={`z-70 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+          className={`z-9998 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
             addService.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
@@ -2510,7 +2537,7 @@ export default function VehicleDetail({
 
         {/* update service */}
         <div
-          className={`z-70 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
+          className={`z-9998 fixed inset-0 flex justify-center items-start bg-gray-100 transition-opacity duration-500 px-6 py-8 overflow-y-auto ${
             updateService.open
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"
