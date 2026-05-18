@@ -182,6 +182,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // const check data exist
+    const isExist = await prisma.gps_tracker.findFirst({
+      where: {
+        imei: imei,
+        deleted_at: null,
+      },
+    });
+    if (!isExist) {
+      await prisma.gps_tracker.create({
+        data: {
+          imei: imei,
+        },
+      });
+    }
+
     // check imei
     const device = await prisma.gps_tracker.findFirst({
       where: {
