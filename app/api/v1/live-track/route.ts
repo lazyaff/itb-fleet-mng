@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { validateBasicAuth, validateJWT } from "@/utils/auth";
 import { formatedDate } from "@/utils/date";
+import { healthCount, healthDistanceCount } from "@/utils/vehicle";
 import { DateTime } from "luxon";
 import { NextResponse, NextRequest } from "next/server";
 import { v4 as uuidv4 } from "uuid";
@@ -435,6 +436,57 @@ export async function POST(request: NextRequest) {
           },
           data: partInput,
         });
+
+        const updatedVehiclePart = await tx.vehicle_part.findMany({
+          where: {
+            id: {
+              in: device.vehicle.vehicle_parts.map((item: any) => item.id),
+            },
+          },
+          include: {
+            alerts: {
+              where: {
+                active: true,
+                deleted_at: null,
+              },
+            },
+          },
+        });
+
+        for (const part of updatedVehiclePart) {
+          const health = healthDistanceCount({
+            current_mileage: part.current_distance,
+            distance_limit: part.distance_limit,
+          });
+
+          const existingAlert = part.alerts[0];
+
+          if (health < 25 && !existingAlert) {
+            await tx.vehicle_alert.create({
+              data: {
+                vehicle_part_id: part.id,
+                active: true,
+                distance_limit_reached: true,
+                triggered_at: new Date(),
+              },
+            });
+
+            continue;
+          }
+
+          if (health < 25 && existingAlert) {
+            await tx.vehicle_alert.update({
+              where: {
+                id: existingAlert.id,
+              },
+              data: {
+                distance_limit_reached: true,
+              },
+            });
+
+            continue;
+          }
+        }
 
         const usage = await tx.usage_reconciliation.create({
           data: {

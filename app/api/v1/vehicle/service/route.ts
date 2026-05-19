@@ -284,7 +284,7 @@ export async function POST(request: NextRequest) {
     }
 
     // create transaction
-    await prisma.$transaction(async (tx: any) => {
+    await prisma.$transaction(async (tx) => {
       // save file
       const id = uuidv4();
       const filepath = await saveFile(image, "service-history", id);
@@ -320,6 +320,19 @@ export async function POST(request: NextRequest) {
         data: {
           last_service: new Date(date),
           current_distance: 0,
+        },
+      });
+
+      await tx.vehicle_alert.updateMany({
+        where: {
+          vehicle_part_id: {
+            in: part_ids,
+          },
+          active: true,
+        },
+        data: {
+          active: false,
+          resolved_at: new Date(date),
         },
       });
     });

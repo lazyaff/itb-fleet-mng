@@ -43,11 +43,25 @@ export async function GET(request: NextRequest) {
             ],
           },
           select: {
+            id: true,
             name: true,
             current_distance: true,
             distance_limit: true,
             last_service: true,
             time_limit: true,
+            alerts: {
+              where: {
+                active: true,
+                deleted_at: null,
+              },
+              select: {
+                triggered_at: true,
+              },
+              take: 1,
+              orderBy: {
+                triggered_at: "asc",
+              },
+            },
           },
         },
         live_tracks: {
@@ -86,6 +100,7 @@ export async function GET(request: NextRequest) {
       title: string;
       plate_number: string;
       health: number;
+      date: Date | null;
     }[] = [];
 
     const vehicleHealth = {
@@ -125,6 +140,7 @@ export async function GET(request: NextRequest) {
         });
       }
 
+      // part health
       for (const part of item.vehicle_parts) {
         const healthPoint = Math.max(
           healthCount({
@@ -136,17 +152,24 @@ export async function GET(request: NextRequest) {
           0,
         );
 
-        if (healthPoint < 25 && item.usage_reconciliations.length > 0) {
+        const activeAlert = part.alerts[0];
+        if (
+          healthPoint < 25 &&
+          item.usage_reconciliations.length > 0 &&
+          activeAlert
+        ) {
           alert.push({
             title: part.name,
             plate_number: item.plate_number,
             health: healthPoint,
+            date: activeAlert.triggered_at,
           });
         }
 
         health += healthPoint;
       }
 
+      // avg vehicle health
       const avgHealth =
         item.vehicle_parts.length > 0
           ? health / item.vehicle_parts.length
@@ -162,6 +185,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // status counter
       switch (item.status) {
         case "Available":
           status.available += 1;
@@ -188,7 +212,14 @@ export async function GET(request: NextRequest) {
         live_track: live_track,
         alert: {
           total: alert.length,
-          data: alert.sort((a, b) => a.health - b.health).slice(0, 5),
+          data: alert
+            .sort((a, b) => a.health - b.health)
+            .slice(0, 5)
+            .sort(
+              (a, b) =>
+                new Date(b.date || 0).getTime() -
+                new Date(a.date || 0).getTime(),
+            ),
         },
       },
     });

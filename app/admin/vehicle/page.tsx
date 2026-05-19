@@ -27,12 +27,14 @@ import {
 import { DateTime } from "luxon";
 import { NotificationAlert } from "@/components/Alert";
 import { SelectForm } from "@/components/Form";
+import { timeAgo } from "@/utils/date";
 
 type DataProps = {
   alert: {
     vehicle_id: string;
     title: string;
     plate_number: string;
+    date: string;
   }[];
   vehicle: VehicleProps[];
 };
@@ -464,7 +466,7 @@ export default function Vehicle() {
     <div className="flex flex-col gap-4 h-full w-full">
       <div className="flex flex-row gap-4 flex-1 w-full">
         <div className="flex flex-col gap-4">
-          <div className="bg-white rounded-xl shadow p-5 w-64">
+          <div className="bg-white rounded-xl shadow p-5 w-72">
             <h2 className="font-semibold mb-3">{t("vehicle.fleet_status")}</h2>
             <div className="flex flex-col gap-2">
               <div>
@@ -529,9 +531,14 @@ export default function Vehicle() {
                     <span className="font-semibold text-red-500">
                       {alert.title}
                     </span>
-                    <span className="text-xs text-[#64748B]">
-                      {t("inspection.vehicle")}: {alert.plate_number}
-                    </span>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-[0.65rem] text-[#64748B]">
+                        {t("inspection.vehicle")}: {alert.plate_number}
+                      </span>
+                      <span className="text-[0.65rem] text-[#64748B]">
+                        {timeAgo(alert.date, lang)}
+                      </span>
+                    </div>
                   </button>
                 ))
               ) : (

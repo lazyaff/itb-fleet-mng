@@ -49,6 +49,18 @@ export async function GET(request: NextRequest) {
               },
             ],
           },
+          include: {
+            alerts: {
+              where: {
+                active: true,
+                deleted_at: null,
+              },
+              orderBy: {
+                triggered_at: "asc",
+              },
+              take: 1,
+            },
+          },
           orderBy: {
             name: "asc",
           },
@@ -123,7 +135,9 @@ export async function GET(request: NextRequest) {
           0,
         ).toFixed(0),
       );
-      if (healthPoint < 25) {
+
+      const activeAlert = part.alerts[0];
+      if (healthPoint < 25 && activeAlert) {
         alert.push({
           title: part.name,
           health: healthPoint,

@@ -186,6 +186,7 @@ model vehicle_part {
   vehicle                     vehicle                          @relation(fields: [vehicle_id], references: [id])
   general_vehicle_part        general_vehicle_part?            @relation(fields: [general_vehicle_part_id], references: [id])
   service_histories           vehicle_part_service_history[]
+  alerts                      vehicle_alert[]
 }
 
 model service_history {
@@ -297,4 +298,22 @@ model inspection_answer {
   report                      inspection_report              @relation(fields: [report_id], references: [id])
   question                    inspection_question            @relation(fields: [question_id], references: [id])
   option                      inspection_option              @relation(fields: [option_id], references: [id])
+}
+
+model vehicle_alert {
+  id                      String                 @id @default(uuid())
+  vehicle_part_id         String
+  time_limit_reached      Boolean                @default(false)
+  distance_limit_reached  Boolean                @default(false)
+  active                  Boolean
+  triggered_at            DateTime
+  resolved_at             DateTime?
+  created_at              DateTime               @default(now())
+  updated_at              DateTime               @updatedAt
+  deleted_at              DateTime?
+
+  vehicle_part            vehicle_part           @relation(fields: [vehicle_part_id], references: [id])
+  
+  @@index([active])
+  @@index([vehicle_part_id])
 }

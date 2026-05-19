@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { useLanguage } from "@/context/Language";
+import { timeAgo } from "@/utils/date";
 
 type dashboardData = {
   vehicle: {
@@ -37,6 +38,7 @@ type dashboardData = {
     data: {
       title: string;
       plate_number: string;
+      date: string;
     }[];
   };
 };
@@ -208,9 +210,14 @@ export default function Dashboard() {
                     <span className="font-semibold text-red-500">
                       {alert.title}
                     </span>
-                    <span className="text-xs text-[#64748B]">
-                      {t("inspection.vehicle")}: {alert.plate_number}
-                    </span>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-[0.65rem] text-[#64748B]">
+                        {t("inspection.vehicle")}: {alert.plate_number}
+                      </span>
+                      <span className="text-[0.65rem] text-[#64748B]">
+                        {timeAgo(alert.date, lang)}
+                      </span>
+                    </div>
                   </div>
                 ))
               ) : (

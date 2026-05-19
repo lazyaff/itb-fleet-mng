@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
-import { healthCount } from "@/utils/vehicle";
+import { healthCount, healthDistanceCount } from "@/utils/vehicle";
 import { DateTime } from "luxon";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -55,6 +55,18 @@ export async function GET(request: NextRequest) {
               },
             ],
           },
+          include: {
+            alerts: {
+              where: {
+                active: true,
+                deleted_at: null,
+              },
+              orderBy: {
+                triggered_at: "asc",
+              },
+              take: 1,
+            },
+          },
         },
         usage_reconciliations: {
           where: {
@@ -77,6 +89,7 @@ export async function GET(request: NextRequest) {
       vehicle_id: string;
       title: string;
       plate_number: string;
+      date: Date | null;
     }[] = [];
 
     const vehicle = rawData.map((item: any) => {
@@ -99,16 +112,6 @@ export async function GET(request: NextRequest) {
           time_limit ? Math.min(time_limit, diffDays) : diffDays,
         );
 
-        // console.log(
-        //   part.name,
-        //   healthCount({
-        //     current_mileage: part.current_distance,
-        //     distance_limit: part.distance_limit,
-        //     last_service: part.last_service,
-        //     time_limit: part.time_limit,
-        //   }),
-        // );
-
         const healthPoint = Math.max(
           healthCount({
             current_mileage: part.current_distance,
@@ -118,18 +121,23 @@ export async function GET(request: NextRequest) {
           }),
           0,
         );
-        if (healthPoint < 25 && item.usage_reconciliations.length > 0) {
+
+        const activeAlert = part.alerts[0];
+        if (
+          healthPoint < 25 &&
+          item.usage_reconciliations.length > 0 &&
+          activeAlert
+        ) {
           alert.push({
             vehicle_id: item.id,
             title: part.name,
             plate_number: item.plate_number,
+            date: activeAlert.triggered_at,
           });
         }
 
         health += healthPoint;
       }
-
-      // console.log();
 
       return {
         id: item.id,
@@ -159,7 +167,10 @@ export async function GET(request: NextRequest) {
       status: 200,
       message: "Data fetched successfully",
       data: {
-        alert: alert,
+        alert: alert.sort(
+          (a, b) =>
+            new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
+        ),
         vehicle: vehicle,
       },
     });
@@ -282,6 +293,55 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const newVehiclePart = await prisma.vehicle_part.findMany({
+      where: {
+        vehicle_id: id,
+      },
+      include: {
+        alerts: {
+          where: {
+            active: true,
+            deleted_at: null,
+          },
+        },
+      },
+    });
+
+    for (const part of newVehiclePart) {
+      const health = healthDistanceCount({
+        current_mileage: part.current_distance,
+        distance_limit: part.distance_limit,
+      });
+
+      const existingAlert = part.alerts[0];
+
+      if (health < 25 && !existingAlert) {
+        await prisma.vehicle_alert.create({
+          data: {
+            vehicle_part_id: part.id,
+            active: true,
+            distance_limit_reached: true,
+            triggered_at: new Date(),
+          },
+        });
+
+        continue;
+      }
+
+      if (health < 25 && existingAlert) {
+        await prisma.vehicle_alert.update({
+          where: {
+            id: existingAlert.id,
+          },
+          data: {
+            distance_limit_reached: true,
+          },
+        });
+
+        continue;
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -400,6 +460,84 @@ export async function PUT(request: NextRequest) {
           }),
         ),
       );
+
+      const updatedVehiclePart = await prisma.vehicle_part.findMany({
+        where: {
+          id: {
+            in: partsData.map((part) => part.id),
+          },
+        },
+        include: {
+          alerts: {
+            where: {
+              active: true,
+              deleted_at: null,
+            },
+          },
+        },
+      });
+
+      for (const part of updatedVehiclePart) {
+        const health = healthDistanceCount({
+          current_mileage: part.current_distance,
+          distance_limit: part.distance_limit,
+        });
+
+        const existingAlert = part.alerts[0];
+
+        const shouldAlert = health < 25;
+
+        if (shouldAlert && !existingAlert) {
+          await prisma.vehicle_alert.create({
+            data: {
+              vehicle_part_id: part.id,
+              active: true,
+              distance_limit_reached: true,
+              triggered_at: new Date(),
+            },
+          });
+
+          continue;
+        }
+
+        if (!shouldAlert && existingAlert) {
+          if (existingAlert.time_limit_reached) {
+            await prisma.vehicle_alert.update({
+              where: {
+                id: existingAlert.id,
+              },
+              data: {
+                distance_limit_reached: false,
+              },
+            });
+          } else {
+            await prisma.vehicle_alert.update({
+              where: {
+                id: existingAlert.id,
+              },
+              data: {
+                active: false,
+                deleted_at: new Date(),
+              },
+            });
+          }
+
+          continue;
+        }
+
+        if (shouldAlert && existingAlert) {
+          await prisma.vehicle_alert.update({
+            where: {
+              id: existingAlert.id,
+            },
+            data: {
+              active: true,
+              deleted_at: null,
+              distance_limit_reached: true,
+            },
+          });
+        }
+      }
     }
 
     return NextResponse.json({
