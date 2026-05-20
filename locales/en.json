@@ -39,6 +39,7 @@
   "sidebar.vehicle_parts": "Vehicle Parts",
   "sidebar.user_inspection": "User Inspection",
   "sidebar.gps_tracker": "GPS Tracker",
+  "sidebar.vehicle_sync": "Vehicle Sync",
 
   "dashboard.total_vehicles": "Total Vehicles",
   "dashboard.rented": "Rented",
@@ -238,5 +239,29 @@
   "gps_tracker.cancel": "Cancel",
   "gps_tracker.save": "Save",
   "gps_tracker.modal_update_title": "Update GPS Tracker",
-  "gps_tracker.modal_update_description": "Modify the details of an existing GPS Tracker data."
+  "gps_tracker.modal_update_description": "Modify the details of an existing GPS Tracker data.",
+
+  "vehicle_sync.search_placeholder": "Search plate or ID...",
+  "vehicle_sync.status.pending": "Pending",
+  "vehicle_sync.status.approved": "Approved",
+  "vehicle_sync.status.rejected": "Rejected",
+  "vehicle_sync.status.synced": "Synced",
+  "vehicle_sync.sort_by": "Sort by",
+  "vehicle_sync.plate_asc": "Plate A-Z",
+  "vehicle_sync.plate_desc": "Plate Z-A",
+  "vehicle_sync.last_update": "Last Update",
+  "vehicle_sync.refresh_data": "Refresh Data",
+  "vehicle_sync.submit_request": "Submit Request",
+  "vehicle_sync.table.vehicle_plate": "Vehicle Plate",
+  "vehicle_sync.table.type": "Type",
+  "vehicle_sync.table.visibility": "Visibility",
+  "vehicle_sync.modal.title": "Vehicle Sync Detail",
+  "vehicle_sync.modal.subtitle": "Check the detail that you submitted",
+  "vehicle_sync.modal.responsibility": "Responsibility & Status",
+  "vehicle_sync.modal.check": "Please check your status",
+  "vehicle_sync.modal.requested_by": "Requested By",
+  "vehicle_sync.modal.approved_by": "Approved By",
+  "vehicle_sync.modal.requested": "Requested",
+  "vehicle_sync.modal.approved": "Approved",
+  "vehicle_sync.modal.notes": "Notes"
 }

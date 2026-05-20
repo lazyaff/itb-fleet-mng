@@ -39,6 +39,7 @@
   "sidebar.vehicle_parts": "Suku Cadang",
   "sidebar.user_inspection": "Petugas Inspeksi",
   "sidebar.gps_tracker": "Pelacak GPS",
+  "sidebar.vehicle_sync": "Sinkronisasi Kendaraan",
 
   "dashboard.total_vehicles": "Total Kendaraan",
   "dashboard.rented": "Disewa",
@@ -238,5 +239,29 @@
   "gps_tracker.cancel": "Batal",
   "gps_tracker.save": "Simpan",
   "gps_tracker.modal_update_title": "Perbarui Pelacak GPS",
-  "gps_tracker.modal_update_description": "Ubah detail data Pelacak GPS yang sudah ada."
+  "gps_tracker.modal_update_description": "Ubah detail data Pelacak GPS yang sudah ada.",
+
+  "vehicle_sync.search_placeholder": "Cari plat atau ID...",
+  "vehicle_sync.status.pending": "Menunggu",
+  "vehicle_sync.status.approved": "Disetujui",
+  "vehicle_sync.status.rejected": "Ditolak",
+  "vehicle_sync.status.synced": "Tersinkron",
+  "vehicle_sync.sort_by": "Urutkan",
+  "vehicle_sync.plate_asc": "Plat A-Z",
+  "vehicle_sync.plate_desc": "Plat Z-A",
+  "vehicle_sync.last_update": "Pembaruan Terakhir",
+  "vehicle_sync.refresh_data": "Muat Ulang Data",
+  "vehicle_sync.submit_request": "Kirim Permintaan",
+  "vehicle_sync.table.vehicle_plate": "Plat Kendaraan",
+  "vehicle_sync.table.type": "Tipe",
+  "vehicle_sync.table.visibility": "Visibilitas",
+  "vehicle_sync.modal.title": "Detail Sinkronisasi Kendaraan",
+  "vehicle_sync.modal.subtitle": "Periksa detail yang telah Anda kirim",
+  "vehicle_sync.modal.responsibility": "Tanggung Jawab & Status",
+  "vehicle_sync.modal.check": "Silakan periksa status Anda",
+  "vehicle_sync.modal.requested_by": "Diajukan Oleh",
+  "vehicle_sync.modal.approved_by": "Disetujui Oleh",
+  "vehicle_sync.modal.requested": "Diajukan",
+  "vehicle_sync.modal.approved": "Disetujui",
+  "vehicle_sync.modal.notes": "Catatan"
 }

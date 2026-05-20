@@ -75,6 +75,11 @@ const Sidebar = () => {
           title: t("sidebar.gps_tracker"),
           url: "/admin/gps-tracker",
         },
+        {
+          id: "vehicle_sync",
+          title: t("sidebar.vehicle_sync"),
+          url: "/admin/vehicle-sync",
+        },
       ],
     },
   ];
