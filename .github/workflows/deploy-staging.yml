@@ -38,7 +38,7 @@ jobs:
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
 
-      - name: Deploy via SSH
+      - name: Deploy to Hostinger
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.HOST }}
@@ -47,6 +47,24 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/komuto-fleet-management || exit 1
+            git pull origin dev
+            npm ci
+            npx prisma generate
+            npm run build
+            pm2 restart komuto-fleet || pm2 start npm --name komuto-fleet -- start
+
+      - name: Deploy to ITB Server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 103.107.4.43
+          port: 22
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          proxy_host: ${{ secrets.HOST }}
+          proxy_username: root
+          proxy_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/apps/komuto-fleet-management || exit 1
             git pull origin dev
             npm ci
             npx prisma generate
