@@ -38,7 +38,7 @@ jobs:
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
 
-      - name: Deploy to Hostinger
+      - name: Deploy to Hostinger + ITB
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.HOST }}
@@ -46,6 +46,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Deploy to Hostinger
             cd /opt/komuto-fleet-management || exit 1
             git pull origin dev
             npm ci
@@ -53,18 +54,15 @@ jobs:
             npm run build
             pm2 restart komuto-fleet || pm2 start npm --name komuto-fleet -- start
 
-      - name: Deploy to ITB Server
-        shell: bash
-        run: |
-          set -e
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/itb_key
-          chmod 600 ~/.ssh/itb_key
-          ssh -o StrictHostKeyChecking=no \
-            -o ProxyCommand="ssh -o StrictHostKeyChecking=no -i ~/.ssh/itb_key -W %h:%p root@${{ secrets.HOST }}" \
-            -i ~/.ssh/itb_key \
-            ubuntu@103.107.4.43 \
-            "cd /opt/apps/komuto-fleet-management && git pull origin dev && npm ci && npx prisma generate && npm run build && pm2 restart komuto-fleet"
+            # Deploy to ITB Server via VPN
+            ssh -o StrictHostKeyChecking=no ubuntu@103.107.4.43 "
+              cd /opt/apps/komuto-fleet-management
+              git pull origin dev
+              npm ci
+              npx prisma generate
+              npm run build
+              pm2 restart komuto-fleet
+            "
 
       - name: Verify deployment
         run: curl -f http://${{ secrets.HOST }}:3003/health || echo "Health check skipped"
