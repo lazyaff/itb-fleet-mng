@@ -43,6 +43,8 @@
   "sidebar.vehicle_sync": "Vehicle Sync",
   "sidebar.form_builder": "Form Builder",
   "sidebar.user_management": "User Management",
+  "sidebar.reports": "Reports",
+  "sidebar.monthly_report": "Monthly Report",
 
   "dashboard.total_vehicles": "Total Vehicles",
   "dashboard.rented": "Rented",
@@ -365,5 +367,20 @@
   "user_management.revoke_warning": "The user will no longer be able to log in, but their record will remain visible.",
   "user_management.revoke_success": "User access has been revoked.",
   "user_management.cancel": "Cancel",
-  "user_management.save": "Save"
+  "user_management.save": "Save",
+  "monthly_recap.summary.total_km": "Total KM Armada",
+  "monthly_recap.summary.total_liter": "Total Liter BBM",
+  "monthly_recap.summary.total_cost": "Total Biaya BBM",
+  "monthly_recap.summary.total_service": "Total Servis",
+  "monthly_recap.table.title": "Vehicle Recap",
+  "monthly_recap.table.vehicle": "Vehicle",
+  "monthly_recap.table.health": "Health",
+  "monthly_recap.table.total_km": "Total KM",
+  "monthly_recap.table.avg_km_per_day": "Avg KM/Day",
+  "monthly_recap.table.service": "Service",
+  "monthly_recap.table.inspection": "Inspection",
+  "monthly_recap.table.fuel_count": "Fuel Fill-ups",
+  "monthly_recap.table.liter": "Liter",
+  "monthly_recap.table.cost": "Fuel Cost",
+  "monthly_recap.export_csv": "Export CSV"
 }

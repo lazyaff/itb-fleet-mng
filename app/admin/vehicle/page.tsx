@@ -19,6 +19,7 @@ import { useContext, useEffect, useState } from "react";
 import { useLanguage } from "@/context/Language";
 import { Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
+import { getHealthStatus } from "@/utils/vehicle";
 import {
   vehicle_health,
   vehicle_status,
@@ -200,13 +201,7 @@ export default function Vehicle() {
             return acc;
           }
 
-          if (item.health > 50) {
-            acc.healthy += 1;
-          } else if (item.health >= 25) {
-            acc.near_service += 1;
-          } else {
-            acc.overdue += 1;
-          }
+          acc[getHealthStatus(item.health)] += 1;
 
           return acc;
         },
@@ -721,7 +716,13 @@ export default function Vehicle() {
                           <div className="flex flex-row items-center justify-between gap-2">
                             <div className="h-2 bg-gray-200 rounded flex-1">
                               <div
-                                className={`h-2 ${item.health > 50 ? "bg-[#16A249]" : item.health >= 25 ? "bg-[#FFC107]" : "bg-[#DC3545]"} rounded`}
+                                className={`h-2 ${
+                                  {
+                                    healthy: "bg-[#16A249]",
+                                    near_service: "bg-[#FFC107]",
+                                    overdue: "bg-[#DC3545]",
+                                  }[getHealthStatus(item.health)]
+                                } rounded`}
                                 style={{
                                   width: `${item.health}%`,
                                 }}

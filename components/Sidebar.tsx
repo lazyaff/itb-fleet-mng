@@ -21,6 +21,7 @@ const Sidebar = () => {
     "admin",
     "maintenance",
     "live_fleet_map",
+    "reports",
   ]);
 
   const pageData = [
@@ -55,6 +56,17 @@ const Sidebar = () => {
           id: "inspection",
           title: t("sidebar.inspection"),
           url: "/admin/inspection",
+        },
+      ],
+    },
+    {
+      id: "reports",
+      title: t("sidebar.reports"),
+      item: [
+        {
+          id: "monthly_report",
+          title: t("sidebar.monthly_report"),
+          url: "/admin/reports/monthly-recap",
         },
       ],
     },

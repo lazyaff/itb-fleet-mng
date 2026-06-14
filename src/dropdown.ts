@@ -61,6 +61,36 @@ export const vehicle_health = [
   },
 ];
 
+export const monthly_recap_health = {
+  healthy: {
+    id: "Sehat",
+    en: "Healthy",
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
+  },
+  near_service: {
+    id: "Butuh Maintenance",
+    en: "Needs Maintenance",
+    color: "orange",
+    bg: "bg-orange-100",
+    text: "text-orange-700",
+    border: "border-orange-400",
+    dot: "bg-orange-500",
+  },
+  overdue: {
+    id: "Terlambat",
+    en: "Overdue",
+    color: "red",
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-400",
+    dot: "bg-red-500",
+  },
+} as const;
+
 export const inspectionConclusion = {
   "Siap Jalan": {
     color: "green",

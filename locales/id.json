@@ -43,6 +43,8 @@
   "sidebar.vehicle_sync": "Sinkronisasi Kendaraan",
   "sidebar.form_builder": "Form Builder",
   "sidebar.user_management": "Manajemen Pengguna",
+  "sidebar.reports": "Laporan",
+  "sidebar.monthly_report": "Laporan Bulanan",
 
   "dashboard.total_vehicles": "Total Kendaraan",
   "dashboard.rented": "Disewa",
@@ -365,5 +367,20 @@
   "user_management.revoke_warning": "Pengguna tidak akan dapat masuk lagi, namun datanya akan tetap terlihat.",
   "user_management.revoke_success": "Akses pengguna telah dicabut.",
   "user_management.cancel": "Batal",
-  "user_management.save": "Simpan"
+  "user_management.save": "Simpan",
+  "monthly_recap.summary.total_km": "Total KM Armada",
+  "monthly_recap.summary.total_liter": "Total Liter BBM",
+  "monthly_recap.summary.total_cost": "Total Biaya BBM",
+  "monthly_recap.summary.total_service": "Total Servis",
+  "monthly_recap.table.title": "Rekap per Kendaraan",
+  "monthly_recap.table.vehicle": "Kendaraan",
+  "monthly_recap.table.health": "Kesehatan",
+  "monthly_recap.table.total_km": "Total KM",
+  "monthly_recap.table.avg_km_per_day": "Rata-rata KM/Hari",
+  "monthly_recap.table.service": "Servis",
+  "monthly_recap.table.inspection": "Inspeksi",
+  "monthly_recap.table.fuel_count": "Isi BBM",
+  "monthly_recap.table.liter": "Liter",
+  "monthly_recap.table.cost": "Biaya BBM",
+  "monthly_recap.export_csv": "Ekspor CSV"
 }
