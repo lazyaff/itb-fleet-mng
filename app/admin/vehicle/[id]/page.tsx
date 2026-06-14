@@ -242,6 +242,7 @@ export default function VehicleDetail({
         part_ids: [],
       },
     });
+    const [addFuelLog, setAddFuelLog] = useState(false);
     const [updateService, setUpdateService] = useState<{
       open: boolean;
       data: {
@@ -1335,7 +1336,11 @@ export default function VehicleDetail({
                   {t("vehicle_detail.navbar.bbm")}
                 </button>
               </div>
-              {session?.user?.role_id === "SADM" && (
+              {(session?.user?.role_id === "SADM" ||
+                (section === "bbm" &&
+                  ["UOPS", "ADM", "SADM"].includes(
+                    session?.user?.role_id ?? "",
+                  ))) && (
                 <button
                   onClick={() => {
                     if (section === "parts") {
@@ -1363,9 +1368,11 @@ export default function VehicleDetail({
                           part_ids: [],
                         },
                       });
+                    } else if (section === "bbm") {
+                      setAddFuelLog(true);
                     }
                   }}
-                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" && section !== "bbm" && currentServiceData.section === "" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${(section !== "alerts" && section !== "bbm" && currentServiceData.section === "") || section === "bbm" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                 >
                   + {t("common.add")}
                 </button>
@@ -1872,6 +1879,8 @@ export default function VehicleDetail({
                   vehicleId={id}
                   session={session}
                   active={section === "bbm"}
+                  addFuelLog={addFuelLog}
+                  setAddFuelLog={setAddFuelLog}
                 />
               </div>
             </div>

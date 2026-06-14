@@ -10,6 +10,7 @@ import { ChevronLeft, Eye } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import FuelLogFormModal from "./FuelLogFormModal";
 
 export type FuelLog = {
   id: string;
@@ -28,10 +29,14 @@ export type FuelLog = {
 export default function FuelLogTab({
   vehicleId,
   session,
+  addFuelLog,
+  setAddFuelLog,
 }: {
   vehicleId: string;
   session: any;
   active: boolean;
+  addFuelLog: boolean;
+  setAddFuelLog: (open: boolean) => void;
 }) {
   const { t } = useLanguage();
   const router = useRouter();
@@ -100,183 +105,210 @@ export default function FuelLogTab({
 
   if (currentFuelData.section === "receipt" && currentFuelData.data) {
     return (
-      <div className="w-full bg-gray-200 p-4">
-        <button
-          className="select-none flex items-center gap-1 cursor-pointer mb-4"
-          onClick={() => {
-            setCurrentFuelData({ section: "", data: null });
-          }}
-        >
-          <ChevronLeft />
-          <p className="font-bold">{t("vehicle_detail.bbm.back")}</p>
-        </button>
-        <img
-          src={currentFuelData.data.receipt || "/image/placeholder.webp"}
-          width={500}
-          height={500}
-          alt="Receipt"
-          className="w-full h-auto px-2 pb-3"
+      <>
+        <div className="w-full bg-gray-200 p-4">
+          <button
+            className="select-none flex items-center gap-1 cursor-pointer mb-4"
+            onClick={() => {
+              setCurrentFuelData({ section: "", data: null });
+            }}
+          >
+            <ChevronLeft />
+            <p className="font-bold">{t("vehicle_detail.bbm.back")}</p>
+          </button>
+          <img
+            src={currentFuelData.data.receipt || "/image/placeholder.webp"}
+            width={500}
+            height={500}
+            alt="Receipt"
+            className="w-full h-auto px-2 pb-3"
+          />
+        </div>
+
+        <FuelLogFormModal
+          open={addFuelLog}
+          mode="add"
+          vehicleId={vehicleId}
+          session={session}
+          onClose={() => setAddFuelLog(false)}
+          onSaved={fetchFuelData}
         />
-      </div>
+      </>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-end gap-2 mb-4">
-        <div className="w-36">
-          <label className="block mb-1 text-xs text-gray-500">
-            {t("vehicle_detail.bbm.filter.label")}
-          </label>
-          <DatePicker
-            value={draftRange.from}
-            onChange={(val) =>
-              setDraftRange((prev) => ({ ...prev, from: val }))
-            }
-            placeholder={t("vehicle_detail.bbm.filter.from")}
-          />
+    <>
+      <div>
+        <div className="flex items-end gap-2 mb-4">
+          <div className="w-36">
+            <label className="block mb-1 text-xs text-gray-500">
+              {t("vehicle_detail.bbm.filter.label")}
+            </label>
+            <DatePicker
+              value={draftRange.from}
+              onChange={(val) =>
+                setDraftRange((prev) => ({ ...prev, from: val }))
+              }
+              placeholder={t("vehicle_detail.bbm.filter.from")}
+            />
+          </div>
+          <div className="w-36">
+            <DatePicker
+              value={draftRange.to}
+              onChange={(val) =>
+                setDraftRange((prev) => ({ ...prev, to: val }))
+              }
+              placeholder={t("vehicle_detail.bbm.filter.to")}
+            />
+          </div>
+          <button
+            onClick={() => {
+              setAppliedRange(draftRange);
+              setPagination((prev) => ({ ...prev, page: 1 }));
+            }}
+            className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
+          >
+            {t("vehicle_detail.bbm.filter.apply")}
+          </button>
         </div>
-        <div className="w-36">
-          <DatePicker
-            value={draftRange.to}
-            onChange={(val) => setDraftRange((prev) => ({ ...prev, to: val }))}
-            placeholder={t("vehicle_detail.bbm.filter.to")}
-          />
-        </div>
-        <button
-          onClick={() => {
-            setAppliedRange(draftRange);
-            setPagination((prev) => ({ ...prev, page: 1 }));
-          }}
-          className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
-        >
-          {t("vehicle_detail.bbm.filter.apply")}
-        </button>
-      </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
-          <p className="text-xs text-gray-500">
-            {t("vehicle_detail.bbm.summary.total_fuel")}
-          </p>
-          <p className="text-xl font-semibold">
-            {summary.total_liters.toLocaleString("en-US", {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 2,
-            })}{" "}
-            L
-          </p>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+            <p className="text-xs text-gray-500">
+              {t("vehicle_detail.bbm.summary.total_fuel")}
+            </p>
+            <p className="text-xl font-semibold">
+              {summary.total_liters.toLocaleString("en-US", {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 2,
+              })}{" "}
+              L
+            </p>
+          </div>
+          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+            <p className="text-xs text-gray-500">
+              {t("vehicle_detail.bbm.summary.total_cost")}
+            </p>
+            <p className="text-xl font-semibold">
+              Rp {summary.total_cost.toLocaleString("en-US")}
+            </p>
+          </div>
+          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+            <p className="text-xs text-gray-500">
+              {t("vehicle_detail.bbm.summary.total_entries")}
+            </p>
+            <p className="text-xl font-semibold">{summary.total_entries}</p>
+          </div>
         </div>
-        <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
-          <p className="text-xs text-gray-500">
-            {t("vehicle_detail.bbm.summary.total_cost")}
-          </p>
-          <p className="text-xl font-semibold">
-            Rp {summary.total_cost.toLocaleString("en-US")}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
-          <p className="text-xs text-gray-500">
-            {t("vehicle_detail.bbm.summary.total_entries")}
-          </p>
-          <p className="text-xl font-semibold">{summary.total_entries}</p>
-        </div>
-      </div>
 
-      <table className="w-full text-sm border border-gray-200">
-        <thead className="bg-[#E2E8F0]/20">
-          <tr>
-            <th className="text-center py-4">
-              {t("vehicle_detail.bbm.table.date").toUpperCase()}
-            </th>
-            <th className="text-center py-4">
-              {t("vehicle_detail.bbm.table.fuel").toUpperCase()}
-            </th>
-            <th className="text-center py-4">
-              {t("vehicle_detail.bbm.table.cost").toUpperCase()}
-            </th>
-            <th className="text-center py-4">
-              {t("vehicle_detail.bbm.table.payment_method").toUpperCase()}
-            </th>
-            <th className="text-center py-4">
-              {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {records && records.length > 0 ? (
-            records.map((item) => {
-              const config =
-                bbm_payment_method_color[
-                  item.payment_method as keyof typeof bbm_payment_method_color
-                ];
-              const paymentLabel =
-                bbm_payment_method.find((m) => m.id === item.payment_method)
-                  ?.label || item.payment_method;
-
-              return (
-                <tr key={item.id} className="border-t border-gray-200">
-                  <td className="py-4 text-center">
-                    {formatedDate(new Date(item.date), "dd/MM/yyyy")}
-                  </td>
-                  <td className="py-4 text-center">
-                    {item.liters.toLocaleString("en-US", {
-                      minimumFractionDigits: 1,
-                      maximumFractionDigits: 2,
-                    })}{" "}
-                    L
-                  </td>
-                  <td className="py-4 text-center">
-                    Rp {item.cost.toLocaleString("en-US")}
-                  </td>
-                  <td className="py-4 text-center">
-                    {config ? (
-                      <span
-                        className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
-                        />
-                        {paymentLabel}
-                      </span>
-                    ) : (
-                      paymentLabel
-                    )}
-                  </td>
-                  <td className="py-4 text-center">
-                    <button
-                      className="cursor-pointer text-[#00A1FE] inline-flex items-center justify-center"
-                      title={t("vehicle_detail.bbm.see_receipt")}
-                      onClick={() => {
-                        setCurrentFuelData({ section: "receipt", data: item });
-                      }}
-                    >
-                      <Eye size={18} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
+        <table className="w-full text-sm border border-gray-200">
+          <thead className="bg-[#E2E8F0]/20">
             <tr>
-              <td colSpan={5} className="text-center p-6">
-                {t("common.no_data")}
-              </td>
+              <th className="text-center py-4">
+                {t("vehicle_detail.bbm.table.date").toUpperCase()}
+              </th>
+              <th className="text-center py-4">
+                {t("vehicle_detail.bbm.table.fuel").toUpperCase()}
+              </th>
+              <th className="text-center py-4">
+                {t("vehicle_detail.bbm.table.cost").toUpperCase()}
+              </th>
+              <th className="text-center py-4">
+                {t("vehicle_detail.bbm.table.payment_method").toUpperCase()}
+              </th>
+              <th className="text-center py-4">
+                {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
+              </th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
 
-      {records && records.length !== 0 && (
-        <Pagination
-          totalPages={pagination.totalPages}
-          currentPage={pagination.page}
-          onPageChange={(page) => {
-            setPagination((prev) => ({ ...prev, page }));
-          }}
-        />
-      )}
-    </div>
+          <tbody>
+            {records && records.length > 0 ? (
+              records.map((item) => {
+                const config =
+                  bbm_payment_method_color[
+                    item.payment_method as keyof typeof bbm_payment_method_color
+                  ];
+                const paymentLabel =
+                  bbm_payment_method.find((m) => m.id === item.payment_method)
+                    ?.label || item.payment_method;
+
+                return (
+                  <tr key={item.id} className="border-t border-gray-200">
+                    <td className="py-4 text-center">
+                      {formatedDate(new Date(item.date), "dd/MM/yyyy")}
+                    </td>
+                    <td className="py-4 text-center">
+                      {item.liters.toLocaleString("en-US", {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      L
+                    </td>
+                    <td className="py-4 text-center">
+                      Rp {item.cost.toLocaleString("en-US")}
+                    </td>
+                    <td className="py-4 text-center">
+                      {config ? (
+                        <span
+                          className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                          />
+                          {paymentLabel}
+                        </span>
+                      ) : (
+                        paymentLabel
+                      )}
+                    </td>
+                    <td className="py-4 text-center">
+                      <button
+                        className="cursor-pointer text-[#00A1FE] inline-flex items-center justify-center"
+                        title={t("vehicle_detail.bbm.see_receipt")}
+                        onClick={() => {
+                          setCurrentFuelData({
+                            section: "receipt",
+                            data: item,
+                          });
+                        }}
+                      >
+                        <Eye size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center p-6">
+                  {t("common.no_data")}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        {records && records.length !== 0 && (
+          <Pagination
+            totalPages={pagination.totalPages}
+            currentPage={pagination.page}
+            onPageChange={(page) => {
+              setPagination((prev) => ({ ...prev, page }));
+            }}
+          />
+        )}
+      </div>
+
+      <FuelLogFormModal
+        open={addFuelLog}
+        mode="add"
+        vehicleId={vehicleId}
+        session={session}
+        onClose={() => setAddFuelLog(false)}
+        onSaved={fetchFuelData}
+      />
+    </>
   );
 }
