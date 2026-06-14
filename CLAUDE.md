@@ -53,6 +53,21 @@ try/catch returning a 500 in the same shape.
   literal `"Bagian {n}: {title}"`) instead of using `t()` — not fully
   consistent across the codebase.
 
+## Vehicle mileage units (important!)
+
+`vehicle.current_mileage` and `usage_reconciliation.previous_mileage` /
+`current_mileage` / `difference` are stored in **"km × 1000"** units, not
+plain km. The Vehicle List update-mileage form
+([app/admin/vehicle/page.tsx](app/admin/vehicle/page.tsx)) multiplies the km
+value the user types by `1000` before sending it to
+`PUT /api/v1/vehicle` (line ~408), and divides the stored value by `1000`
+when displaying it (line ~742) or pre-filling the edit form (line ~801).
+Any new code that reads `current_mileage` or sums
+`usage_reconciliation.difference` to show a km value to a user **must
+divide by 1000** — this bit the Monthly Recap aggregation (`Total KM`
+showed `500000` instead of `500`), fixed in
+[app/api/v1/report/monthly-recap/route.ts](app/api/v1/report/monthly-recap/route.ts).
+
 ## Inspection data: legacy vs dynamic (important!)
 
 There are **two parallel systems** for inspection reports — any
@@ -206,3 +221,39 @@ revoked-token rejection). PR not yet opened — GitHub suggests
 browser walkthrough as SADM before opening the PR.
 
 `feature/form-builder` was merged into `dev` via PR #1.
+
+`feature/monthly-recap` (off `dev`) is implementation-complete — 3 commits
+(`feat(monthly-recap): ...`/`fix(monthly-recap): ...`). Adds a new
+"Reports > Monthly Report" sidebar section
+(`/admin/reports/monthly-recap`, visible to `SADM`/`ADM`/`UOPS`, blocked for
+`INSP`) implementing
+`new-features/komuto-monthly-recap-acceptance.md`: Periode filter (default
+1st-of-month → today), 4 fleet summary cards, "Rekap per Kendaraan" table
+with Kesehatan badges (`monthly_recap_health` in
+[src/dropdown.ts](src/dropdown.ts), bucket via new `getHealthStatus()` in
+[utils/vehicle.ts](utils/vehicle.ts)), and CSV export. New endpoint
+`GET /api/v1/report/monthly-recap?from&to` aggregates
+`usage_reconciliation`/`service_history`/`inspection_report`+
+`inspection_dynamic_report`/`fuel_log` via Prisma `groupBy`. `npx tsc
+--noEmit` clean; API verified via curl as `ADM`, the new seeded `UOPS` user
+(`dummy.uops@itb.ac.id` / `useroperasional`), and `INSP` (correctly 401s).
+
+**Side effects from this branch worth knowing about**:
+- `getHealthStatus()` refactor applied to
+  [app/admin/vehicle/page.tsx](app/admin/vehicle/page.tsx) (health summary
+  counts + health-bar color) — behavior-preserving, but touches Vehicle
+  List.
+- `GET /api/v1/vehicle` was `["SADM","ADM"]`-only; extended to include
+  `"UOPS"` so the Monthly Recap page can read vehicle health/visibility for
+  that role. Read-only change.
+- `middlewares/withAuth.ts`: added `"UOPS"` to the `Role` type and a
+  `getDefaultRoute()` branch (`UOPS` → `/admin/reports/monthly-recap`).
+  Other `/admin/*` routes are still `["SADM","ADM"]`-only — a UOPS user can
+  only reach the Monthly Recap page, not the rest of `/admin`. This is a
+  known, intentionally narrow scope (not a full UOPS permission overhaul).
+
+**Remaining step**: manual browser walkthrough (sidebar nav, default date
+range, Kesehatan badge colors, filter apply, CSV export, hidden-vehicle
+exclusion, per-role page access) — not yet done, Chrome extension wasn't
+connected in the implementing session. Do this before opening a PR against
+`dev`.
