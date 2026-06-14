@@ -481,7 +481,9 @@ export default function Inspection() {
                       </p>
 
                       <p className="text-gray-600 text-sm mt-2">
-                        {q.answer.label}: {q.answer.description}
+                        {q.answer.label}
+                        {q.answer.label && q.answer.description ? ": " : ""}
+                        {q.answer.description}
                       </p>
                     </div>
                   ))}

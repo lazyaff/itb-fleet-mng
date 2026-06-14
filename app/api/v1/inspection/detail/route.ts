@@ -42,15 +42,82 @@ export async function GET(request: NextRequest) {
         answers: true,
       },
     });
+
     if (!rawData) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 404,
-          message: "Data not found",
+      const dynamicData = await prisma.inspection_dynamic_report.findFirst({
+        where: {
+          id: id,
+          deleted_at: null,
         },
-        { status: 404 },
+        include: {
+          vehicle: true,
+          user: true,
+          form_version: true,
+        },
+      });
+
+      if (!dynamicData) {
+        return NextResponse.json(
+          {
+            success: false,
+            status: 404,
+            message: "Data not found",
+          },
+          { status: 404 },
+        );
+      }
+
+      const fields = (dynamicData.form_version.fields as any[]) || [];
+      const answers = (dynamicData.answers as any[]) || [];
+      const answerMap = answers.reduce(
+        (acc: Record<string, string>, item: any) => {
+          acc[item.field_id] = item.value;
+          return acc;
+        },
+        {},
       );
+
+      const data = {
+        id: dynamicData.id,
+        inspector: dynamicData.user.name,
+        date: formatedDate(dynamicData.date, "dd/MM/yyyy"),
+        vehicle: {
+          plate_number: dynamicData.vehicle.plate_number,
+          name: dynamicData.vehicle.name,
+        },
+        conclusion: dynamicData.conclusion,
+        notes: null,
+        sections: [
+          {
+            title: "Inspection Form",
+            icon: "",
+            order: 1,
+            questions: fields.map((field: any, index: number) => ({
+              order: index + 1,
+              title: field.name || "Untitled Field",
+              answer:
+                field.type === "PG"
+                  ? {
+                      label: answerMap[field.id] || "-",
+                      description: "",
+                      value: 0,
+                    }
+                  : {
+                      label: "",
+                      description: answerMap[field.id] || "-",
+                      value: 0,
+                    },
+            })),
+          },
+        ],
+      };
+
+      return NextResponse.json({
+        success: true,
+        status: 200,
+        message: "Data fetched successfully",
+        data,
+      });
     }
 
     const groupedSections = Object.values(

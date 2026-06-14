@@ -3,6 +3,29 @@ import { validateJWT } from "@/utils/auth";
 import { formatedDate } from "@/utils/date";
 import { NextResponse, NextRequest } from "next/server";
 
+const compareDate = (a: any, b: any) => {
+  const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+  if (dateDiff !== 0) return dateDiff;
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+};
+
+const compareVehicle = (a: any, b: any) => {
+  const nameDiff = (a.vehicle?.name || "").localeCompare(b.vehicle?.name || "");
+  if (nameDiff !== 0) return nameDiff;
+  const plateDiff = (a.vehicle?.plate_number || "").localeCompare(
+    b.vehicle?.plate_number || "",
+  );
+  if (plateDiff !== 0) return plateDiff;
+  return compareDate(a, b);
+};
+
+const compareFns: Record<string, (a: any, b: any) => number> = {
+  date_desc: (a, b) => compareDate(a, b),
+  date_asc: (a, b) => -compareDate(a, b),
+  vehicle_asc: (a, b) => compareVehicle(a, b),
+  vehicle_desc: (a, b) => -compareVehicle(a, b),
+};
+
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
@@ -100,38 +123,54 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const [rawData, totalRecords] = await Promise.all([
-      prisma.inspection_report.findMany({
-        where,
-        ...(limit ? { take: limit } : {}),
-        ...(offset ? { skip: offset } : {}),
+    const takeForMerge = limit ? offset + limit : undefined;
+    const orderBy = sortMap[sort] || sortMap.date_desc;
+
+    const select = {
+      id: true,
+      date: true,
+      created_at: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      conclusion: true,
+      vehicle: {
         select: {
           id: true,
-          date: true,
-          created_at: true,
-          user: {
-            select: {
-              name: true,
-            },
-          },
-          conclusion: true,
-          vehicle: {
-            select: {
-              id: true,
-              plate_number: true,
-              name: true,
-            },
-          },
+          plate_number: true,
+          name: true,
         },
-        orderBy: sortMap[sort] || sortMap.date_desc,
-      }),
+      },
+    };
 
-      prisma.inspection_report.count({
-        where,
-      }),
-    ]);
+    const [staticRecords, dynamicRecords, staticCount, dynamicCount] =
+      await Promise.all([
+        prisma.inspection_report.findMany({
+          where,
+          ...(takeForMerge ? { take: takeForMerge } : {}),
+          select,
+          orderBy,
+        }),
+        prisma.inspection_dynamic_report.findMany({
+          where,
+          ...(takeForMerge ? { take: takeForMerge } : {}),
+          select,
+          orderBy,
+        }),
+        prisma.inspection_report.count({ where }),
+        prisma.inspection_dynamic_report.count({ where }),
+      ]);
 
-    const data = rawData.map((item: any, index: number) => {
+    const merged = [...staticRecords, ...dynamicRecords].sort(
+      compareFns[sort] || compareFns.date_desc,
+    );
+
+    const totalRecords = staticCount + dynamicCount;
+    const paged = limit ? merged.slice(offset, offset + limit) : merged;
+
+    const data = paged.map((item: any, index: number) => {
       return {
         no: offset + index + 1,
         id: item.id,
