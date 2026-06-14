@@ -25,7 +25,9 @@ Fleet management app with an **admin** web dashboard and a mobile-first
 2. Use `Authorization: Bearer <token>` for all other `/api/v1/*` routes.
 3. `validateJWT(req, allowedRoles)` in [utils/auth.ts](utils/auth.ts) checks
    role against `inspection`-style role IDs: `SADM` (super admin), `ADM`
-   (admin), `INSP` (inspector).
+   (admin, displayed as "Admin Operasional"), `UOPS` ("User Operasional"),
+   `INSP` (inspector). It also requires `active: true` — revoked users are
+   rejected on every `/api/v1/*` call even with a still-valid JWT.
 
 Seeded local users ([prisma/seeder/user.ts](prisma/seeder/user.ts)):
 - `27584936@mahasiswa.itb.ac.id` / `admin` → role `ADM`
@@ -136,14 +138,44 @@ bit us once already in `app/api/v1/inspector/dynamic-report/route.ts`
 conclusion, answers}`. Server re-validates the submitted `form_version_id`
 is still the active version (409 if stale → frontend shows reload prompt).
 
+## User Management (`app/admin/user-management/`)
+
+SADM-only feature for managing the local `user` table, which acts as an
+allowlist on top of ITB SSO (Azure AD) + local credentials login.
+
+- Managed roles: `ADM` ("Admin Operasional"), `UOPS` ("User Operasional"),
+  `INSP` (Inspector) — see `user_management_roles` in
+  [src/dropdown.ts](src/dropdown.ts). `SADM` accounts are never listed/edited
+  here.
+- **Revoke = soft delete via `active: false`**, NOT `deleted_at`. Revoked
+  users stay visible in the list with Status=Inactive, email unchanged.
+  `app/api/v1/user-management/status` (`PUT`) sets `active: false` only
+  (no toggle/un-revoke endpoint).
+- **Reactivation**: `POST /api/v1/user-management` with an email matching an
+  existing *inactive* record reactivates it (`active: true`, updates
+  `name`/`role_id`) instead of erroring on "email already exists". The Add
+  modal shows an inline notice (`user_management.reactivation_notice`) when
+  the typed email matches an inactive row already on the current page.
+- Email must match `@itb.ac.id` (case-insensitive) — see `EMAIL_REGEX` in
+  `app/api/v1/user-management/route.ts`.
+- `last_login` is written in the NextAuth `jwt` callback
+  ([app/api/auth/[...nextauth]/route.ts](app/api/auth/%5B...nextauth%5D/route.ts))
+  on every successful sign-in (both credentials and Azure AD/SSO branches).
+- Route guard: `{ prefix: "/admin/user-management", roles: ["SADM"] }` in
+  [middlewares/withAuth.ts](middlewares/withAuth.ts) **must stay before** the
+  generic `/admin` entry (order-sensitive `.find()`).
+- Login page (`app/page.tsx`) shows `auth.not_authorized` instead of the
+  generic `auth.login_failed` when the SSO redirect comes back with
+  `?error=Callback` — this is the case when the NextAuth `jwt` callback threw
+  `SSO_USER_NOT_FOUND` (account not allowlisted or revoked).
+
 ## Active branch context
 
-On `feature/form-builder` (off `dev`), building out the dynamic form builder
-feature end-to-end: schema/seed → API routes → admin builder UI → inspector
-fill/report UI → section grouping. Each slice has been a separate commit
-(`feat(form-builder): ...`). PR not yet opened — GitHub suggests
-`/pull/new/feature/form-builder` against `dev`.
+`feature/user-management` (off `dev`) is complete — 5 commits
+(`feat(user-management): ...`), `npx tsc --noEmit` clean, API verified via
+curl (list/search/add/edit/revoke/reactivate, role + email validation,
+revoked-token rejection). PR not yet opened — GitHub suggests
+`/pull/new/feature/user-management` against `dev`. Remaining step is a manual
+browser walkthrough as SADM before opening the PR.
 
-There's an unrelated untracked file
-`new-features/komuto-user-management-acceptance.md` sitting in the working
-tree (not created by form-builder work) — leave it alone unless asked.
+`feature/form-builder` was merged into `dev` via PR #1.

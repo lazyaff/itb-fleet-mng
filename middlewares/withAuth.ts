@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 type Role = "SADM" | "ADM" | "INSP";
 
 const ROUTE_CONFIG = [
+  { prefix: "/admin/user-management", roles: ["SADM"] },
   { prefix: "/admin", roles: ["SADM", "ADM"] },
   { prefix: "/inspector", roles: ["INSP"] },
 ];

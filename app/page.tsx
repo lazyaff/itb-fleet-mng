@@ -28,7 +28,10 @@ export default function LoginPage() {
     if (error) {
       setErrorModal({
         open: true,
-        message: t("auth.login_failed"),
+        message:
+          error === "Callback"
+            ? t("auth.not_authorized")
+            : t("auth.login_failed"),
       });
     }
   }, []);

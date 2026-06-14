@@ -75,6 +75,11 @@ const authOptions: NextAuthOptions = {
         });
         if (!admin) throw new Error("SSO_USER_NOT_FOUND");
 
+        await prisma.user.update({
+          where: { id: admin.id },
+          data: { last_login: new Date() },
+        });
+
         token.id = admin.id;
         token.name = admin.name;
         token.email = admin.email;
@@ -85,6 +90,11 @@ const authOptions: NextAuthOptions = {
           { expiresIn: "1d" },
         );
       } else if (user) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { last_login: new Date() },
+        });
+
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;

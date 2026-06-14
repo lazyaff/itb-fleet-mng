@@ -50,6 +50,7 @@ export async function validateJWT(req: NextRequest, allowedRoles: string[]) {
       where: {
         id: decoded.id,
         role_id: { in: allowedRoles },
+        active: true,
         deleted_at: null,
       },
     });
