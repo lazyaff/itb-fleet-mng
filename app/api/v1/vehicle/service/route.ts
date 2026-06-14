@@ -89,7 +89,8 @@ export async function GET(request: NextRequest) {
       image:
         process.env.NEXTAUTH_URL! +
         process.env.PUBLIC_STORAGE_PATH +
-        item.image,
+        "/" +
+        item.image.replace(/\\/g, "/"),
       date: item.date.toISOString().split("T")[0],
       current_mileage: item.current_mileage,
       type: item.type,
