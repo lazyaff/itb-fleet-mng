@@ -135,6 +135,28 @@ export const user_management_roles = [
   { id: "INSP", label: "Inspector" },
 ];
 
+export const bbm_payment_method = [
+  { id: "CARD", label: "Card" },
+  { id: "CASH", label: "Cash" },
+];
+
+export const bbm_payment_method_color = {
+  CARD: {
+    color: "blue",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-400",
+    dot: "bg-blue-500",
+  },
+  CASH: {
+    color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    dot: "bg-yellow-500",
+  },
+} as const;
+
 export const user_status_color = {
   Active: {
     color: "green",

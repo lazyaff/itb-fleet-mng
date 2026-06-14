@@ -32,6 +32,7 @@ model user {
   general_vehicle_part        general_vehicle_part[]
   vehicles                    vehicle[]
   service_histories           service_history[]
+  fuel_logs                   fuel_log[]
   inspection_reports          inspection_report[]
   inspection_dynamic_reports  inspection_dynamic_report[]
   usage_reconciliations       usage_reconciliation[]
@@ -91,6 +92,7 @@ model vehicle {
   live_tracks                 live_track_history[]
   vehicle_parts               vehicle_part[]
   service_histories           service_history[]
+  fuel_logs                   fuel_log[]
   inspection_reports          inspection_report[]
   inspection_dynamic_reports  inspection_dynamic_report[]
   vehicle_usage_histories     vehicle_usage_history[]
@@ -222,6 +224,24 @@ model vehicle_part_service_history {
 
   vehicle_part                vehicle_part       @relation(fields: [vehicle_part_id], references: [id])
   service_history             service_history    @relation(fields: [service_history_id], references: [id])
+}
+
+model fuel_log {
+  id                          String             @id @default(uuid())
+  vehicle_id                  String
+  user_id                     String
+  date                        DateTime
+  liters                      Decimal            @db.Decimal(10, 2)
+  cost                        Int
+  payment_method              String
+  receipt                     String
+  notes                       String?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
+  user                        user               @relation(fields: [user_id], references: [id])
 }
 
 model inspection_section {

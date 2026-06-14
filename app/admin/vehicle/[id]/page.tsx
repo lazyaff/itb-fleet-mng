@@ -3,6 +3,7 @@
 import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
 import { DatePicker, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
+import FuelLogTab from "@/components/vehicle/FuelLogTab";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
@@ -1266,16 +1267,18 @@ export default function VehicleDetail({
           {/* RIGHT SIDE (55%) */}
           <div className="w-[55%] bg-white rounded-xl shadow p-4 flex flex-col min-h-0 h-auto">
             <div className="flex justify-between items-center mb-4">
-              <div className="relative w-96 flex bg-gray-200 py-1.5 px-2 font-medium rounded-2xl">
+              <div className="relative w-[30rem] flex bg-gray-200 py-1.5 px-2 font-medium rounded-2xl">
                 <div
-                  className="absolute top-1.5 bottom-1.5 left-1.5 w-[calc((100%-0.75rem)/3)] bg-white rounded-xl transition-transform duration-300 ease-in-out"
+                  className="absolute top-1.5 bottom-1.5 left-1.5 w-[calc((100%-0.75rem)/4)] bg-white rounded-xl transition-transform duration-300 ease-in-out"
                   style={{
                     transform:
                       section === "parts"
                         ? "translateX(0%)"
                         : section === "services"
                           ? "translateX(100%)"
-                          : "translateX(200%)",
+                          : section === "alerts"
+                            ? "translateX(200%)"
+                            : "translateX(300%)",
                   }}
                 />
 
@@ -1318,6 +1321,19 @@ export default function VehicleDetail({
                 >
                   {t("vehicle_detail.navbar.active_alerts")}
                 </button>
+
+                <button
+                  onClick={() => {
+                    setCurrentServiceData({
+                      ...currentServiceData,
+                      section: "",
+                    });
+                    setSection("bbm");
+                  }}
+                  className={`relative z-10 flex-1 px-1 py-1 rounded-xl text-sm cursor-pointer ${section !== "bbm" ? "text-[#64748B]" : ""}`}
+                >
+                  {t("vehicle_detail.navbar.bbm")}
+                </button>
               </div>
               {session?.user?.role_id === "SADM" && (
                 <button
@@ -1349,7 +1365,7 @@ export default function VehicleDetail({
                       });
                     }
                   }}
-                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" && currentServiceData.section === "" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                  className={`border transition-all duration-500 px-3 py-1.5 rounded-xl border-dashed text-sm cursor-pointer ${section !== "alerts" && section !== "bbm" && currentServiceData.section === "" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
                 >
                   + {t("common.add")}
                 </button>
@@ -1843,6 +1859,20 @@ export default function VehicleDetail({
                     </span>
                   </div>
                 )}
+              </div>
+
+              <div
+                className={`absolute inset-0 overflow-y-auto overflow-x-hidden transition-all duration-500 ${
+                  section === "bbm"
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                <FuelLogTab
+                  vehicleId={id}
+                  session={session}
+                  active={section === "bbm"}
+                />
               </div>
             </div>
           </div>
