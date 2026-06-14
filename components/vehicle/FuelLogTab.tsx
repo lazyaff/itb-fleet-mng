@@ -1,12 +1,13 @@
 "use client";
 
+import { ConfirmationAlert } from "@/components/Alert";
 import { DatePicker } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { bbm_payment_method, bbm_payment_method_color } from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
 import { DateTime } from "luxon";
-import { ChevronLeft, Eye } from "lucide-react";
+import { ChevronLeft, Eye, ScrollText, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,6 +42,8 @@ export default function FuelLogTab({
   const { t } = useLanguage();
   const router = useRouter();
 
+  const canManage = ["ADM", "SADM"].includes(session?.user?.role_id);
+
   const [records, setRecords] = useState<FuelLog[]>([]);
   const [summary, setSummary] = useState({
     total_liters: 0,
@@ -56,6 +59,14 @@ export default function FuelLogTab({
     section: "" | "receipt";
     data: FuelLog | null;
   }>({ section: "", data: null });
+  const [updateFuelLog, setUpdateFuelLog] = useState<{
+    open: boolean;
+    data: FuelLog | null;
+  }>({ open: false, data: null });
+  const [confirmAlert, setConfirmAlert] = useState<{
+    visible: boolean;
+    onConfirm: () => void;
+  }>({ visible: false, onConfirm: () => {} });
 
   const defaultRange = {
     from: DateTime.now().minus({ days: 30 }).toISODate() as string,
@@ -94,6 +105,27 @@ export default function FuelLogTab({
       }
     } catch (error) {
       console.log("Error fetching fuel log data:", error);
+    }
+  };
+
+  const handleDeleteFuelLog = async (id: string) => {
+    try {
+      const response = await fetch(`/api/v1/vehicle/fuel-log`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        await fetchFuelData();
+      } else if (result.status === 401) {
+        handleLogout();
+      }
+    } catch (error) {
+      console.log("Error deleting fuel log data:", error);
     }
   };
 
@@ -220,6 +252,11 @@ export default function FuelLogTab({
               <th className="text-center py-4">
                 {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
               </th>
+              {canManage && (
+                <th className="text-center py-4">
+                  {t("vehicle_detail.bbm.table.action").toUpperCase()}
+                </th>
+              )}
             </tr>
           </thead>
 
@@ -277,12 +314,39 @@ export default function FuelLogTab({
                         <Eye size={18} />
                       </button>
                     </td>
+                    {canManage && (
+                      <td className="py-4 text-center">
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                            onClick={() => {
+                              setConfirmAlert({
+                                visible: true,
+                                onConfirm: async () => {
+                                  await handleDeleteFuelLog(item.id);
+                                },
+                              });
+                            }}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                          <button
+                            className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                            onClick={() => {
+                              setUpdateFuelLog({ open: true, data: item });
+                            }}
+                          >
+                            <ScrollText className="mt-0.5" size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan={5} className="text-center p-6">
+                <td colSpan={canManage ? 6 : 5} className="text-center p-6">
                   {t("common.no_data")}
                 </td>
               </tr>
@@ -308,6 +372,30 @@ export default function FuelLogTab({
         session={session}
         onClose={() => setAddFuelLog(false)}
         onSaved={fetchFuelData}
+      />
+
+      <FuelLogFormModal
+        open={updateFuelLog.open}
+        mode="edit"
+        vehicleId={vehicleId}
+        session={session}
+        initialData={updateFuelLog.data}
+        onClose={() => setUpdateFuelLog({ open: false, data: null })}
+        onSaved={fetchFuelData}
+      />
+
+      <ConfirmationAlert
+        title={t("gps_tracker.delete_confirm")}
+        subtitle={t("gps_tracker.delete_warning")}
+        type="delete"
+        visible={confirmAlert.visible}
+        onCancel={() => {
+          setConfirmAlert({ visible: false, onConfirm: () => {} });
+        }}
+        onConfirm={() => {
+          setConfirmAlert({ visible: false, onConfirm: () => {} });
+          setTimeout(() => confirmAlert.onConfirm(), 300);
+        }}
       />
     </>
   );
