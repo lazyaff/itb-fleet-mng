@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
+import { formatedDate } from "@/utils/date";
 import { user_management_roles } from "@/src/dropdown";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -81,8 +82,10 @@ export async function GET(request: NextRequest) {
       name: item.name,
       role_id: item.role_id,
       active: item.active,
-      created_at: item.created_at,
-      last_login: item.last_login,
+      created_at: formatedDate(item.created_at, "dd/MM/yyyy"),
+      last_login: item.last_login
+        ? formatedDate(item.last_login, "dd/MM/yyyy HH:mm")
+        : null,
     }));
 
     const totalPages = limit ? Math.ceil(totalRecords / limit) : 1;

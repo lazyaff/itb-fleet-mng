@@ -1,0 +1,777 @@
+"use client";
+
+import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
+import { Select } from "@/components/Form";
+import Pagination from "@/components/Pagination";
+import { useLanguage } from "@/context/Language";
+import { LoadingContext } from "@/context/Loading";
+import { PageInfoContext } from "@/context/PageInfo";
+import { user_management_roles, user_status_color } from "@/src/dropdown";
+import { Info, Plus, Search, SquarePen, Trash2 } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+
+const EMAIL_REGEX = /^[^\s@]+@([\w-]+\.)*itb\.ac\.id$/i;
+
+type DataProps = {
+  no: number;
+  id: string;
+  email: string;
+  name: string;
+  role_id: string;
+  active: boolean;
+  created_at: string;
+  last_login: string | null;
+};
+
+export default function UserManagement() {
+  const { data: session } = useSession() as { data: any };
+  const { loading, setLoading } = useContext(LoadingContext);
+  const { t, lang } = useLanguage();
+  const router = useRouter();
+  const { setPageInfo } = useContext(PageInfoContext);
+  const [searchInput, setSearchInput] = useState("");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    totalRecords: 0,
+  });
+  const [filteredData, setFilteredData] = useState<DataProps[]>([]);
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    type: "success" | "error" | "default";
+    title: string;
+    subtitle?: string;
+    onClose: () => void;
+  }>({
+    visible: false,
+    type: "default",
+    title: "",
+    subtitle: "",
+    onClose: () => {},
+  });
+  const [confirmAlert, setConfirmAlert] = useState<{
+    visible: boolean;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+  }>({
+    visible: false,
+    message: "",
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
+  const [addData, setAddData] = useState({
+    open: false,
+    data: {
+      email: "",
+      name: "",
+      role_id: "",
+    },
+  });
+  const [updateData, setUpdateData] = useState({
+    open: false,
+    data: {
+      id: "",
+      email: "",
+      name: "",
+      role_id: "",
+    },
+  });
+
+  useEffect(() => {
+    setPageInfo({
+      title: t("sidebar.admin"),
+      subtitle: t("sidebar.user_management"),
+    });
+  }, [lang]);
+
+  // Fetch data on page load and change page
+  useEffect(() => {
+    if (session && filteredData.length === 0) {
+      fetchData();
+    }
+  }, [session]);
+
+  useEffect(() => {
+    fetchData();
+  }, [searchInput, pagination.page]);
+
+  const handleLogout = () => {
+    signOut({ redirect: false }).then(() => router.push("/"));
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `/api/v1/user-management?page=${pagination.page}&search=${searchInput}&size=20`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${session.user.access_token}`,
+          },
+          cache: "no-store",
+        },
+      );
+      const result = await response.json();
+      if (result.success) {
+        setFilteredData(result.data.records);
+        setPagination({
+          ...pagination,
+          totalPages: result.data.totalPages,
+          totalRecords: result.data.totalRecords,
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          throw new Error("Failed to fetch data");
+        }
+      }
+    } catch (error) {
+      console.log("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddData = async () => {
+    try {
+      const { email, name, role_id } = addData.data;
+      if (!email || !name || !role_id || !EMAIL_REGEX.test(email) || loading) {
+        return;
+      }
+
+      setAddData({ ...addData, open: false });
+      setLoading(true);
+
+      const response = await fetch(`/api/v1/user-management`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, name, role_id }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        await fetchData();
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: result.message,
+          onClose: () => {},
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {
+              setAddData({ ...addData, open: true });
+            },
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {
+          setAddData({ ...addData, open: true });
+        },
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateData = async () => {
+    try {
+      const { id, name, role_id } = updateData.data;
+      if (!name || !role_id || loading) {
+        return;
+      }
+
+      setUpdateData({ ...updateData, open: false });
+      setLoading(true);
+
+      const response = await fetch(`/api/v1/user-management`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, name, role_id }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        await fetchData();
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: t("form.update_success"),
+          onClose: () => {
+            setAlert({
+              visible: false,
+              title: "",
+              subtitle: "",
+              type: "default",
+              onClose: () => {},
+            });
+          },
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {
+              setUpdateData({ ...updateData, open: true });
+            },
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {
+          setUpdateData({ ...updateData, open: true });
+        },
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleRevoke = async (id: string) => {
+    try {
+      if (!id || loading) {
+        return;
+      }
+
+      setLoading(true);
+
+      const response = await fetch(`/api/v1/user-management/status`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        await fetchData();
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: t("user_management.revoke_success"),
+          onClose: () => {
+            setAlert({
+              visible: false,
+              title: "",
+              subtitle: "",
+              type: "default",
+              onClose: () => {},
+            });
+          },
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {
+              setAlert({
+                visible: false,
+                title: "",
+                subtitle: "",
+                type: "default",
+                onClose: () => {},
+              });
+            },
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error revoking user:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {
+          setAlert({
+            visible: false,
+            title: "",
+            subtitle: "",
+            type: "default",
+            onClose: () => {},
+          });
+        },
+      });
+      setLoading(false);
+    }
+  };
+
+  const roleLabel = (role_id: string) =>
+    user_management_roles.find((role) => role.id === role_id)?.label || role_id;
+
+  const reactivationMatch = filteredData.find(
+    (item) =>
+      !item.active &&
+      addData.data.email !== "" &&
+      item.email.toLowerCase() === addData.data.email.toLowerCase(),
+  );
+
+  return (
+    <div className="p-4 flex flex-col min-h-full">
+      <div className="mb-4 flex flex-row items-center gap-6">
+        <div className="flex items-center bg-white w-80 px-3 py-2 border border-gray-200 rounded-md shadow">
+          <Search className="w-4 h-4 text-gray-400 mr-2" />
+          <input
+            type="text"
+            placeholder={t("user_management.search_placeholder")}
+            className="w-full bg-transparent outline-none"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSearchInput(e.currentTarget.value);
+                setPagination({ ...pagination, page: 1 });
+              }
+            }}
+          />
+        </div>
+
+        <button
+          className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
+          onClick={() => {
+            setAddData({
+              open: true,
+              data: {
+                email: "",
+                name: "",
+                role_id: "",
+              },
+            });
+          }}
+        >
+          <Plus size={20} /> <span>{t("user_management.add_user")}</span>
+        </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 flex-1">
+        <table className="w-full">
+          <thead className="bg-[#E2E8F0]/20">
+            <tr className="border-b border-gray-300">
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.email").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.name").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.role").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.status").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.date_added").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.last_login").toUpperCase()}
+              </th>
+              <th className="px-6 py-3 text-center">
+                {t("user_management.table.actions").toUpperCase()}
+              </th>
+            </tr>
+          </thead>
+
+          {/* Body */}
+          <tbody>
+            {filteredData.map((item) => {
+              const statusKey = item.active ? "Active" : "Inactive";
+              const statusColor = user_status_color[statusKey];
+
+              return (
+                <tr key={item.id} className="border-b border-gray-300">
+                  <td className="px-6 py-3 text-gray-800 text-center">
+                    {item.email}
+                  </td>
+
+                  <td className="px-6 py-3 text-gray-800 text-center">
+                    {item.name}
+                  </td>
+
+                  <td className="px-6 py-3 text-gray-800 text-center">
+                    {roleLabel(item.role_id)}
+                  </td>
+
+                  <td className="px-6 py-3 text-center">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${statusColor.dot}`}
+                      />
+                      {t(`user_management.status.${statusKey.toLowerCase()}`)}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-3 text-gray-800 text-center">
+                    {item.created_at}
+                  </td>
+
+                  <td className="px-6 py-3 text-gray-800 text-center">
+                    {item.last_login || t("user_management.never_logged_in")}
+                  </td>
+
+                  <td className="px-6 py-3 text-center align-middle">
+                    <div className="flex items-center justify-center gap-3">
+                      {item.active && (
+                        <button
+                          className="cursor-pointer text-gray-600 hover:text-red-500"
+                          onClick={() => {
+                            setConfirmAlert({
+                              visible: true,
+                              message: t("user_management.revoke_confirm"),
+                              onConfirm: async () => {
+                                await handleRevoke(item.id);
+                              },
+                              onCancel: () => {
+                                setConfirmAlert({
+                                  visible: false,
+                                  message: "",
+                                  onConfirm: () => {},
+                                  onCancel: () => {},
+                                });
+                              },
+                            });
+                          }}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                      <button
+                        className="cursor-pointer text-gray-600 hover:text-blue-500"
+                        onClick={() => {
+                          setUpdateData({
+                            open: true,
+                            data: {
+                              id: item.id,
+                              email: item.email,
+                              name: item.name,
+                              role_id: item.role_id,
+                            },
+                          });
+                        }}
+                      >
+                        <SquarePen size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {/* pagination */}
+        {filteredData.length !== 0 && (
+          <Pagination
+            totalPages={pagination.totalPages}
+            currentPage={pagination.page}
+            onPageChange={(page) => setPagination({ ...pagination, page })}
+          />
+        )}
+      </div>
+
+      {/* add modal */}
+      <div
+        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          addData.open
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className={`bg-white shadow-lg rounded-xl w-full max-w-2xl transition-transform duration-500 ${
+            addData.open ? "scale-100" : "scale-0"
+          }`}
+        >
+          <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+            <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+              <Info size={18} color="#00A1FE" />
+              {t("user_management.modal_add_title")}
+            </div>
+            <p className="text-[#64748B]">
+              {t("user_management.modal_add_description")}
+            </p>
+          </div>
+          <div className="space-y-4 px-6 py-6">
+            {reactivationMatch && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-lg px-4 py-3">
+                {t("user_management.reactivation_notice")}
+              </div>
+            )}
+
+            <div className="flex flex-row justify-between gap-6">
+              {/* EMAIL */}
+              <div className="w-full">
+                <label className="block mb-2">
+                  {t("user_management.email_label")}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  autoComplete="off"
+                  type="email"
+                  value={addData.data.email}
+                  placeholder={t("user_management.enter_email")}
+                  onChange={(e) =>
+                    setAddData({
+                      ...addData,
+                      data: { ...addData.data, email: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                />
+                {addData.data.email !== "" &&
+                  !EMAIL_REGEX.test(addData.data.email) && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {t("user_management.invalid_email")}
+                    </p>
+                  )}
+              </div>
+
+              {/* NAME */}
+              <div className="w-full">
+                <label className="block mb-2">
+                  {t("user_management.name_label")}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  autoComplete="off"
+                  type="text"
+                  value={addData.data.name}
+                  placeholder={t("user_management.enter_name")}
+                  onChange={(e) =>
+                    setAddData({
+                      ...addData,
+                      data: { ...addData.data, name: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-row justify-between gap-6">
+              {/* ROLE */}
+              <Select
+                label={t("user_management.role_label")}
+                data={user_management_roles}
+                value={addData.data.role_id}
+                onChange={(val) => {
+                  setAddData({
+                    ...addData,
+                    data: { ...addData.data, role_id: val },
+                  });
+                }}
+                displayValue={(item: any) => item.label}
+                searchKeys={["label"]}
+                required
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="w-full pt-32 flex flex-row justify-end gap-4">
+              <button
+                onClick={() => setAddData({ ...addData, open: false })}
+                className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+              >
+                {t("user_management.cancel")}
+              </button>
+              <button
+                disabled={
+                  !addData.data.email ||
+                  !addData.data.name ||
+                  !addData.data.role_id ||
+                  !EMAIL_REGEX.test(addData.data.email)
+                }
+                onClick={handleAddData}
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                  !addData.data.email ||
+                  !addData.data.name ||
+                  !addData.data.role_id ||
+                  !EMAIL_REGEX.test(addData.data.email)
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#048ad8] cursor-pointer"
+                }`}
+              >
+                {t("user_management.save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* update modal */}
+      <div
+        className={`z-70 fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          updateData.open
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className={`bg-white shadow-lg rounded-xl w-full max-w-2xl transition-transform duration-500 ${
+            updateData.open ? "scale-100" : "scale-0"
+          }`}
+        >
+          <div className="bg-[#F8FAFC] px-6 py-6 border-b border-gray-200 rounded-t-xl">
+            <div className="font-semibold flex gap-2 items-center mb-2 text-base">
+              <Info size={18} color="#00A1FE" />
+              {t("user_management.modal_update_title")}
+            </div>
+            <p className="text-[#64748B]">
+              {t("user_management.modal_update_description")}
+            </p>
+          </div>
+          <div className="space-y-4 px-6 py-6">
+            <div className="flex flex-row justify-between gap-6">
+              {/* EMAIL (read-only) */}
+              <div className="w-full">
+                <label className="block mb-2">
+                  {t("user_management.email_label")}
+                </label>
+                <input
+                  disabled
+                  type="email"
+                  value={updateData.data.email}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none bg-gray-100 text-gray-500 cursor-not-allowed"
+                />
+              </div>
+
+              {/* NAME */}
+              <div className="w-full">
+                <label className="block mb-2">
+                  {t("user_management.name_label")}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  autoComplete="off"
+                  type="text"
+                  value={updateData.data.name}
+                  placeholder={t("user_management.enter_name")}
+                  onChange={(e) =>
+                    setUpdateData({
+                      ...updateData,
+                      data: { ...updateData.data, name: e.target.value },
+                    })
+                  }
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-row justify-between gap-6">
+              {/* ROLE */}
+              <Select
+                label={t("user_management.role_label")}
+                data={user_management_roles}
+                value={updateData.data.role_id}
+                onChange={(val) => {
+                  setUpdateData({
+                    ...updateData,
+                    data: { ...updateData.data, role_id: val },
+                  });
+                }}
+                displayValue={(item: any) => item.label}
+                searchKeys={["label"]}
+                required
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="w-full pt-32 flex flex-row justify-end gap-4">
+              <button
+                onClick={() => setUpdateData({ ...updateData, open: false })}
+                className="font-semibold px-12 bg-white text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
+              >
+                {t("user_management.cancel")}
+              </button>
+              <button
+                disabled={!updateData.data.name || !updateData.data.role_id}
+                onClick={handleUpdateData}
+                className={`font-semibold px-12 bg-[#00A1FE] text-white py-2 rounded-lg select-none ${
+                  !updateData.data.name || !updateData.data.role_id
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#048ad8] cursor-pointer"
+                }`}
+              >
+                {t("user_management.save")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alert */}
+      <NotificationAlert
+        title={alert.title}
+        subtitle={alert.subtitle}
+        visible={alert.visible}
+        type={alert.type}
+        onClose={() => {
+          setAlert({ ...alert, visible: false });
+          setTimeout(() => alert.onClose(), 300);
+        }}
+      />
+
+      {/* Confirm Alert */}
+      <ConfirmationAlert
+        title={t("user_management.revoke_confirm")}
+        subtitle={t("user_management.revoke_warning")}
+        type="delete"
+        visible={confirmAlert.visible}
+        onCancel={() => {
+          setConfirmAlert({ ...confirmAlert, visible: false });
+        }}
+        onConfirm={() => {
+          setLoading(true);
+          setConfirmAlert({ ...confirmAlert, visible: false });
+          setTimeout(() => confirmAlert.onConfirm(), 300);
+        }}
+      />
+    </div>
+  );
+}
