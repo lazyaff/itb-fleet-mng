@@ -171,6 +171,33 @@ allowlist on top of ITB SSO (Azure AD) + local credentials login.
 
 ## Active branch context
 
+`feature/bbm-fuel-log` (off `dev`) is complete — 12 commits
+(`feat(fuel-log): ...`/`fix(fuel-log): ...`/`style(fuel-log): ...`): BBM tab +
+table, Periode date-range filter (single grouped control, two `DatePicker`s
+joined by a `-`), Add/Edit form, role-gated Edit/Delete actions + API DELETE,
+fixed broken receipt URL (missing `/` + Windows backslash from `saveFile`),
+and a round of UI polish driven by a manual browser walkthrough: rounded +
+bordered tables (wrapper `div` around `<table>`, since `border-radius` on
+`<table>` itself is ignored under `border-collapse: collapse`) for both BBM
+and Service History, `font-medium text-gray-500` table headers on both,
+"See Receipt" text link instead of an eye icon, "View Full Size" link
+(opens receipt in a new tab), and removal of the redundant "Change Photo"
+button (Edit already replaces the receipt). `npx tsc --noEmit` clean. New
+`fuel_log` Prisma model + migration applied. Ready to open a PR against
+`dev`.
+
+**Side effects from this branch worth knowing about**:
+- Fixed a long-standing bug in the shared `Select` component
+  ([components/Dropdown.tsx](components/Dropdown.tsx)): its trigger always
+  rendered `placeholder`, never the selected item's label (found via the BBM
+  payment method dropdown). Now shows `renderLabel(selected)` when a value is
+  selected — affects all ~11 `Select` usages app-wide.
+- `app/api/v1/vehicle/service/route.ts` has the *same* broken `item.image`
+  URL pattern that was fixed for fuel-log's `item.receipt` (missing `/`
+  before `PUBLIC_STORAGE_PATH` + Windows backslash from `saveFile`). Not
+  fixed on this branch (out of scope) — still needs the analogous one-line
+  fix (`"/" + item.image.replace(/\\/g, "/")`).
+
 `feature/user-management` (off `dev`) is complete — 5 commits
 (`feat(user-management): ...`), `npx tsc --noEmit` clean, API verified via
 curl (list/search/add/edit/revoke/reactivate, role + email validation,

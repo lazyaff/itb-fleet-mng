@@ -1,13 +1,15 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
+import { deleteFile, saveFile } from "@/utils/image";
 import { v4 as uuidv4 } from "uuid";
 import { NextResponse, NextRequest } from "next/server";
-import { deleteFile, saveFile } from "@/utils/image";
+
+const PAYMENT_METHODS = ["CARD", "CASH"];
 
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -25,84 +27,68 @@ export async function GET(request: NextRequest) {
     const size = url.searchParams.get("size");
     const limit = size ? Number(size) : 0;
     const offset = (parseInt(page) - 1) * limit;
+    const from = url.searchParams.get("from");
+    const to = url.searchParams.get("to");
 
-    const [rawData, totalRecords] = await Promise.all([
-      prisma.service_history.findMany({
-        where: {
-          vehicle_id: id,
-          deleted_at: null,
-        },
+    const where = {
+      vehicle_id: id,
+      deleted_at: null,
+      ...(from && to
+        ? {
+            date: {
+              gte: new Date(from),
+              lte: new Date(to),
+            },
+          }
+        : {}),
+    };
+
+    const [rawData, totalRecords, summary] = await Promise.all([
+      prisma.fuel_log.findMany({
+        where,
         ...(limit ? { take: limit } : {}),
         ...(offset ? { skip: offset } : {}),
-        orderBy: [
-          { date: "desc" },
-          {
-            created_at: "desc",
-          },
-        ],
+        orderBy: [{ date: "desc" }, { created_at: "desc" }],
         select: {
           id: true,
-          vehicle: {
-            select: {
-              id: true,
-              plate_number: true,
-            },
-          },
+          date: true,
+          liters: true,
+          cost: true,
+          payment_method: true,
+          receipt: true,
+          notes: true,
           user: {
             select: {
               id: true,
               name: true,
             },
           },
-          image: true,
-          date: true,
-          current_mileage: true,
-          type: true,
-          cost: true,
-          notes: true,
-          vehicle_parts: {
-            select: {
-              vehicle_part: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-          is_all: true,
         },
       }),
-      prisma.service_history.count({
-        where: {
-          vehicle_id: id,
-          deleted_at: null,
+      prisma.fuel_log.count({ where }),
+      prisma.fuel_log.aggregate({
+        where,
+        _sum: {
+          liters: true,
+          cost: true,
         },
+        _count: true,
       }),
     ]);
 
-    const data = rawData.map((item: any, index: number) => ({
-      no: offset + index + 1,
+    const data = rawData.map((item: any) => ({
       id: item.id,
-      vehicle: item.vehicle,
-      user: item.user,
-      image:
+      date: item.date.toISOString().split("T")[0],
+      liters: Number(item.liters),
+      cost: item.cost,
+      payment_method: item.payment_method,
+      receipt:
         process.env.NEXTAUTH_URL! +
         process.env.PUBLIC_STORAGE_PATH +
         "/" +
-        item.image.replace(/\\/g, "/"),
-      date: item.date.toISOString().split("T")[0],
-      current_mileage: item.current_mileage,
-      type: item.type,
-      cost: item.cost,
+        item.receipt.replace(/\\/g, "/"),
       notes: item.notes,
-      parts: item.vehicle_parts.map((part: any) => {
-        return {
-          id: part.vehicle_part.id,
-          name: part.vehicle_part.name,
-        };
-      }),
-      is_all: item.is_all,
+      user: item.user,
     }));
 
     const totalPage = limit ? Math.ceil(totalRecords / limit) : 1;
@@ -116,6 +102,11 @@ export async function GET(request: NextRequest) {
         totalPage,
         totalRecords,
         records: data,
+        summary: {
+          total_liters: Number(summary._sum.liters || 0),
+          total_cost: summary._sum.cost || 0,
+          total_entries: summary._count,
+        },
       },
     });
   } catch (error) {
@@ -133,8 +124,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -148,20 +138,20 @@ export async function POST(request: NextRequest) {
 
     const form = await request.formData();
     const vehicle_id = form.get("vehicle_id") as string;
-    const image = form.get("image") as File;
-    const current_distance = form.get("current_distance") as string;
     const date = form.get("date") as string;
-    const user_id = form.get("user_id") as string;
+    const liters = form.get("liters") as string;
     const cost = form.get("cost") as string;
+    const payment_method = form.get("payment_method") as string;
+    const receipt = form.get("receipt") as File;
     const notes = form.get("notes") as string;
-    let part_ids = form.get("part_ids") as any;
+
     if (
       !vehicle_id ||
-      !image ||
-      !current_distance ||
       !date ||
-      !user_id ||
-      !cost
+      !liters ||
+      !cost ||
+      !payment_method ||
+      !receipt
     ) {
       return NextResponse.json(
         {
@@ -173,13 +163,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // check image
-    if (image.size === 0) {
+    if (!PAYMENT_METHODS.includes(payment_method)) {
       return NextResponse.json(
         {
           success: false,
           status: 400,
-          message: "Invoice Image is required!",
+          message: "Invalid payment method!",
+        },
+        { status: 400 },
+      );
+    }
+
+    // check receipt
+    if (receipt.size === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 400,
+          message: "Receipt Photo is required!",
         },
         { status: 400 },
       );
@@ -187,10 +188,10 @@ export async function POST(request: NextRequest) {
 
     // check mimetype
     if (
-      image.type !== "image/png" &&
-      image.type !== "image/jpeg" &&
-      image.type !== "image/jpg" &&
-      image.type !== "image/webp"
+      receipt.type !== "image/png" &&
+      receipt.type !== "image/jpeg" &&
+      receipt.type !== "image/jpg" &&
+      receipt.type !== "image/webp"
     ) {
       return NextResponse.json(
         {
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
     }
 
     // check maximum size
-    if (image.size > 10 * 1024 * 1024) {
+    if (receipt.size > 10 * 1024 * 1024) {
       return NextResponse.json(
         {
           success: false,
@@ -232,110 +233,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // check user
-    const user = await prisma.user.findFirst({
-      where: {
-        id: user_id,
-        deleted_at: null,
+    const id = uuidv4();
+    const filepath = await saveFile(receipt, "fuel-log", id);
+
+    await prisma.fuel_log.create({
+      data: {
+        id,
+        vehicle_id,
+        user_id: isAuthorized.data.id,
+        date: new Date(date),
+        liters: Number(liters),
+        cost: Number(cost),
+        payment_method,
+        receipt: filepath,
+        notes: notes || null,
       },
-    });
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Admin not found!",
-        },
-        { status: 400 },
-      );
-    }
-
-    part_ids = part_ids.split(",");
-    if (part_ids.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Part is required!",
-        },
-        { status: 400 },
-      );
-    }
-
-    // check part
-    const parts = await prisma.vehicle_part.findMany({
-      where: {
-        vehicle_id: vehicle_id,
-        deleted_at: null,
-      },
-      select: {
-        id: true,
-      },
-    });
-    const foundParts = parts.filter((part: any) => part_ids.includes(part.id));
-    if (foundParts.length !== part_ids.length) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: 400,
-          message: "Part not found!",
-        },
-        { status: 400 },
-      );
-    }
-
-    // create transaction
-    await prisma.$transaction(async (tx) => {
-      // save file
-      const id = uuidv4();
-      const filepath = await saveFile(image, "service-history", id);
-
-      const service = await tx.service_history.create({
-        data: {
-          id: id,
-          vehicle_id: vehicle_id,
-          current_mileage: Number(current_distance),
-          date: new Date(date),
-          type: "-",
-          user_id: user_id,
-          cost: Number(cost),
-          notes: notes,
-          image: filepath,
-          is_all: foundParts.length === parts.length,
-        },
-      });
-
-      const item = part_ids.map((part_id: string) => ({
-        service_history_id: service.id,
-        vehicle_part_id: part_id,
-      }));
-
-      await tx.vehicle_part_service_history.createMany({ data: item });
-
-      await tx.vehicle_part.updateMany({
-        where: {
-          id: {
-            in: part_ids,
-          },
-        },
-        data: {
-          last_service: new Date(date),
-          current_distance: 0,
-        },
-      });
-
-      await tx.vehicle_alert.updateMany({
-        where: {
-          vehicle_part_id: {
-            in: part_ids,
-          },
-          active: true,
-        },
-        data: {
-          active: false,
-          resolved_at: new Date(date),
-        },
-      });
     });
 
     return NextResponse.json(
@@ -344,12 +256,10 @@ export async function POST(request: NextRequest) {
         status: 201,
         message: "Data created successfully!",
       },
-      {
-        status: 201,
-      },
+      { status: 201 },
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json(
       {
         success: false,
@@ -363,8 +273,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -378,12 +287,14 @@ export async function PUT(request: NextRequest) {
 
     const form = await request.formData();
     const id = form.get("id") as string;
-    const image = form.get("image") as File;
     const date = form.get("date") as string;
-    const user_id = form.get("user_id") as string;
+    const liters = form.get("liters") as string;
     const cost = form.get("cost") as string;
+    const payment_method = form.get("payment_method") as string;
+    const receipt = form.get("receipt") as File;
     const notes = form.get("notes") as string;
-    if (!id || !date || !user_id || !cost) {
+
+    if (!id || !date || !liters || !cost || !payment_method) {
       return NextResponse.json(
         {
           success: false,
@@ -394,28 +305,20 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // check user
-    const user = await prisma.user.findFirst({
-      where: {
-        id: user_id,
-        deleted_at: null,
-      },
-    });
-    if (!user) {
+    if (!PAYMENT_METHODS.includes(payment_method)) {
       return NextResponse.json(
         {
           success: false,
           status: 400,
-          message: "Admin not found!",
+          message: "Invalid payment method!",
         },
         { status: 400 },
       );
     }
 
-    // check data
-    const data = await prisma.service_history.findFirst({
+    const data = await prisma.fuel_log.findFirst({
       where: {
-        id: id,
+        id,
         deleted_at: null,
       },
     });
@@ -430,15 +333,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // check image
-    let filePath = data.image;
-    if (image.size > 0) {
+    // check receipt
+    let filePath = data.receipt;
+    if (receipt && receipt.size > 0) {
       // check mimetype
       if (
-        image.type !== "image/png" &&
-        image.type !== "image/jpeg" &&
-        image.type !== "image/jpg" &&
-        image.type !== "image/webp"
+        receipt.type !== "image/png" &&
+        receipt.type !== "image/jpeg" &&
+        receipt.type !== "image/jpg" &&
+        receipt.type !== "image/webp"
       ) {
         return NextResponse.json(
           {
@@ -451,7 +354,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // check maximum size
-      if (image.size > 10 * 1024 * 1024) {
+      if (receipt.size > 10 * 1024 * 1024) {
         return NextResponse.json(
           {
             success: false,
@@ -462,22 +365,21 @@ export async function PUT(request: NextRequest) {
         );
       }
 
-      filePath = await saveFile(image, "service-history", data.id);
-      await deleteFile(data.image);
+      filePath = await saveFile(receipt, "fuel-log", data.id);
+      await deleteFile(data.receipt);
     }
 
-    // update data
-    await prisma.service_history.update({
+    await prisma.fuel_log.update({
       where: {
-        id: id,
+        id,
       },
       data: {
         date: new Date(date),
-        type: "-",
-        user_id: user_id,
+        liters: Number(liters),
         cost: Number(cost),
-        notes: notes,
-        image: filePath,
+        payment_method,
+        receipt: filePath,
+        notes: notes || null,
       },
     });
 
@@ -487,7 +389,7 @@ export async function PUT(request: NextRequest) {
       message: "Data updated successfully!",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json(
       {
         success: false,
@@ -501,7 +403,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -526,14 +428,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const service = await prisma.service_history.findFirst({
+    const data = await prisma.fuel_log.findFirst({
       where: {
         id,
         deleted_at: null,
       },
     });
 
-    if (!service) {
+    if (!data) {
       return NextResponse.json(
         {
           success: false,
@@ -544,9 +446,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await prisma.service_history.update({
+    await prisma.fuel_log.update({
       where: {
-        id: id,
+        id,
       },
       data: {
         deleted_at: new Date(),
@@ -559,7 +461,7 @@ export async function DELETE(request: NextRequest) {
       message: "Data deleted successfully!",
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json(
       {
         success: false,
