@@ -67,7 +67,6 @@ export default function FuelLogTab({
     visible: boolean;
     onConfirm: () => void;
   }>({ visible: false, onConfirm: () => {} });
-  const [changePhoto, setChangePhoto] = useState(false);
 
   const defaultRange = {
     from: DateTime.now().minus({ days: 30 }).toISODate() as string,
@@ -156,14 +155,6 @@ export default function FuelLogTab({
             alt="Receipt"
             className="w-full h-auto px-2 pb-3"
           />
-          {canManage && (
-            <button
-              onClick={() => setChangePhoto(true)}
-              className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
-            >
-              {t("vehicle_detail.bbm.change_photo")}
-            </button>
-          )}
         </div>
 
         <FuelLogFormModal
@@ -173,19 +164,6 @@ export default function FuelLogTab({
           session={session}
           onClose={() => setAddFuelLog(false)}
           onSaved={fetchFuelData}
-        />
-
-        <FuelLogFormModal
-          open={changePhoto}
-          mode="edit"
-          vehicleId={vehicleId}
-          session={session}
-          initialData={currentFuelData.data}
-          onClose={() => setChangePhoto(false)}
-          onSaved={async () => {
-            await fetchFuelData();
-            setCurrentFuelData({ section: "", data: null });
-          }}
         />
       </>
     );
@@ -263,124 +241,126 @@ export default function FuelLogTab({
           </div>
         </div>
 
-        <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-          <thead className="bg-[#E2E8F0]/20">
-            <tr>
-              <th className="text-center py-4 font-medium text-gray-500">
-                {t("vehicle_detail.bbm.table.date").toUpperCase()}
-              </th>
-              <th className="text-center py-4 font-medium text-gray-500">
-                {t("vehicle_detail.bbm.table.fuel").toUpperCase()}
-              </th>
-              <th className="text-center py-4 font-medium text-gray-500">
-                {t("vehicle_detail.bbm.table.cost").toUpperCase()}
-              </th>
-              <th className="text-center py-4 font-medium text-gray-500">
-                {t("vehicle_detail.bbm.table.payment_method").toUpperCase()}
-              </th>
-              <th className="text-center py-4 font-medium text-gray-500">
-                {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
-              </th>
-              {canManage && (
-                <th className="text-center py-4 font-medium text-gray-500">
-                  {t("vehicle_detail.bbm.table.action").toUpperCase()}
-                </th>
-              )}
-            </tr>
-          </thead>
-
-          <tbody>
-            {records && records.length > 0 ? (
-              records.map((item) => {
-                const config =
-                  bbm_payment_method_color[
-                    item.payment_method as keyof typeof bbm_payment_method_color
-                  ];
-                const paymentLabel =
-                  bbm_payment_method.find((m) => m.id === item.payment_method)
-                    ?.label || item.payment_method;
-
-                return (
-                  <tr key={item.id} className="border-t border-gray-200">
-                    <td className="py-4 text-center">
-                      {formatedDate(new Date(item.date), "dd/MM/yyyy")}
-                    </td>
-                    <td className="py-4 text-center">
-                      {item.liters.toLocaleString("en-US", {
-                        minimumFractionDigits: 1,
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      L
-                    </td>
-                    <td className="py-4 text-center">
-                      Rp {item.cost.toLocaleString("en-US")}
-                    </td>
-                    <td className="py-4 text-center">
-                      {config ? (
-                        <span
-                          className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
-                          />
-                          {paymentLabel}
-                        </span>
-                      ) : (
-                        paymentLabel
-                      )}
-                    </td>
-                    <td className="py-4 text-center">
-                      <button
-                        className="cursor-pointer text-[#00A1FE]"
-                        onClick={() => {
-                          setCurrentFuelData({
-                            section: "receipt",
-                            data: item,
-                          });
-                        }}
-                      >
-                        {t("vehicle_detail.bbm.see_receipt")}
-                      </button>
-                    </td>
-                    {canManage && (
-                      <td className="py-4 text-center">
-                        <div className="flex gap-2 justify-center">
-                          <button
-                            className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                            onClick={() => {
-                              setConfirmAlert({
-                                visible: true,
-                                onConfirm: async () => {
-                                  await handleDeleteFuelLog(item.id);
-                                },
-                              });
-                            }}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                          <button
-                            className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                            onClick={() => {
-                              setUpdateFuelLog({ open: true, data: item });
-                            }}
-                          >
-                            <ScrollText className="mt-0.5" size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })
-            ) : (
+        <div className="rounded-xl overflow-hidden border border-gray-200">
+          <table className="w-full text-sm">
+            <thead className="bg-[#E2E8F0]/20">
               <tr>
-                <td colSpan={canManage ? 6 : 5} className="text-center p-6">
-                  {t("common.no_data")}
-                </td>
+                <th className="text-center py-4 font-medium text-gray-500">
+                  {t("vehicle_detail.bbm.table.date").toUpperCase()}
+                </th>
+                <th className="text-center py-4 font-medium text-gray-500">
+                  {t("vehicle_detail.bbm.table.fuel").toUpperCase()}
+                </th>
+                <th className="text-center py-4 font-medium text-gray-500">
+                  {t("vehicle_detail.bbm.table.cost").toUpperCase()}
+                </th>
+                <th className="text-center py-4 font-medium text-gray-500">
+                  {t("vehicle_detail.bbm.table.payment_method").toUpperCase()}
+                </th>
+                <th className="text-center py-4 font-medium text-gray-500">
+                  {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
+                </th>
+                {canManage && (
+                  <th className="text-center py-4 font-medium text-gray-500">
+                    {t("vehicle_detail.bbm.table.action").toUpperCase()}
+                  </th>
+                )}
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {records && records.length > 0 ? (
+                records.map((item) => {
+                  const config =
+                    bbm_payment_method_color[
+                      item.payment_method as keyof typeof bbm_payment_method_color
+                    ];
+                  const paymentLabel =
+                    bbm_payment_method.find((m) => m.id === item.payment_method)
+                      ?.label || item.payment_method;
+
+                  return (
+                    <tr key={item.id} className="border-t border-gray-200">
+                      <td className="py-4 text-center">
+                        {formatedDate(new Date(item.date), "dd/MM/yyyy")}
+                      </td>
+                      <td className="py-4 text-center">
+                        {item.liters.toLocaleString("en-US", {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        L
+                      </td>
+                      <td className="py-4 text-center">
+                        Rp {item.cost.toLocaleString("en-US")}
+                      </td>
+                      <td className="py-4 text-center">
+                        {config ? (
+                          <span
+                            className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-xs font-medium ${config.bg} ${config.text} ${config.border}`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                            />
+                            {paymentLabel}
+                          </span>
+                        ) : (
+                          paymentLabel
+                        )}
+                      </td>
+                      <td className="py-4 text-center">
+                        <button
+                          className="cursor-pointer text-[#00A1FE]"
+                          onClick={() => {
+                            setCurrentFuelData({
+                              section: "receipt",
+                              data: item,
+                            });
+                          }}
+                        >
+                          {t("vehicle_detail.bbm.see_receipt")}
+                        </button>
+                      </td>
+                      {canManage && (
+                        <td className="py-4 text-center">
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                              onClick={() => {
+                                setConfirmAlert({
+                                  visible: true,
+                                  onConfirm: async () => {
+                                    await handleDeleteFuelLog(item.id);
+                                  },
+                                });
+                              }}
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            <button
+                              className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                              onClick={() => {
+                                setUpdateFuelLog({ open: true, data: item });
+                              }}
+                            >
+                              <ScrollText className="mt-0.5" size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={canManage ? 6 : 5} className="text-center p-6">
+                    {t("common.no_data")}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {records && records.length !== 0 && (
           <Pagination

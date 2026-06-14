@@ -101,7 +101,11 @@ export function Select<T>({
         className="w-full px-4 py-2 bg-white border border-gray-200 rounded-md shadow-sm text-sm text-gray-700 cursor-pointer flex justify-between items-center select-none"
       >
         <span className="flex flex-wrap gap-1 mx-auto">
-          <span>{placeholder}</span>
+          {selected ? (
+            <span>{renderLabel(selected)}</span>
+          ) : (
+            <span className="text-gray-400">{placeholder}</span>
+          )}
         </span>
 
         <ChevronDown

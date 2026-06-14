@@ -1567,133 +1567,144 @@ export default function VehicleDetail({
                     : "opacity-0 pointer-events-none"
                 }`}
               >
-                <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
-                  <thead className="bg-[#E2E8F0]/20">
-                    <tr>
-                      <th className="text-center py-4 font-medium text-gray-500">
-                        {t("vehicle_detail.service.table.user").toUpperCase()}
-                      </th>
-                      <th className="text-center py-4 font-medium text-gray-500">
-                        {t("vehicle_detail.service.table.photo").toUpperCase()}
-                      </th>
-                      <th className="text-center py-4 font-medium text-gray-500">
-                        {t("vehicle_detail.service.table.date").toUpperCase()}
-                      </th>
-                      <th className="text-center py-4 font-medium text-gray-500">
-                        {t("vehicle_detail.service.table.part").toUpperCase()}
-                      </th>
-                      {session?.user?.role_id === "SADM" && (
+                <div className="rounded-xl overflow-hidden border border-gray-200">
+                  <table className="w-full text-sm">
+                    <thead className="bg-[#E2E8F0]/20">
+                      <tr>
+                        <th className="text-center py-4 font-medium text-gray-500">
+                          {t("vehicle_detail.service.table.user").toUpperCase()}
+                        </th>
                         <th className="text-center py-4 font-medium text-gray-500">
                           {t(
-                            "vehicle_detail.service.table.action",
+                            "vehicle_detail.service.table.photo",
                           ).toUpperCase()}
                         </th>
-                      )}
-                    </tr>
-                  </thead>
+                        <th className="text-center py-4 font-medium text-gray-500">
+                          {t("vehicle_detail.service.table.date").toUpperCase()}
+                        </th>
+                        <th className="text-center py-4 font-medium text-gray-500">
+                          {t("vehicle_detail.service.table.part").toUpperCase()}
+                        </th>
+                        {session?.user?.role_id === "SADM" && (
+                          <th className="text-center py-4 font-medium text-gray-500">
+                            {t(
+                              "vehicle_detail.service.table.action",
+                            ).toUpperCase()}
+                          </th>
+                        )}
+                      </tr>
+                    </thead>
 
-                  <tbody>
-                    {serviceData &&
-                      serviceData.map((service) => (
-                        <tr
-                          key={service.id}
-                          className="border-t border-gray-200"
-                        >
-                          <td className="py-4 text-center">
-                            {service.user.name}
-                          </td>
-                          <td className="py-4 text-center">
-                            <button
-                              className="cursor-pointer text-[#00A1FE]"
-                              onClick={async () => {
-                                setCurrentServiceData({
-                                  section: "invoice",
-                                  data: service,
-                                });
-                              }}
-                            >
-                              {t("vehicle_detail.service.see_invoice")}
-                            </button>
-                          </td>
-                          <td className="py-4 text-center">
-                            {formatedDate(new Date(service.date), "dd/MM/yyyy")}
-                          </td>
-                          <td className="py-4 text-center">
-                            <button
-                              className="underline cursor-pointer font-semibold"
-                              onClick={async () => {
-                                setCurrentServiceData({
-                                  section: "detail",
-                                  data: service,
-                                });
-                              }}
-                            >
-                              {service.is_all
-                                ? t("vehicle_detail.service.all")
-                                : service.parts.length + " Parts"}
-                            </button>
-                          </td>
-                          {session?.user?.role_id === "SADM" && (
+                    <tbody>
+                      {serviceData &&
+                        serviceData.map((service) => (
+                          <tr
+                            key={service.id}
+                            className="border-t border-gray-200"
+                          >
                             <td className="py-4 text-center">
-                              <div className="flex gap-2 justify-center">
-                                <button
-                                  className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                  onClick={() => {
-                                    setConfirmAlert({
-                                      visible: true,
-                                      message: t("gps_tracker.delete_confirm"),
-                                      onConfirm: async () => {
-                                        await handleDeleteService(service.id);
-                                      },
-                                      onCancel: () => {
-                                        setConfirmAlert({
-                                          visible: false,
-                                          message: "",
-                                          onConfirm: () => {},
-                                          onCancel: () => {},
-                                        });
-                                      },
-                                    });
-                                  }}
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setUpdateService({
-                                      open: true,
-                                      data: {
-                                        id: service.id,
-                                        image: service.image,
-                                        current_distance:
-                                          service.current_mileage.toString(),
-                                        date: service.date,
-                                        user: {
-                                          id: service.user.id,
-                                          name: service.user.name,
-                                        },
-                                        cost: service.cost.toString(),
-                                        notes: service.notes,
-                                        part_ids: service.parts.map((part) => {
-                                          return {
-                                            id: part.id,
-                                            name: part.name,
-                                          };
-                                        }),
-                                      },
-                                    });
-                                  }}
-                                  className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
-                                >
-                                  <ScrollText className="mt-0.5" size={18} />
-                                </button>
-                              </div>
+                              {service.user.name}
                             </td>
-                          )}
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+                            <td className="py-4 text-center">
+                              <button
+                                className="cursor-pointer text-[#00A1FE]"
+                                onClick={async () => {
+                                  setCurrentServiceData({
+                                    section: "invoice",
+                                    data: service,
+                                  });
+                                }}
+                              >
+                                {t("vehicle_detail.service.see_invoice")}
+                              </button>
+                            </td>
+                            <td className="py-4 text-center">
+                              {formatedDate(
+                                new Date(service.date),
+                                "dd/MM/yyyy",
+                              )}
+                            </td>
+                            <td className="py-4 text-center">
+                              <button
+                                className="underline cursor-pointer font-semibold"
+                                onClick={async () => {
+                                  setCurrentServiceData({
+                                    section: "detail",
+                                    data: service,
+                                  });
+                                }}
+                              >
+                                {service.is_all
+                                  ? t("vehicle_detail.service.all")
+                                  : service.parts.length + " Parts"}
+                              </button>
+                            </td>
+                            {session?.user?.role_id === "SADM" && (
+                              <td className="py-4 text-center">
+                                <div className="flex gap-2 justify-center">
+                                  <button
+                                    className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                    onClick={() => {
+                                      setConfirmAlert({
+                                        visible: true,
+                                        message: t(
+                                          "gps_tracker.delete_confirm",
+                                        ),
+                                        onConfirm: async () => {
+                                          await handleDeleteService(service.id);
+                                        },
+                                        onCancel: () => {
+                                          setConfirmAlert({
+                                            visible: false,
+                                            message: "",
+                                            onConfirm: () => {},
+                                            onCancel: () => {},
+                                          });
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setUpdateService({
+                                        open: true,
+                                        data: {
+                                          id: service.id,
+                                          image: service.image,
+                                          current_distance:
+                                            service.current_mileage.toString(),
+                                          date: service.date,
+                                          user: {
+                                            id: service.user.id,
+                                            name: service.user.name,
+                                          },
+                                          cost: service.cost.toString(),
+                                          notes: service.notes,
+                                          part_ids: service.parts.map(
+                                            (part) => {
+                                              return {
+                                                id: part.id,
+                                                name: part.name,
+                                              };
+                                            },
+                                          ),
+                                        },
+                                      });
+                                    }}
+                                    className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                                  >
+                                    <ScrollText className="mt-0.5" size={18} />
+                                  </button>
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
 
                 {serviceData && serviceData.length !== 0 && (
                   <Pagination
