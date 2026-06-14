@@ -1,16 +1,18 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
-type Role = "SADM" | "ADM" | "INSP";
+type Role = "SADM" | "ADM" | "UOPS" | "INSP";
 
 const ROUTE_CONFIG = [
   { prefix: "/admin/user-management", roles: ["SADM"] },
+  { prefix: "/admin/reports/monthly-recap", roles: ["SADM", "ADM", "UOPS"] },
   { prefix: "/admin", roles: ["SADM", "ADM"] },
   { prefix: "/inspector", roles: ["INSP"] },
 ];
 
 function getDefaultRoute(role?: Role) {
   if (role === "SADM" || role === "ADM") return "/admin/dashboard";
+  if (role === "UOPS") return "/admin/reports/monthly-recap";
   if (role === "INSP") return "/inspector/home";
   return "/";
 }

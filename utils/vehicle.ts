@@ -48,3 +48,11 @@ export const healthCount = ({
 
   return Math.min(distanceRate, timeRate);
 };
+
+export const getHealthStatus = (
+  health: number,
+): "healthy" | "near_service" | "overdue" => {
+  if (health > 50) return "healthy";
+  if (health >= 25) return "near_service";
+  return "overdue";
+};
