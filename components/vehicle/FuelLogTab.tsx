@@ -266,23 +266,23 @@ export default function FuelLogTab({
         <table className="w-full text-sm border border-gray-200">
           <thead className="bg-[#E2E8F0]/20">
             <tr>
-              <th className="text-center py-4">
+              <th className="text-center py-4 font-normal text-gray-500">
                 {t("vehicle_detail.bbm.table.date").toUpperCase()}
               </th>
-              <th className="text-center py-4">
+              <th className="text-center py-4 font-normal text-gray-500">
                 {t("vehicle_detail.bbm.table.fuel").toUpperCase()}
               </th>
-              <th className="text-center py-4">
+              <th className="text-center py-4 font-normal text-gray-500">
                 {t("vehicle_detail.bbm.table.cost").toUpperCase()}
               </th>
-              <th className="text-center py-4">
+              <th className="text-center py-4 font-normal text-gray-500">
                 {t("vehicle_detail.bbm.table.payment_method").toUpperCase()}
               </th>
-              <th className="text-center py-4">
+              <th className="text-center py-4 font-normal text-gray-500">
                 {t("vehicle_detail.bbm.table.receipt").toUpperCase()}
               </th>
               {canManage && (
-                <th className="text-center py-4">
+                <th className="text-center py-4 font-normal text-gray-500">
                   {t("vehicle_detail.bbm.table.action").toUpperCase()}
                 </th>
               )}
