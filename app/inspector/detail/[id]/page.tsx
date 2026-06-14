@@ -175,7 +175,11 @@ export default function Detail({
 
                       <label className="flex gap-2 cursor-pointer items-start mb-2">
                         <div>
-                          {question.answer.label}: {question.answer.description}
+                          {question.answer.label}
+                          {question.answer.label && question.answer.description
+                            ? ": "
+                            : ""}
+                          {question.answer.description}
                         </div>
                       </label>
                     </div>
