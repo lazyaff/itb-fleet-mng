@@ -129,6 +129,29 @@ export const usage_reconciliation_source_color = {
   },
 } as const;
 
+export const user_management_roles = [
+  { id: "ADM", label: "Admin Operasional" },
+  { id: "UOPS", label: "User Operasional" },
+  { id: "INSP", label: "Inspector" },
+];
+
+export const user_status_color = {
+  Active: {
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
+  },
+  Inactive: {
+    color: "gray",
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+    border: "border-gray-400",
+    dot: "bg-gray-500",
+  },
+} as const;
+
 export const vehicle_gps_status_color = {
   Moving: {
     color: "green",
