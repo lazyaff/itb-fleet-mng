@@ -1567,23 +1567,23 @@ export default function VehicleDetail({
                     : "opacity-0 pointer-events-none"
                 }`}
               >
-                <table className="w-full text-sm border border-gray-200">
+                <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
                   <thead className="bg-[#E2E8F0]/20">
                     <tr>
-                      <th className="text-center py-4">
+                      <th className="text-center py-4 font-medium text-gray-500">
                         {t("vehicle_detail.service.table.user").toUpperCase()}
                       </th>
-                      <th className="text-center py-4">
+                      <th className="text-center py-4 font-medium text-gray-500">
                         {t("vehicle_detail.service.table.photo").toUpperCase()}
                       </th>
-                      <th className="text-center py-4">
+                      <th className="text-center py-4 font-medium text-gray-500">
                         {t("vehicle_detail.service.table.date").toUpperCase()}
                       </th>
-                      <th className="text-center py-4">
+                      <th className="text-center py-4 font-medium text-gray-500">
                         {t("vehicle_detail.service.table.part").toUpperCase()}
                       </th>
                       {session?.user?.role_id === "SADM" && (
-                        <th className="text-center py-4">
+                        <th className="text-center py-4 font-medium text-gray-500">
                           {t(
                             "vehicle_detail.service.table.action",
                           ).toUpperCase()}
