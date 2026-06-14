@@ -191,6 +191,7 @@
   "vehicle_detail.bbm.table.action": "Action",
   "vehicle_detail.bbm.see_receipt": "See Receipt",
   "vehicle_detail.bbm.back": "Back",
+  "vehicle_detail.bbm.view_full_size": "View Full Size",
   "vehicle_detail.bbm.filter.label": "Period",
   "vehicle_detail.bbm.filter.from": "From",
   "vehicle_detail.bbm.filter.to": "To",

@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/Language";
 import { bbm_payment_method, bbm_payment_method_color } from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
 import { DateTime } from "luxon";
-import { ChevronLeft, ScrollText, Trash2 } from "lucide-react";
+import { ChevronLeft, ExternalLink, ScrollText, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -139,15 +139,26 @@ export default function FuelLogTab({
     return (
       <>
         <div className="w-full bg-gray-200 p-4">
-          <button
-            className="select-none flex items-center gap-1 cursor-pointer mb-4"
-            onClick={() => {
-              setCurrentFuelData({ section: "", data: null });
-            }}
-          >
-            <ChevronLeft />
-            <p className="font-bold">{t("vehicle_detail.bbm.back")}</p>
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              className="select-none flex items-center gap-1 cursor-pointer"
+              onClick={() => {
+                setCurrentFuelData({ section: "", data: null });
+              }}
+            >
+              <ChevronLeft />
+              <p className="font-bold">{t("vehicle_detail.bbm.back")}</p>
+            </button>
+            <a
+              href={currentFuelData.data.receipt || "/image/placeholder.webp"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
+            >
+              <ExternalLink size={16} />
+              {t("vehicle_detail.bbm.view_full_size")}
+            </a>
+          </div>
           <img
             src={currentFuelData.data.receipt || "/image/placeholder.webp"}
             width={500}
