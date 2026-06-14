@@ -100,7 +100,10 @@ export async function GET(request: NextRequest) {
     };
 
     for (const item of usage) {
-      getEntry(item.vehicle_id).total_km += item._sum.difference ?? 0;
+      // current_mileage / usage_reconciliation.difference are stored in
+      // "km * 1000" units (see vehicle list update form), so divide back
+      // down to km here.
+      getEntry(item.vehicle_id).total_km += (item._sum.difference ?? 0) / 1000;
     }
 
     for (const item of services) {
