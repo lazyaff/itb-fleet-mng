@@ -67,6 +67,7 @@ export default function FuelLogTab({
     visible: boolean;
     onConfirm: () => void;
   }>({ visible: false, onConfirm: () => {} });
+  const [changePhoto, setChangePhoto] = useState(false);
 
   const defaultRange = {
     from: DateTime.now().minus({ days: 30 }).toISODate() as string,
@@ -155,6 +156,14 @@ export default function FuelLogTab({
             alt="Receipt"
             className="w-full h-auto px-2 pb-3"
           />
+          {canManage && (
+            <button
+              onClick={() => setChangePhoto(true)}
+              className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
+            >
+              {t("vehicle_detail.bbm.change_photo")}
+            </button>
+          )}
         </div>
 
         <FuelLogFormModal
@@ -164,6 +173,19 @@ export default function FuelLogTab({
           session={session}
           onClose={() => setAddFuelLog(false)}
           onSaved={fetchFuelData}
+        />
+
+        <FuelLogFormModal
+          open={changePhoto}
+          mode="edit"
+          vehicleId={vehicleId}
+          session={session}
+          initialData={currentFuelData.data}
+          onClose={() => setChangePhoto(false)}
+          onSaved={async () => {
+            await fetchFuelData();
+            setCurrentFuelData({ section: "", data: null });
+          }}
         />
       </>
     );
