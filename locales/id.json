@@ -192,6 +192,10 @@
   "vehicle_detail.bbm.see_receipt": "Lihat Struk",
   "vehicle_detail.bbm.back": "Kembali",
   "vehicle_detail.bbm.change_photo": "Ubah Foto",
+  "vehicle_detail.bbm.filter.label": "Periode",
+  "vehicle_detail.bbm.filter.from": "Dari",
+  "vehicle_detail.bbm.filter.to": "Sampai",
+  "vehicle_detail.bbm.filter.apply": "Terapkan Filter",
 
   "inspection.search_vehicle": "Cari kendaraan...",
   "inspection.vehicle": "Kendaraan",

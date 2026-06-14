@@ -192,6 +192,10 @@
   "vehicle_detail.bbm.see_receipt": "See Receipt",
   "vehicle_detail.bbm.back": "Back",
   "vehicle_detail.bbm.change_photo": "Change Photo",
+  "vehicle_detail.bbm.filter.label": "Period",
+  "vehicle_detail.bbm.filter.from": "From",
+  "vehicle_detail.bbm.filter.to": "To",
+  "vehicle_detail.bbm.filter.apply": "Apply Filter",
 
   "inspection.search_vehicle": "Search vehicle...",
   "inspection.vehicle": "Vehicle",

@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePicker } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { bbm_payment_method, bbm_payment_method_color } from "@/src/dropdown";
@@ -51,10 +52,12 @@ export default function FuelLogTab({
     data: FuelLog | null;
   }>({ section: "", data: null });
 
-  const [range] = useState({
-    from: DateTime.now().minus({ days: 30 }).toISODate(),
-    to: DateTime.now().toISODate(),
-  });
+  const defaultRange = {
+    from: DateTime.now().minus({ days: 30 }).toISODate() as string,
+    to: DateTime.now().toISODate() as string,
+  };
+  const [draftRange, setDraftRange] = useState(defaultRange);
+  const [appliedRange, setAppliedRange] = useState(defaultRange);
 
   const handleLogout = () => {
     signOut({ redirect: false }).then(() => router.push("/"));
@@ -63,7 +66,7 @@ export default function FuelLogTab({
   const fetchFuelData = async () => {
     try {
       const response = await fetch(
-        `/api/v1/vehicle/fuel-log?id=${vehicleId}&page=${pagination.page}&size=10&from=${range.from}&to=${range.to}`,
+        `/api/v1/vehicle/fuel-log?id=${vehicleId}&page=${pagination.page}&size=10&from=${appliedRange.from}&to=${appliedRange.to}`,
         {
           method: "GET",
           headers: {
@@ -93,7 +96,7 @@ export default function FuelLogTab({
     if (session) {
       fetchFuelData();
     }
-  }, [session, pagination.page]);
+  }, [session, pagination.page, appliedRange]);
 
   if (currentFuelData.section === "receipt" && currentFuelData.data) {
     return (
@@ -120,6 +123,37 @@ export default function FuelLogTab({
 
   return (
     <div>
+      <div className="flex items-end gap-2 mb-4">
+        <div className="w-36">
+          <label className="block mb-1 text-xs text-gray-500">
+            {t("vehicle_detail.bbm.filter.label")}
+          </label>
+          <DatePicker
+            value={draftRange.from}
+            onChange={(val) =>
+              setDraftRange((prev) => ({ ...prev, from: val }))
+            }
+            placeholder={t("vehicle_detail.bbm.filter.from")}
+          />
+        </div>
+        <div className="w-36">
+          <DatePicker
+            value={draftRange.to}
+            onChange={(val) => setDraftRange((prev) => ({ ...prev, to: val }))}
+            placeholder={t("vehicle_detail.bbm.filter.to")}
+          />
+        </div>
+        <button
+          onClick={() => {
+            setAppliedRange(draftRange);
+            setPagination((prev) => ({ ...prev, page: 1 }));
+          }}
+          className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
+        >
+          {t("vehicle_detail.bbm.filter.apply")}
+        </button>
+      </div>
+
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
           <p className="text-xs text-gray-500">
