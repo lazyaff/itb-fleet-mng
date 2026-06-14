@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/Language";
 import { bbm_payment_method, bbm_payment_method_color } from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
 import { DateTime } from "luxon";
-import { ChevronLeft, Eye, ScrollText, Trash2 } from "lucide-react";
+import { ChevronLeft, ScrollText, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -194,27 +194,32 @@ export default function FuelLogTab({
   return (
     <>
       <div>
-        <div className="flex items-end gap-2 mb-4">
-          <div className="w-36">
+        <div className="flex items-end gap-3 mb-6">
+          <div>
             <label className="block mb-1 text-xs text-gray-500">
               {t("vehicle_detail.bbm.filter.label")}
             </label>
-            <DatePicker
-              value={draftRange.from}
-              onChange={(val) =>
-                setDraftRange((prev) => ({ ...prev, from: val }))
-              }
-              placeholder={t("vehicle_detail.bbm.filter.from")}
-            />
-          </div>
-          <div className="w-36">
-            <DatePicker
-              value={draftRange.to}
-              onChange={(val) =>
-                setDraftRange((prev) => ({ ...prev, to: val }))
-              }
-              placeholder={t("vehicle_detail.bbm.filter.to")}
-            />
+            <div className="flex items-center gap-2">
+              <div className="w-36">
+                <DatePicker
+                  value={draftRange.from}
+                  onChange={(val) =>
+                    setDraftRange((prev) => ({ ...prev, from: val }))
+                  }
+                  placeholder={t("vehicle_detail.bbm.filter.from")}
+                />
+              </div>
+              <span className="text-gray-400">-</span>
+              <div className="w-36">
+                <DatePicker
+                  value={draftRange.to}
+                  onChange={(val) =>
+                    setDraftRange((prev) => ({ ...prev, to: val }))
+                  }
+                  placeholder={t("vehicle_detail.bbm.filter.to")}
+                />
+              </div>
+            </div>
           </div>
           <button
             onClick={() => {
@@ -227,12 +232,12 @@ export default function FuelLogTab({
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-xl shadow p-4 border border-gray-200">
             <p className="text-xs text-gray-500">
               {t("vehicle_detail.bbm.summary.total_fuel")}
             </p>
-            <p className="text-xl font-semibold">
+            <p className="text-xl font-semibold mt-1">
               {summary.total_liters.toLocaleString("en-US", {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 2,
@@ -240,19 +245,21 @@ export default function FuelLogTab({
               L
             </p>
           </div>
-          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+          <div className="bg-white rounded-xl shadow p-4 border border-gray-200">
             <p className="text-xs text-gray-500">
               {t("vehicle_detail.bbm.summary.total_cost")}
             </p>
-            <p className="text-xl font-semibold">
+            <p className="text-xl font-semibold mt-1">
               Rp {summary.total_cost.toLocaleString("en-US")}
             </p>
           </div>
-          <div className="bg-white rounded-xl shadow p-3 border border-gray-200">
+          <div className="bg-white rounded-xl shadow p-4 border border-gray-200">
             <p className="text-xs text-gray-500">
               {t("vehicle_detail.bbm.summary.total_entries")}
             </p>
-            <p className="text-xl font-semibold">{summary.total_entries}</p>
+            <p className="text-xl font-semibold mt-1">
+              {summary.total_entries}
+            </p>
           </div>
         </div>
 
@@ -324,8 +331,7 @@ export default function FuelLogTab({
                     </td>
                     <td className="py-4 text-center">
                       <button
-                        className="cursor-pointer text-[#00A1FE] inline-flex items-center justify-center"
-                        title={t("vehicle_detail.bbm.see_receipt")}
+                        className="cursor-pointer text-[#00A1FE]"
                         onClick={() => {
                           setCurrentFuelData({
                             section: "receipt",
@@ -333,7 +339,7 @@ export default function FuelLogTab({
                           });
                         }}
                       >
-                        <Eye size={18} />
+                        {t("vehicle_detail.bbm.see_receipt")}
                       </button>
                     </td>
                     {canManage && (
