@@ -51,6 +51,7 @@ jobs:
             git pull origin dev
             npm ci
             npx prisma generate
+            npx prisma migrate deploy
             npm run build
             pm2 restart komuto-fleet || pm2 start npm --name komuto-fleet -- start
 
@@ -60,6 +61,7 @@ jobs:
               git pull origin dev
               npm ci
               npx prisma generate
+              npx prisma migrate deploy
               npm run build
               pm2 restart komuto-fleet
             "
