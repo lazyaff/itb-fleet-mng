@@ -14,6 +14,10 @@ export async function roleSeeder(prisma: PrismaClient) {
       id: "INSP",
       name: "Inspector",
     },
+    {
+      id: "UOPS",
+      name: "User Operasional",
+    },
   ];
 
   console.log("Seeding roles...");
