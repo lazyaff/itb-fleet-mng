@@ -80,6 +80,11 @@ const Sidebar = () => {
           title: t("sidebar.vehicle_sync"),
           url: "/admin/vehicle-sync",
         },
+        {
+          id: "form_builder",
+          title: t("sidebar.form_builder"),
+          url: "/admin/form-builder",
+        },
       ],
     },
   ];
