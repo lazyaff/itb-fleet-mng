@@ -171,6 +171,14 @@ allowlist on top of ITB SSO (Azure AD) + local credentials login.
 
 ## Active branch context
 
+`feature/bbm-fuel-log` (off `dev`) is complete — 5 commits
+(`feat(fuel-log): ...`: BBM tab + table, Periode date filter, Add/Edit
+form, role-gated Edit/Delete actions, Change Photo). `npx tsc --noEmit`
+clean, API verified via curl (GET with date range + summary aggregation,
+POST/PUT with receipt upload, DELETE soft-delete + role gating for
+SADM/ADM/UOPS/INSP). New `fuel_log` Prisma model + migration applied.
+Remaining step is a manual browser walkthrough before opening the PR.
+
 `feature/user-management` (off `dev`) is complete — 5 commits
 (`feat(user-management): ...`), `npx tsc --noEmit` clean, API verified via
 curl (list/search/add/edit/revoke/reactivate, role + email validation,
