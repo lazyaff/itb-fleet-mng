@@ -7,6 +7,7 @@ import { vehiclePartSeeder } from "./vehiclePart.js";
 import { inspectionItemSeeder } from "./inspectionItem.js";
 import { gpsTrackerSeeder } from "./gps-tracker.js";
 import { liveTrackSeeder } from "./live-track.js";
+import { formBuilderSeeder } from "./formBuilder.js";
 
 const prisma = new PrismaClient();
 
@@ -21,6 +22,7 @@ const main = async () => {
     await vehiclePartSeeder(prisma);
     await inspectionItemSeeder(prisma);
     await liveTrackSeeder(prisma);
+    await formBuilderSeeder(prisma);
     console.log("Seeding completed");
   } catch (e) {
     console.error("Seeding failed", e);
