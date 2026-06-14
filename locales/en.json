@@ -41,6 +41,7 @@
   "sidebar.gps_tracker": "GPS Tracker",
   "sidebar.vehicle_sync": "Vehicle Sync",
   "sidebar.form_builder": "Form Builder",
+  "sidebar.user_management": "User Management",
 
   "dashboard.total_vehicles": "Total Vehicles",
   "dashboard.rented": "Rented",

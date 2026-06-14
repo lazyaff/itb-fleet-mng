@@ -41,6 +41,7 @@
   "sidebar.gps_tracker": "Pelacak GPS",
   "sidebar.vehicle_sync": "Sinkronisasi Kendaraan",
   "sidebar.form_builder": "Form Builder",
+  "sidebar.user_management": "Manajemen Pengguna",
 
   "dashboard.total_vehicles": "Total Kendaraan",
   "dashboard.rented": "Disewa",

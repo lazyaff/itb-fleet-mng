@@ -5,10 +5,12 @@ import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { ChevronDown, LayoutDashboard } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 const Sidebar = () => {
+  const { data: session } = useSession() as { data: any };
   const { setLoading } = useContext(LoadingContext);
   const { pageInfo } = useContext(PageInfoContext);
 
@@ -85,6 +87,15 @@ const Sidebar = () => {
           title: t("sidebar.form_builder"),
           url: "/admin/form-builder",
         },
+        ...(session?.user?.role_id === "SADM"
+          ? [
+              {
+                id: "user_management",
+                title: t("sidebar.user_management"),
+                url: "/admin/user-management",
+              },
+            ]
+          : []),
       ],
     },
   ];
