@@ -4,6 +4,7 @@ import { ConfirmationAlert, NotificationAlert } from "@/components/Alert";
 import FormFieldsView from "@/components/form-builder/FormFieldsView";
 import PGFieldCard from "@/components/form-builder/PGFieldCard";
 import RecommendationCard from "@/components/form-builder/RecommendationCard";
+import SectionFieldCard from "@/components/form-builder/SectionFieldCard";
 import TextFieldCard from "@/components/form-builder/TextFieldCard";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
@@ -145,7 +146,7 @@ export default function FormBuilder() {
     });
   };
 
-  const handleAddField = (type: "PG" | "TEXT") => {
+  const handleAddField = (type: "PG" | "TEXT" | "SECTION") => {
     const newField: FormField =
       type === "PG"
         ? {
@@ -154,7 +155,7 @@ export default function FormBuilder() {
             name: "",
             choices: ["", "", "", ""],
           }
-        : { id: crypto.randomUUID(), type: "TEXT", name: "" };
+        : { id: crypto.randomUUID(), type, name: "" };
 
     setDraft((prev) => [...prev, newField]);
   };
@@ -309,43 +310,32 @@ export default function FormBuilder() {
               items={draft.map((field) => field.id)}
               strategy={verticalListSortingStrategy}
             >
-              {draft.map((field, index) =>
-                field.type === "PG" ? (
-                  <PGFieldCard
-                    key={field.id}
-                    field={field}
-                    isFirst={index === 0}
-                    isLast={index === draft.length - 1}
-                    error={!!validationErrors[field.id]}
-                    deleteConfirm={deleteConfirmId === field.id}
-                    onChange={(updated) =>
-                      handleFieldChange(field.id, updated)
-                    }
-                    onMoveUp={() => handleMove(index, -1)}
-                    onMoveDown={() => handleMove(index, 1)}
-                    onRequestDelete={() => setDeleteConfirmId(field.id)}
-                    onConfirmDelete={() => handleDeleteField(field.id)}
-                    onCancelDelete={() => setDeleteConfirmId(null)}
-                  />
-                ) : (
-                  <TextFieldCard
-                    key={field.id}
-                    field={field}
-                    isFirst={index === 0}
-                    isLast={index === draft.length - 1}
-                    error={!!validationErrors[field.id]}
-                    deleteConfirm={deleteConfirmId === field.id}
-                    onChange={(updated) =>
-                      handleFieldChange(field.id, updated)
-                    }
-                    onMoveUp={() => handleMove(index, -1)}
-                    onMoveDown={() => handleMove(index, 1)}
-                    onRequestDelete={() => setDeleteConfirmId(field.id)}
-                    onConfirmDelete={() => handleDeleteField(field.id)}
-                    onCancelDelete={() => setDeleteConfirmId(null)}
-                  />
-                ),
-              )}
+              {draft.map((field, index) => {
+                const commonProps = {
+                  field,
+                  isFirst: index === 0,
+                  isLast: index === draft.length - 1,
+                  error: !!validationErrors[field.id],
+                  deleteConfirm: deleteConfirmId === field.id,
+                  onChange: (updated: FormField) =>
+                    handleFieldChange(field.id, updated),
+                  onMoveUp: () => handleMove(index, -1),
+                  onMoveDown: () => handleMove(index, 1),
+                  onRequestDelete: () => setDeleteConfirmId(field.id),
+                  onConfirmDelete: () => handleDeleteField(field.id),
+                  onCancelDelete: () => setDeleteConfirmId(null),
+                };
+
+                if (field.type === "PG") {
+                  return <PGFieldCard key={field.id} {...commonProps} />;
+                }
+
+                if (field.type === "SECTION") {
+                  return <SectionFieldCard key={field.id} {...commonProps} />;
+                }
+
+                return <TextFieldCard key={field.id} {...commonProps} />;
+              })}
             </SortableContext>
           </DndContext>
 
@@ -363,6 +353,12 @@ export default function FormBuilder() {
               className="flex-1 font-semibold px-6 py-3 bg-purple-50/50 text-purple-600 border-2 border-dashed border-purple-200 rounded-xl hover:bg-purple-50 cursor-pointer select-none flex items-center justify-center gap-2"
             >
               <Plus size={18} /> {t("form_builder.add_text_field")}
+            </button>
+            <button
+              onClick={() => handleAddField("SECTION")}
+              className="flex-1 font-semibold px-6 py-3 bg-gray-100 text-gray-700 border-2 border-dashed border-gray-300 rounded-xl hover:bg-gray-200 cursor-pointer select-none flex items-center justify-center gap-2"
+            >
+              <Plus size={18} /> {t("form_builder.add_section")}
             </button>
           </div>
         </div>

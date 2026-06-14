@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
 import { formatedDate } from "@/utils/date";
+import { groupFieldsIntoSections } from "@/src/formBuilder";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -79,6 +80,8 @@ export async function GET(request: NextRequest) {
         {},
       );
 
+      const formSections = groupFieldsIntoSections(fields);
+
       const data = {
         id: dynamicData.id,
         inspector: dynamicData.user.name,
@@ -89,29 +92,27 @@ export async function GET(request: NextRequest) {
         },
         conclusion: dynamicData.conclusion,
         notes: null,
-        sections: [
-          {
-            title: "Inspection Form",
-            icon: "",
-            order: 1,
-            questions: fields.map((field: any, index: number) => ({
-              order: index + 1,
-              title: field.name || "Untitled Field",
-              answer:
-                field.type === "PG"
-                  ? {
-                      label: answerMap[field.id] || "-",
-                      description: "",
-                      value: 0,
-                    }
-                  : {
-                      label: "",
-                      description: answerMap[field.id] || "-",
-                      value: 0,
-                    },
-            })),
-          },
-        ],
+        sections: formSections.map((section, sectionIndex) => ({
+          title: section.title || "Inspection Form",
+          icon: "",
+          order: sectionIndex + 1,
+          questions: section.fields.map((field: any, index: number) => ({
+            order: index + 1,
+            title: field.name || "Untitled Field",
+            answer:
+              field.type === "PG"
+                ? {
+                    label: answerMap[field.id] || "-",
+                    description: "",
+                    value: 0,
+                  }
+                : {
+                    label: "",
+                    description: answerMap[field.id] || "-",
+                    value: 0,
+                  },
+          })),
+        })),
       };
 
       return NextResponse.json({

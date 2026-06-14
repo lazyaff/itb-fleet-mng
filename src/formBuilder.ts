@@ -1,12 +1,39 @@
 import { inspectionConclusion } from "./dropdown";
 
-export type FormFieldType = "PG" | "TEXT";
+export type FormFieldType = "PG" | "TEXT" | "SECTION";
 
 export interface FormField {
   id: string;
   type: FormFieldType;
   name: string;
   choices?: string[];
+}
+
+export interface FormSection {
+  title: string;
+  fields: FormField[];
+}
+
+export function groupFieldsIntoSections(fields: FormField[]): FormSection[] {
+  const sections: FormSection[] = [];
+  let current: FormSection | null = null;
+
+  for (const field of fields) {
+    if (field.type === "SECTION") {
+      current = { title: field.name, fields: [] };
+      sections.push(current);
+      continue;
+    }
+
+    if (!current) {
+      current = { title: "", fields: [] };
+      sections.push(current);
+    }
+
+    current.fields.push(field);
+  }
+
+  return sections;
 }
 
 export const RECOMMENDATION_OPTIONS = [

@@ -114,7 +114,9 @@ export default function DynamicReport() {
   const isComplete = () => {
     if (!formVersion || !vehicleId || !conclusion) return false;
 
-    return formVersion.fields.every((field) => !!answers[field.id]?.trim());
+    return formVersion.fields
+      .filter((field) => field.type !== "SECTION")
+      .every((field) => !!answers[field.id]?.trim());
   };
 
   const handleSubmit = async () => {
@@ -133,11 +135,13 @@ export default function DynamicReport() {
           form_version_id: formVersion.id,
           vehicle_id: vehicleId,
           conclusion,
-          answers: formVersion.fields.map((field) => ({
-            field_id: field.id,
-            type: field.type,
-            value: answers[field.id] ?? "",
-          })),
+          answers: formVersion.fields
+            .filter((field) => field.type !== "SECTION")
+            .map((field) => ({
+              field_id: field.id,
+              type: field.type,
+              value: answers[field.id] ?? "",
+            })),
         }),
         cache: "no-store",
       });

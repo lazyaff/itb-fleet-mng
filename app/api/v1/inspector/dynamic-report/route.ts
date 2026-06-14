@@ -95,14 +95,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // validate every field on the active version has an answer
+    // validate every answerable field on the active version has an answer
     const fields = activeVersion.fields as unknown as FormField[];
     const answeredFieldIds = new Set(
       (answers as { field_id: string }[]).map((answer) => answer.field_id),
     );
-    const missingField = fields.some(
-      (field) => !answeredFieldIds.has(field.id),
-    );
+    const missingField = fields
+      .filter((field) => field.type !== "SECTION")
+      .some((field) => !answeredFieldIds.has(field.id));
     if (missingField) {
       return NextResponse.json(
         {
