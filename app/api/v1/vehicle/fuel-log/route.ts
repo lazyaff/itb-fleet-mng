@@ -85,7 +85,8 @@ export async function GET(request: NextRequest) {
       receipt:
         process.env.NEXTAUTH_URL! +
         process.env.PUBLIC_STORAGE_PATH +
-        item.receipt,
+        "/" +
+        item.receipt.replace(/\\/g, "/"),
       notes: item.notes,
       user: item.user,
     }));
