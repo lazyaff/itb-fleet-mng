@@ -124,7 +124,7 @@ export default function PGFieldCard({
             <label className="block mb-2 text-[#64748B]">
               {t("form_builder.choices_label")}
             </label>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               {choices.map((choice, choiceIndex) => (
                 <input
                   key={choiceIndex}

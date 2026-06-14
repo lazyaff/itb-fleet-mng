@@ -22,7 +22,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { Eye, Plus, Send, SlidersHorizontal } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -240,46 +240,53 @@ export default function FormBuilder() {
   };
 
   return (
-    <div className="p-4 flex flex-col min-h-full">
+    <div className="p-4 flex flex-col min-h-full max-w-6xl mx-auto w-full">
       <div className="mb-4 flex flex-row justify-between items-center">
         <div>
-          <h1 className="text-lg font-semibold">
+          <h1 className="text-2xl font-bold text-gray-900">
             {t("form_builder.title")}
           </h1>
           <p className="text-[#64748B] mt-1">
-            {t("form_builder.current_label")} v{currentVersion} ·{" "}
-            {t("form_builder.published_label")} {formatDate(publishedAt)}
+            {t("form_builder.current_label")}{" "}
+            <span className="text-[#00A1FE] font-semibold">
+              v{currentVersion}
+            </span>{" "}
+            · {t("form_builder.published_label")} {formatDate(publishedAt)}
           </p>
         </div>
 
         <div className="flex flex-row items-center gap-3">
-          <div className="flex bg-white border border-gray-200 rounded-md overflow-hidden">
+          <div className="relative flex bg-white border border-gray-200 rounded-md p-1">
+            <div
+              className={`absolute top-1 left-1 h-[calc(100%-8px)] w-36 rounded-md bg-gray-900 transition-transform duration-300 ease-in-out ${
+                view === "preview" ? "translate-x-36" : "translate-x-0"
+              }`}
+            />
             <button
               onClick={() => setView("builder")}
-              className={`px-6 py-2 font-medium cursor-pointer select-none ${
-                view === "builder"
-                  ? "bg-[#00A1FE] text-white"
-                  : "text-gray-600 hover:bg-gray-50"
+              className={`relative z-10 w-36 px-6 py-2 font-medium cursor-pointer select-none flex items-center justify-center gap-2 transition-colors duration-300 ${
+                view === "builder" ? "text-white" : "text-gray-600"
               }`}
             >
+              <SlidersHorizontal size={16} />
               {t("form_builder.builder_tab")}
             </button>
             <button
               onClick={() => setView("preview")}
-              className={`px-6 py-2 font-medium cursor-pointer select-none ${
-                view === "preview"
-                  ? "bg-[#00A1FE] text-white"
-                  : "text-gray-600 hover:bg-gray-50"
+              className={`relative z-10 w-36 px-6 py-2 font-medium cursor-pointer select-none flex items-center justify-center gap-2 transition-colors duration-300 ${
+                view === "preview" ? "text-white" : "text-gray-600"
               }`}
             >
+              <Eye size={16} />
               {t("form_builder.preview_tab")}
             </button>
           </div>
 
           <button
             onClick={handlePublishClick}
-            className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-2 px-6 rounded-md cursor-pointer select-none font-semibold"
+            className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-2 px-6 rounded-md cursor-pointer select-none font-semibold flex items-center gap-2"
           >
+            <Send size={16} />
             {t("form_builder.publish_button")}
           </button>
         </div>
@@ -347,13 +354,13 @@ export default function FormBuilder() {
           <div className="flex flex-row gap-3">
             <button
               onClick={() => handleAddField("PG")}
-              className="font-semibold px-6 bg-white text-black border border-gray-300 py-2 rounded-lg hover:bg-gray-100 cursor-pointer select-none flex items-center gap-2"
+              className="flex-1 font-semibold px-6 py-3 bg-blue-50/50 text-[#00A1FE] border-2 border-dashed border-blue-200 rounded-xl hover:bg-blue-50 cursor-pointer select-none flex items-center justify-center gap-2"
             >
               <Plus size={18} /> {t("form_builder.add_field")}
             </button>
             <button
               onClick={() => handleAddField("TEXT")}
-              className="font-semibold px-6 bg-white text-black border border-gray-300 py-2 rounded-lg hover:bg-gray-100 cursor-pointer select-none flex items-center gap-2"
+              className="flex-1 font-semibold px-6 py-3 bg-purple-50/50 text-purple-600 border-2 border-dashed border-purple-200 rounded-xl hover:bg-purple-50 cursor-pointer select-none flex items-center justify-center gap-2"
             >
               <Plus size={18} /> {t("form_builder.add_text_field")}
             </button>

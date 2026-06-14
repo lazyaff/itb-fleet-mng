@@ -35,38 +35,51 @@ export default function FormFieldsView({
           </h4>
 
           {field.type === "PG" ? (
-            <div className="space-y-2">
-              {(field.choices ?? []).map((choice, choiceIndex) => (
-                <label
-                  key={choiceIndex}
-                  onClick={() =>
-                    interactive && onAnswerChange?.(field.id, choice)
-                  }
-                  className={`flex gap-2 items-start ${
-                    interactive ? "cursor-pointer" : ""
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    checked={answers[field.id] === choice}
-                    readOnly
-                    disabled={!interactive}
-                    className="mt-1"
-                  />
-                  <span>{choice}</span>
-                </label>
-              ))}
+            <div
+              className={
+                interactive ? "space-y-2" : "grid grid-cols-2 gap-2"
+              }
+            >
+              {(field.choices ?? []).map((choice, choiceIndex) => {
+                const checked = answers[field.id] === choice;
+
+                return (
+                  <label
+                    key={choiceIndex}
+                    onClick={() =>
+                      interactive && onAnswerChange?.(field.id, choice)
+                    }
+                    className={`flex gap-2 items-start px-3 py-1.5 border rounded-lg ${
+                      checked
+                        ? "border-[#00A1FE] bg-blue-50"
+                        : "border-gray-300"
+                    } ${interactive ? "cursor-pointer" : ""}`}
+                  >
+                    <input
+                      type="radio"
+                      checked={checked}
+                      readOnly
+                      disabled={!interactive}
+                      className="mt-1 shrink-0"
+                    />
+                    <span className="min-w-0 flex-1 break-words">
+                      {choice}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           ) : (
-            <input
-              type="text"
+            <textarea
+              rows={3}
+              maxLength={150}
               disabled={!interactive}
               placeholder={t("form_builder.text_placeholder")}
               value={interactive ? answers[field.id] ?? "" : ""}
               onChange={(e) =>
                 interactive && onAnswerChange?.(field.id, e.target.value)
               }
-              className={`w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none ${
+              className={`w-full px-3 py-1.5 border border-gray-300 rounded-lg outline-none resize-none ${
                 !interactive ? "bg-gray-50 text-gray-400" : ""
               }`}
             />
@@ -79,26 +92,35 @@ export default function FormFieldsView({
           {t("form_builder.recommendation_title")}
         </h4>
 
-        <div className="space-y-2">
-          {RECOMMENDATION_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              onClick={() =>
-                interactive && onConclusionChange?.(option.value)
-              }
-              className={`flex w-full px-4 py-2 rounded-lg border items-center gap-2 ${option.border} ${option.bg} ${option.text} font-medium ${
-                interactive ? "cursor-pointer" : ""
-              }`}
-            >
-              <input
-                type="radio"
-                checked={conclusion === option.value}
-                readOnly
-                disabled={!interactive}
-              />
-              {option.label}
-            </label>
-          ))}
+        <div
+          className={interactive ? "space-y-2" : "grid grid-cols-3 gap-2"}
+        >
+          {RECOMMENDATION_OPTIONS.map((option) =>
+            interactive ? (
+              <label
+                key={option.value}
+                onClick={() => onConclusionChange?.(option.value)}
+                className={`flex items-start gap-2 px-4 py-2 rounded-lg border cursor-pointer font-medium ${option.border} ${option.bg} ${option.text}`}
+              >
+                <input
+                  type="radio"
+                  checked={conclusion === option.value}
+                  readOnly
+                  className="mt-1 shrink-0"
+                />
+                <span className="min-w-0 flex-1 break-words">
+                  {option.label}
+                </span>
+              </label>
+            ) : (
+              <div
+                key={option.value}
+                className={`px-4 py-2 rounded-lg border text-center font-medium break-words ${option.border} ${option.bg} ${option.text}`}
+              >
+                {option.label}
+              </div>
+            ),
+          )}
         </div>
       </div>
     </div>

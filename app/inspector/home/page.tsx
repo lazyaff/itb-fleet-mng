@@ -224,7 +224,7 @@ export default function Home() {
           onClick={() => {
             setTimeout(() => {
               setLoading(true);
-              router.push("/inspector/report");
+              router.push("/inspector/dynamic-report");
             }, 200);
           }}
           className="w-14 h-14 rounded-full bg-[#00A1FE]   shadow-xl flex items-center justify-center transition active:scale-90 duration-200"
