@@ -55,7 +55,9 @@ export async function GET(request: NextRequest) {
 
     for (const usage of rawData.usage_reconciliations) {
       if (usage.source === "GPS") {
-        const key = usage.vehicle_usage_history?.id || "-";
+        const date = usage.created_at.toISOString().split("T")[0];
+        const userId = usage.vehicle_usage_history?.id || "-";
+        const key = `${userId}_${date}`;
 
         if (!groupedMap[key]) {
           groupedMap[key] = {
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest) {
             name: usage.vehicle_usage_history?.name || "-",
             source: usage.source,
             total_difference: 0,
-            date: usage.created_at,
+            date,
           };
         }
 
