@@ -1,12 +1,13 @@
 "use client";
 
-import { Select } from "@/components/Dropdown";
+import { DatePicker, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
 import { usage_reconciliation_source_color } from "@/src/dropdown";
 import { formatedDate } from "@/utils/date";
+import { DateTime } from "luxon";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { use, useContext, useEffect, useState } from "react";
@@ -46,6 +47,13 @@ export default function UsageReconciliation({
   >([]);
 
   const [usageDate, setUsageDate] = useState("date_desc");
+
+  const defaultRange = {
+    from: DateTime.now().minus({ days: 30 }).toISODate() as string,
+    to: DateTime.now().toISODate() as string,
+  };
+  const [draftRange, setDraftRange] = useState(defaultRange);
+  const [appliedRange, setAppliedRange] = useState(defaultRange);
 
   const [servicePagination, setServicePagination] = useState({
     page: 1,
@@ -107,7 +115,15 @@ export default function UsageReconciliation({
   };
 
   const applyFilter = () => {
-    let result = [...usageData];
+    const fromMs = DateTime.fromISO(appliedRange.from)
+      .startOf("day")
+      .toMillis();
+    const toMs = DateTime.fromISO(appliedRange.to).endOf("day").toMillis();
+
+    let result = usageData.filter((usage) => {
+      const dateMs = new Date(usage.date).getTime();
+      return dateMs >= fromMs && dateMs <= toMs;
+    });
 
     result.sort((a: any, b: any) => {
       const dateA = new Date(a.date).getTime();
@@ -151,7 +167,7 @@ export default function UsageReconciliation({
 
   useEffect(() => {
     applyFilter();
-  }, [usageDate, usageData]);
+  }, [usageDate, usageData, appliedRange]);
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-[70dvh]">
@@ -169,8 +185,40 @@ export default function UsageReconciliation({
       <div className="flex gap-4 flex-1 min-h-0">
         <div className="w-full flex flex-col gap-4 h-full">
           <div className="bg-white rounded-xl shadow p-4 flex-1 overflow-auto min-h-0">
-            <div className="flex justify-start items-center mb-6">
-              <div className="w-40 flex justify-end">
+            <div className="flex justify-between items-end mb-6 gap-3">
+              <div>
+                <label className="block mb-1 text-xs text-gray-500">
+                  {t("vehicle_detail.bbm.filter.label")}
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="w-36">
+                    <DatePicker
+                      value={draftRange.from}
+                      onChange={(val) =>
+                        setDraftRange((prev) => ({ ...prev, from: val }))
+                      }
+                      placeholder={t("vehicle_detail.bbm.filter.from")}
+                    />
+                  </div>
+                  <span className="text-gray-400">-</span>
+                  <div className="w-36">
+                    <DatePicker
+                      value={draftRange.to}
+                      onChange={(val) =>
+                        setDraftRange((prev) => ({ ...prev, to: val }))
+                      }
+                      placeholder={t("vehicle_detail.bbm.filter.to")}
+                    />
+                  </div>
+                  <button
+                    onClick={() => setAppliedRange(draftRange)}
+                    className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer"
+                  >
+                    {t("vehicle_detail.bbm.filter.apply")}
+                  </button>
+                </div>
+              </div>
+              <div className="w-40">
                 <Select
                   data={sortOptions}
                   value={usageDate}
