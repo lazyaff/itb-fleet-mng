@@ -130,6 +130,13 @@ export default function VehicleDetail({
       UsageReconciliation[]
     >([]);
     const [usageDate, setUsageDate] = useState("date_desc");
+    const defaultUsageRange = {
+      from: DateTime.now().minus({ days: 30 }).toISODate() as string,
+      to: DateTime.now().toISODate() as string,
+    };
+    const [draftUsageRange, setDraftUsageRange] = useState(defaultUsageRange);
+    const [appliedUsageRange, setAppliedUsageRange] =
+      useState(defaultUsageRange);
     const [serviceData, setServiceData] = useState<ServiceHistory[]>();
     const [currentServiceData, setCurrentServiceData] = useState<{
       section: string;
@@ -374,17 +381,6 @@ export default function VehicleDetail({
         const result = await response.json();
         if (result.success) {
           setUsageData(result.data);
-          const sortedData = [...result.data].sort((a: any, b: any) => {
-            const dateA = new Date(a.date).getTime();
-            const dateB = new Date(b.date).getTime();
-
-            if (usageDate === "date_asc") {
-              return dateA - dateB;
-            }
-
-            return dateB - dateA;
-          });
-          setFilteredUsageData(sortedData.slice(0, 4));
         } else {
           if (result.status === 401) {
             handleLogout();
@@ -413,8 +409,21 @@ export default function VehicleDetail({
     }, [session]);
 
     useEffect(() => {
-      if (session) {
-        const sortedData = [...usageData].sort((a: any, b: any) => {
+      if (!session) return;
+
+      const fromMs = DateTime.fromISO(appliedUsageRange.from)
+        .startOf("day")
+        .toMillis();
+      const toMs = DateTime.fromISO(appliedUsageRange.to)
+        .endOf("day")
+        .toMillis();
+
+      const result = usageData
+        .filter((usage) => {
+          const dateMs = new Date(usage.date).getTime();
+          return dateMs >= fromMs && dateMs <= toMs;
+        })
+        .sort((a: any, b: any) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
 
@@ -424,9 +433,9 @@ export default function VehicleDetail({
 
           return dateB - dateA;
         });
-        setFilteredUsageData(sortedData.slice(0, 4));
-      }
-    }, [usageDate]);
+
+      setFilteredUsageData(result);
+    }, [session, usageData, usageDate, appliedUsageRange]);
 
     useEffect(() => {
       if (session) {
@@ -1154,11 +1163,11 @@ export default function VehicleDetail({
 
             {/* BOTTOM CARD */}
             <div className="bg-white rounded-xl shadow p-4 flex-1 overflow-auto min-h-0">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-base">
-                  {t("vehicle_detail.user_usage.title")}
-                </h3>
-                <div className="w-2/3 flex justify-end gap-2">
+              <div className="flex flex-col gap-3 mb-3">
+                <div className="flex justify-between items-center gap-2">
+                  <h3 className="font-semibold text-base">
+                    {t("vehicle_detail.user_usage.title")}
+                  </h3>
                   <div className="w-40">
                     <Select
                       data={sortOptions}
@@ -1172,17 +1181,38 @@ export default function VehicleDetail({
                       searchable={false}
                     />
                   </div>
-                  <button
-                    onClick={() => {
-                      setLoading(true);
-                      router.push(
-                        "/admin/vehicle/" + id + "/usage-reconciliation",
-                      );
-                    }}
-                    className="px-2 w-40 font-medium bg-white text-[#00A1FE] border border-gray-400 py-2 rounded-lg hover:bg-gray-100 select-none cursor-pointer"
-                  >
-                    {t("vehicle_detail.user_usage.view")}
-                  </button>
+                </div>
+                <div>
+                  <label className="block mb-1 text-xs text-gray-500">
+                    {t("vehicle_detail.bbm.filter.label")}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <DatePicker
+                        value={draftUsageRange.from}
+                        onChange={(val) =>
+                          setDraftUsageRange((prev) => ({ ...prev, from: val }))
+                        }
+                        placeholder={t("vehicle_detail.bbm.filter.from")}
+                      />
+                    </div>
+                    <span className="text-gray-400">-</span>
+                    <div className="flex-1 min-w-0">
+                      <DatePicker
+                        value={draftUsageRange.to}
+                        onChange={(val) =>
+                          setDraftUsageRange((prev) => ({ ...prev, to: val }))
+                        }
+                        placeholder={t("vehicle_detail.bbm.filter.to")}
+                      />
+                    </div>
+                    <button
+                      onClick={() => setAppliedUsageRange(draftUsageRange)}
+                      className="px-4 py-2 bg-[#00A1FE] text-white text-sm rounded-md hover:bg-[#048ad8] cursor-pointer whitespace-nowrap"
+                    >
+                      {t("vehicle_detail.bbm.filter.apply")}
+                    </button>
+                  </div>
                 </div>
               </div>
 
