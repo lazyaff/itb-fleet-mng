@@ -7,6 +7,7 @@ import { LoadingContext } from "../context/Loading";
 import { useRouter } from "next/navigation";
 import { PageInfoContext } from "../context/PageInfo";
 import { useLanguage } from "@/context/Language";
+import AlertBell from "./AlertBell";
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -44,6 +45,7 @@ const Navbar = () => {
         <span className="">{pageInfo.subtitle}</span>
       </div>
       <div className="flex items-center flex-row py-8 px-4 gap-4">
+        <AlertBell />
         <button
           onClick={switchLanguage}
           className={`w-14 h-9 mx-auto rounded-full flex items-center transition-colors duration-300 cursor-pointer bg-gray-300`}
