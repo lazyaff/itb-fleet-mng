@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
-import { deleteFile, saveFile } from "@/utils/image";
+import { buildPublicUrl, deleteFile, saveFile } from "@/utils/image";
 import { v4 as uuidv4 } from "uuid";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -82,11 +82,7 @@ export async function GET(request: NextRequest) {
       liters: Number(item.liters),
       cost: item.cost,
       payment_method: item.payment_method,
-      receipt:
-        process.env.NEXTAUTH_URL! +
-        process.env.PUBLIC_STORAGE_PATH +
-        "/" +
-        item.receipt.replace(/\\/g, "/"),
+      receipt: buildPublicUrl(item.receipt),
       notes: item.notes,
       user: item.user,
     }));

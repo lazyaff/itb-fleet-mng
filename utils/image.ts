@@ -2,6 +2,27 @@ import imageCompression from "browser-image-compression";
 import fs from "fs";
 import path from "path";
 
+// Resolves the on-disk storage root. In development files live under
+// `public/<PUBLIC_STORAGE_PATH>` so Next can serve them statically; in
+// production they go to the standalone `STORAGE_PATH` volume.
+export function getStoragePath(): string {
+  if (process.env.NODE_ENV === "development") {
+    return "public" + (process.env.PUBLIC_STORAGE_PATH || "/var/storage");
+  }
+  return process.env.STORAGE_PATH || "/var/storage";
+}
+
+// Builds the browser-facing URL for a stored file. Normalizes Windows
+// backslashes (from `path.join` in `saveFile`) to forward slashes.
+export function buildPublicUrl(filepath: string): string {
+  return (
+    process.env.NEXTAUTH_URL! +
+    process.env.PUBLIC_STORAGE_PATH +
+    "/" +
+    filepath.replace(/\\/g, "/")
+  );
+}
+
 export async function compressIfNeeded(file: File, maxMB = 3): Promise<File> {
   if (file.size <= maxMB * 1024 * 1024) {
     return file;
@@ -18,12 +39,7 @@ export async function compressIfNeeded(file: File, maxMB = 3): Promise<File> {
 }
 
 export const saveFile = async (file: File, folder: string, name: string) => {
-  let storagePath = "";
-  if (process.env.NODE_ENV === "development") {
-    storagePath = "public" + process.env.PUBLIC_STORAGE_PATH || "/var/storage";
-  } else {
-    storagePath = process.env.STORAGE_PATH || "/var/storage";
-  }
+  const storagePath = getStoragePath();
 
   const ext = path.extname(file.name) || "";
   const fileName = `${name}-${Date.now().toString()}${ext}`;
@@ -41,12 +57,7 @@ export const saveFile = async (file: File, folder: string, name: string) => {
 };
 
 export const deleteFile = async (filepath: string) => {
-  let storagePath = "";
-  if (process.env.NODE_ENV === "development") {
-    storagePath = "public" + process.env.PUBLIC_STORAGE_PATH || "/var/storage";
-  } else {
-    storagePath = process.env.STORAGE_PATH || "/var/storage";
-  }
+  const storagePath = getStoragePath();
 
   const filePath = path.join(storagePath, filepath);
   await fs.promises.unlink(filePath);

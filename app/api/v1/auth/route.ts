@@ -31,10 +31,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch user by email
+    // Fetch user by email. Only active, non-deleted users may authenticate —
+    // revoked accounts must not be issued tokens (mirrors validateJWT).
     const user = await prisma.user.findFirst({
       where: {
         email: email,
+        active: true,
+        deleted_at: null,
       },
     });
 
@@ -63,11 +66,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET || "komuto",
-      { expiresIn: "30d" },
-    );
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || "", {
+      expiresIn: "30d",
+    });
 
     return NextResponse.json({
       success: true,

@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { validateJWT } from "@/utils/auth";
 import { v4 as uuidv4 } from "uuid";
 import { NextResponse, NextRequest } from "next/server";
-import { deleteFile, saveFile } from "@/utils/image";
+import { buildPublicUrl, deleteFile, saveFile } from "@/utils/image";
 
 export async function GET(request: NextRequest) {
   try {
@@ -86,11 +86,7 @@ export async function GET(request: NextRequest) {
       id: item.id,
       vehicle: item.vehicle,
       user: item.user,
-      image:
-        process.env.NEXTAUTH_URL! +
-        process.env.PUBLIC_STORAGE_PATH +
-        "/" +
-        item.image.replace(/\\/g, "/"),
+      image: buildPublicUrl(item.image),
       date: item.date.toISOString().split("T")[0],
       current_mileage: item.current_mileage,
       type: item.type,
