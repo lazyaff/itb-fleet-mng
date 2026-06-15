@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { notifyInspectorsOfOverdueParts } from "@/utils/alert";
 import { validateBasicAuth, validateJWT } from "@/utils/auth";
 import { formatedDate } from "@/utils/date";
 import { healthCount, healthDistanceCount } from "@/utils/vehicle";
@@ -361,6 +362,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const overduePartIds: string[] = [];
+
     await prisma.$transaction(async (tx: any) => {
       const lastData = await tx.live_track_history.findFirst({
         where: {
@@ -471,6 +474,8 @@ export async function POST(request: NextRequest) {
               },
             });
 
+            overduePartIds.push(part.id);
+
             continue;
           }
 
@@ -534,6 +539,8 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    await notifyInspectorsOfOverdueParts(overduePartIds);
 
     return NextResponse.json(
       {
