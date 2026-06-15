@@ -60,6 +60,10 @@
   "dashboard.live_fleet_preview": "Live Fleet Preview",
   "dashboard.open_full_map": "Open Full Map",
 
+  "alert.notifications": "Notifications",
+  "alert.no_alerts": "No Critical Alerts",
+  "alert.view_all": "View All",
+
   "live_track.real_time_fleet": "Real-Time Fleet",
   "live_track.all": "All",
   "live_track.moving": "Moving",

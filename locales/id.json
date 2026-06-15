@@ -60,6 +60,10 @@
   "dashboard.live_fleet_preview": "Pratinjau Armada Real-Time",
   "dashboard.open_full_map": "Buka Selengkapnya",
 
+  "alert.notifications": "Notifikasi",
+  "alert.no_alerts": "Tidak Ada Peringatan Kritis",
+  "alert.view_all": "Lihat Semua",
+
   "live_track.real_time_fleet": "Peta Real-Time",
   "live_track.all": "Semua",
   "live_track.moving": "Berjalan",

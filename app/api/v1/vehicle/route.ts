@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { notifyInspectorsOfOverdueParts } from "@/utils/alert";
 import { validateJWT } from "@/utils/auth";
 import { healthCount, healthDistanceCount } from "@/utils/vehicle";
 import { DateTime } from "luxon";
@@ -307,6 +308,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const overduePartIds: string[] = [];
+
     for (const part of newVehiclePart) {
       const health = healthDistanceCount({
         current_mileage: part.current_distance,
@@ -325,6 +328,8 @@ export async function POST(request: NextRequest) {
           },
         });
 
+        overduePartIds.push(part.id);
+
         continue;
       }
 
@@ -341,6 +346,8 @@ export async function POST(request: NextRequest) {
         continue;
       }
     }
+
+    await notifyInspectorsOfOverdueParts(overduePartIds);
 
     return NextResponse.json(
       {
@@ -477,6 +484,8 @@ export async function PUT(request: NextRequest) {
         },
       });
 
+      const overduePartIds: string[] = [];
+
       for (const part of updatedVehiclePart) {
         const health = healthDistanceCount({
           current_mileage: part.current_distance,
@@ -496,6 +505,8 @@ export async function PUT(request: NextRequest) {
               triggered_at: new Date(),
             },
           });
+
+          overduePartIds.push(part.id);
 
           continue;
         }
@@ -526,6 +537,9 @@ export async function PUT(request: NextRequest) {
         }
 
         if (shouldAlert && existingAlert) {
+          // An active alert already exists for this part — refresh only, no
+          // new event. (A previously cleared/soft-deleted alert isn't loaded
+          // here, so re-going-overdue is handled by the create branch above.)
           await prisma.vehicle_alert.update({
             where: {
               id: existingAlert.id,
@@ -538,6 +552,8 @@ export async function PUT(request: NextRequest) {
           });
         }
       }
+
+      await notifyInspectorsOfOverdueParts(overduePartIds);
     }
 
     return NextResponse.json({
