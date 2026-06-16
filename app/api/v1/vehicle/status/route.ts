@@ -5,7 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 export async function PUT(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {

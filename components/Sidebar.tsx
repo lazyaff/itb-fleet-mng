@@ -7,12 +7,13 @@ import { ChevronDown, LayoutDashboard } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 const Sidebar = () => {
   const { data: session } = useSession() as { data: any };
   const { setLoading } = useContext(LoadingContext);
   const { pageInfo } = useContext(PageInfoContext);
+  const role = session?.user?.role_id;
 
   const { t } = useLanguage();
   const router = useRouter();
@@ -31,86 +32,112 @@ const Sidebar = () => {
       url: "/admin/dashboard",
       icon: <LayoutDashboard size={18} />,
       item: [],
+      allowedRoles: ["SADM", "ADM", "UOPS"],
     },
     {
       id: "live_fleet_map",
       title: t("sidebar.live_fleet_map"),
+      allowedRoles: ["SADM", "ADM", "UOPS"],
       item: [
         {
           id: "real_time_map",
           title: t("sidebar.real_time_map"),
           url: "/admin/live-track",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
         },
       ],
     },
     {
       id: "maintenance",
       title: t("sidebar.maintenance"),
+      allowedRoles: ["SADM", "ADM", "UOPS"],
       item: [
         {
           id: "vehicle_list",
           title: t("sidebar.vehicle_list"),
           url: "/admin/vehicle",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
         },
         {
           id: "inspection",
           title: t("sidebar.inspection"),
           url: "/admin/inspection",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
+        },
+        {
+          id: "vehicle_sync",
+          title: t("sidebar.vehicle_sync"),
+          url: "/admin/vehicle-sync",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
         },
       ],
     },
     {
       id: "reports",
       title: t("sidebar.reports"),
+      allowedRoles: ["SADM", "ADM", "UOPS"],
       item: [
         {
           id: "monthly_report",
           title: t("sidebar.monthly_report"),
           url: "/admin/reports/monthly-recap",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
+        },
+        {
+          id: "my_request",
+          title: t("sidebar.my_request"),
+          url: "/admin/my-request",
+          allowedRoles: ["SADM", "ADM", "UOPS"],
         },
       ],
     },
     {
       id: "admin",
       title: t("sidebar.admin"),
+      allowedRoles: ["SADM", "ADM"],
       item: [
         {
           id: "vehicle_parts",
           title: t("sidebar.vehicle_parts"),
           url: "/admin/vehicle-part",
+          allowedRoles: ["SADM", "ADM"],
         },
-        // {
-        //   id: "user_inspection",
-        //   title: t("sidebar.user_inspection"),
-        //   url: "/admin/inspector",
-        // },
         {
           id: "gps_tracker",
           title: t("sidebar.gps_tracker"),
           url: "/admin/gps-tracker",
+          allowedRoles: ["SADM", "ADM"],
         },
         {
-          id: "vehicle_sync",
-          title: t("sidebar.vehicle_sync"),
-          url: "/admin/vehicle-sync",
+          id: "approval_inbox",
+          title: t("sidebar.approval_inbox"),
+          url: "/admin/approval-inbox",
+          allowedRoles: ["SADM", "ADM"],
         },
         {
           id: "form_builder",
           title: t("sidebar.form_builder"),
           url: "/admin/form-builder",
+          allowedRoles: ["SADM", "ADM"],
         },
-        ...(session?.user?.role_id === "SADM"
-          ? [
-              {
-                id: "user_management",
-                title: t("sidebar.user_management"),
-                url: "/admin/user-management",
-              },
-            ]
-          : []),
+        {
+          id: "user_management",
+          title: t("sidebar.user_management"),
+          url: "/admin/user-management",
+          allowedRoles: ["SADM"],
+        },
       ],
     },
   ];
+
+  const filteredPageData = useMemo(() => {
+    return pageData
+      .filter((menu) => menu.allowedRoles.includes(role))
+      .map((menu) => ({
+        ...menu,
+        item: menu.item.filter((sub) => sub.allowedRoles.includes(role)),
+      }));
+  }, [role, pageData]);
 
   const handleNavigate = (url: string, title: string) => {
     if (pageInfo.title !== title && pageInfo.subtitle !== title) {
@@ -145,7 +172,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 space-y-4 px-4 py-4">
-        {pageData.map((menu) => {
+        {filteredPageData.map((menu) => {
           const isDropdown = menu.item.length > 0;
           const isOpen = openMenus.includes(menu.id);
 

@@ -557,24 +557,22 @@ export default function VehicleParts() {
               }}
             />
           </div>
-          {session?.user?.role_id === "SADM" && (
-            <button
-              className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
-              onClick={async () => {
-                setAddData({
-                  open: true,
-                  data: {
-                    user_id: "",
-                    name: "",
-                    distance_limit: 0,
-                    time_limit: 0,
-                  },
-                });
-              }}
-            >
-              <Plus size={20} /> <span>{t("vehicle_part.add_part")}</span>
-            </button>
-          )}
+          <button
+            className="bg-[#00A1FE] hover:bg-[#048ad8] text-white py-[0.6rem] px-6 rounded-md cursor-pointer select-none flex flex-row items-center gap-3"
+            onClick={async () => {
+              setAddData({
+                open: true,
+                data: {
+                  user_id: "",
+                  name: "",
+                  distance_limit: 0,
+                  time_limit: 0,
+                },
+              });
+            }}
+          >
+            <Plus size={20} /> <span>{t("vehicle_part.add_part")}</span>
+          </button>
         </div>
         <button
           onClick={handleExport}
@@ -600,11 +598,9 @@ export default function VehicleParts() {
               <th className="px-6 py-3 text-center">
                 {t("vehicle_part.table.status").toUpperCase()}
               </th>
-              {session?.user?.role_id === "SADM" && (
-                <th className="px-6 py-3 text-center">
-                  {t("vehicle_part.table.actions").toUpperCase()}
-                </th>
-              )}
+              <th className="px-6 py-3 text-center">
+                {t("vehicle_part.table.actions").toUpperCase()}
+              </th>
             </tr>
           </thead>
 
@@ -627,7 +623,6 @@ export default function VehicleParts() {
                 <td className="px-6 py-3 text-center">
                   <button
                     onClick={() => {
-                      if (session?.user?.role_id !== "SADM") return;
                       handleToggleStatus(item.id);
                     }}
                     className={`w-12 h-6 mx-auto rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
@@ -644,46 +639,44 @@ export default function VehicleParts() {
                   </button>
                 </td>
 
-                {session?.user?.role_id === "SADM" && (
-                  <td className="px-6 py-3 text-center align-middle">
-                    <div className="flex items-center justify-center gap-3">
-                      <button
-                        className="cursor-pointer text-gray-600 hover:text-red-500"
-                        onClick={() => {
-                          setConfirmAlert({
-                            visible: true,
-                            message: t("vehicle_part.delete_confirm"),
-                            subtitle: t("vehicle_part.delete_warning"),
-                            type: "delete",
-                            onConfirm: async () => {
-                              await handleDeleteData(item.id);
-                            },
-                            onCancel: () => {},
-                          });
-                        }}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      <button
-                        className="cursor-pointer text-gray-600 hover:text-blue-500 mt-0.5"
-                        onClick={async () => {
-                          setUpdateData({
-                            open: true,
-                            data: {
-                              id: item.id,
-                              user_id: item.user_id,
-                              name: item.name,
-                              distance_limit: item.distance_limit,
-                              time_limit: item.time_limit,
-                            },
-                          });
-                        }}
-                      >
-                        <SquarePen size={18} />
-                      </button>
-                    </div>
-                  </td>
-                )}
+                <td className="px-6 py-3 text-center align-middle">
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      className="cursor-pointer text-gray-600 hover:text-red-500"
+                      onClick={() => {
+                        setConfirmAlert({
+                          visible: true,
+                          message: t("vehicle_part.delete_confirm"),
+                          subtitle: t("vehicle_part.delete_warning"),
+                          type: "delete",
+                          onConfirm: async () => {
+                            await handleDeleteData(item.id);
+                          },
+                          onCancel: () => {},
+                        });
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                    <button
+                      className="cursor-pointer text-gray-600 hover:text-blue-500 mt-0.5"
+                      onClick={async () => {
+                        setUpdateData({
+                          open: true,
+                          data: {
+                            id: item.id,
+                            user_id: item.user_id,
+                            name: item.name,
+                            distance_limit: item.distance_limit,
+                            time_limit: item.time_limit,
+                          },
+                        });
+                      }}
+                    >
+                      <SquarePen size={18} />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

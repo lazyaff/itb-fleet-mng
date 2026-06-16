@@ -4,17 +4,57 @@ import { NextRequest, NextResponse } from "next/server";
 type Role = "SADM" | "ADM" | "UOPS" | "INSP";
 
 const ROUTE_CONFIG = [
-  { prefix: "/admin/user-management", roles: ["SADM"] },
-  { prefix: "/admin/reports/monthly-recap", roles: ["SADM", "ADM", "UOPS"] },
-  { prefix: "/admin", roles: ["SADM", "ADM"] },
-  { prefix: "/inspector", roles: ["INSP"] },
+  // SADM only
+  {
+    prefixes: ["/admin/user-management"],
+    roles: ["SADM"] as Role[],
+  },
+
+  // SADM + ADM
+  {
+    prefixes: [
+      "/admin/vehicle-part",
+      "/admin/gps-tracker",
+      "/admin/approval-inbox",
+      "/admin/form-builder",
+    ],
+    roles: ["SADM", "ADM"] as Role[],
+  },
+
+  // SADM + ADM + UOPS
+  {
+    prefixes: [
+      "/admin/dashboard",
+      "/admin/live-track",
+      "/admin/vehicle",
+      "/admin/inspection",
+      "/admin/vehicle-sync",
+      "/admin/reports/monthly-recap",
+      "/admin/my-request",
+    ],
+    roles: ["SADM", "ADM", "UOPS"] as Role[],
+  },
+
+  // Inspector
+  {
+    prefixes: ["/inspector"],
+    roles: ["INSP"] as Role[],
+  },
 ];
 
 function getDefaultRoute(role?: Role) {
-  if (role === "SADM" || role === "ADM") return "/admin/dashboard";
-  if (role === "UOPS") return "/admin/reports/monthly-recap";
-  if (role === "INSP") return "/inspector/home";
-  return "/";
+  switch (role) {
+    case "SADM":
+    case "ADM":
+    case "UOPS":
+      return "/admin/dashboard";
+
+    case "INSP":
+      return "/inspector/home";
+
+    default:
+      return "/";
+  }
 }
 
 export default function withAuth(
@@ -28,20 +68,35 @@ export default function withAuth(
     });
 
     const role = token?.role_id as Role | undefined;
-    const matchedRoute = ROUTE_CONFIG.find((route) =>
-      pathname.startsWith(route.prefix),
-    );
 
-    if (matchedRoute) {
-      if (!token || !role) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-      if (!matchedRoute.roles.includes(role)) {
-        return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
-      }
+    // redirect login page jika sudah login
+    if (token && pathname === "/") {
+      return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
     }
 
-    if (token && pathname === "/") {
+    // proteksi semua halaman admin & inspector
+    if (
+      (pathname.startsWith("/admin") || pathname.startsWith("/inspector")) &&
+      (!token || !role)
+    ) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // inspector tidak boleh masuk admin
+    if (pathname.startsWith("/admin") && role === "INSP") {
+      return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
+    }
+
+    // non-inspector tidak boleh masuk inspector
+    if (pathname.startsWith("/inspector") && role !== "INSP") {
+      return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
+    }
+
+    const matchedRoute = ROUTE_CONFIG.find((group) =>
+      group.prefixes.some((prefix) => pathname.startsWith(prefix)),
+    );
+
+    if (matchedRoute && role && !matchedRoute.roles.includes(role)) {
       return NextResponse.redirect(new URL(getDefaultRoute(role), req.url));
     }
 

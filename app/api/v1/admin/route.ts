@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const conditions: any = {
       deleted_at: null,
       role_id: {
-        in: ["SADM", "ADM"],
+        in: ["ADM", "UOPS"],
       },
       ...(search && {
         OR: [

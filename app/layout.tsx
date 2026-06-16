@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={`${poppins.variable}`}>
         <LoadingProvider>
           <PageInfoProvider>
-            <SessionProvider>
+            <SessionProvider refetchOnWindowFocus={false}>
               <LanguageProvider>
                 <VehiclePageProvider>
                   {children} <Loading />

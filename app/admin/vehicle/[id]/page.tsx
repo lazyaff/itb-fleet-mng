@@ -1135,7 +1135,7 @@ export default function VehicleDetail({
                           (data?.vehicle.current_mileage || 0) / 1000,
                         ).toLocaleString("en-US")}
                       </p>
-                      {session?.user?.role_id === "SADM" && (
+                      {session?.user?.role_id !== "UOPS" && (
                         <button
                           className="cursor-pointer text-[#00A1FE] text-xs"
                           onClick={async () => {
@@ -1366,11 +1366,7 @@ export default function VehicleDetail({
                   {t("vehicle_detail.navbar.bbm")}
                 </button>
               </div>
-              {(session?.user?.role_id === "SADM" ||
-                (section === "bbm" &&
-                  ["UOPS", "ADM", "SADM"].includes(
-                    session?.user?.role_id ?? "",
-                  ))) && (
+              {session?.user?.role_id && (
                 <button
                   onClick={() => {
                     if (section === "parts") {
@@ -1481,7 +1477,7 @@ export default function VehicleDetail({
                               ).toLocaleString("en-US")}
                               /{(part.time_limit * 30).toLocaleString("en-US")}
                             </p>
-                            {session?.user?.role_id === "SADM" &&
+                            {session?.user?.role_id !== "UOPS" &&
                               !part.general_vehicle_part_id && (
                                 <div className="flex gap-2 justify-end mt-2">
                                   <button
@@ -1615,7 +1611,7 @@ export default function VehicleDetail({
                         <th className="text-center py-4 font-medium text-gray-500">
                           {t("vehicle_detail.service.table.part").toUpperCase()}
                         </th>
-                        {session?.user?.role_id === "SADM" && (
+                        {session?.user?.role_id !== "UOPS" && (
                           <th className="text-center py-4 font-medium text-gray-500">
                             {t(
                               "vehicle_detail.service.table.action",
@@ -1669,7 +1665,7 @@ export default function VehicleDetail({
                                   : service.parts.length + " Parts"}
                               </button>
                             </td>
-                            {session?.user?.role_id === "SADM" && (
+                            {session?.user?.role_id !== "UOPS" && (
                               <td className="py-4 text-center">
                                 <div className="flex gap-2 justify-center">
                                   <button

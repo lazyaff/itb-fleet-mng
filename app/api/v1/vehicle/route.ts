@@ -191,7 +191,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -375,7 +375,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -577,7 +577,7 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {

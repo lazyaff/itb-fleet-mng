@@ -688,7 +688,7 @@ export default function Vehicle() {
                                       (x) => x.en === item.status,
                                     )?.[lang] || item.status}
                                   </span>
-                                  {session?.user?.role_id === "SADM" && (
+                                  {session?.user?.role_id !== "UOPS" && (
                                     <button
                                       className="cursor-pointer text-[#00A1FE] text-xs"
                                       onClick={async () => {
@@ -787,7 +787,7 @@ export default function Vehicle() {
                               <Eye size={18} />
                             </button>
 
-                            {session?.user?.role_id === "SADM" && (
+                            {session?.user?.role_id !== "UOPS" && (
                               <button
                                 className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
                                 onClick={() => {
@@ -810,7 +810,7 @@ export default function Vehicle() {
                               </button>
                             )}
                           </div>
-                        ) : session?.user?.role_id === "SADM" ? (
+                        ) : session?.user?.role_id !== "UOPS" ? (
                           <button
                             className="cursor-pointer text-[#00A1FE]"
                             onClick={() => {

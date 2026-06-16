@@ -29,7 +29,7 @@ const compareFns: Record<string, (a: any, b: any) => number> = {
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
