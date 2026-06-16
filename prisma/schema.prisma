@@ -36,6 +36,8 @@ model user {
   inspection_reports          inspection_report[]
   inspection_dynamic_reports  inspection_dynamic_report[]
   usage_reconciliations       usage_reconciliation[]
+  requested_approval_requests approval_request[] @relation("ApprovalRequestedBy")
+  approved_approval_requests  approval_request[] @relation("ApprovalApprovedBy")
 }
 
 model role {
@@ -82,6 +84,14 @@ model vehicle {
   notes                       String?
   current_mileage             Int
   engine_hours                Int?
+  brand                       String?
+  category                    String?
+  plate_color                 String?
+  type                        String?
+  assigned_unit               String?
+  usage_type                  String?
+  sync_status                 String             @default("synced")
+  visibility                  Boolean            @default(true)
   created_at                  DateTime           @default(now())
   updated_at                  DateTime           @updatedAt
   deleted_at                  DateTime?
@@ -97,6 +107,17 @@ model vehicle {
   inspection_dynamic_reports  inspection_dynamic_report[]
   vehicle_usage_histories     vehicle_usage_history[]
   usage_reconciliations       usage_reconciliation[]
+}
+
+model vehicle_sync_history {
+  id                          String             @id @default(uuid())
+  approval_request_id         String?            @unique
+  data                        Json
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  approval_request            approval_request?                @relation(fields: [approval_request_id], references: [id])
 }
 
 model vehicle_usage_history {
@@ -178,6 +199,7 @@ model vehicle_part {
   id                          String             @id @default(uuid())
   vehicle_id                  String
   general_vehicle_part_id     String?
+  approval_request_id         String?            @unique
   name                        String
   last_service                DateTime
   current_distance            Int
@@ -190,6 +212,7 @@ model vehicle_part {
 
   vehicle                     vehicle                          @relation(fields: [vehicle_id], references: [id])
   general_vehicle_part        general_vehicle_part?            @relation(fields: [general_vehicle_part_id], references: [id])
+  approval_request            approval_request?                @relation(fields: [approval_request_id], references: [id])
   service_histories           vehicle_part_service_history[]
   alerts                      vehicle_alert[]
 }
@@ -198,6 +221,7 @@ model service_history {
   id                          String             @id @default(uuid())
   vehicle_id                  String
   user_id                     String
+  approval_request_id         String?            @unique
   image                       String
   current_mileage             Int
   date                        DateTime
@@ -211,6 +235,7 @@ model service_history {
 
   vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
   user                        user               @relation(fields: [user_id], references: [id])
+  approval_request            approval_request?  @relation(fields: [approval_request_id], references: [id])
   vehicle_parts               vehicle_part_service_history[]
 }
 
@@ -230,6 +255,7 @@ model fuel_log {
   id                          String             @id @default(uuid())
   vehicle_id                  String
   user_id                     String
+  approval_request_id         String?            @unique
   date                        DateTime
   liters                      Decimal            @db.Decimal(10, 2)
   cost                        Int
@@ -242,6 +268,7 @@ model fuel_log {
 
   vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
   user                        user               @relation(fields: [user_id], references: [id])
+  approval_request            approval_request?  @relation(fields: [approval_request_id], references: [id])
 }
 
 model inspection_section {
@@ -369,4 +396,27 @@ model inspection_dynamic_report {
   user                        user               @relation(fields: [user_id], references: [id])
   vehicle                     vehicle            @relation(fields: [vehicle_id], references: [id])
   form_version                inspection_form_version @relation(fields: [form_version_id], references: [id])
+}
+
+model approval_request {
+  id                          String             @id @default(uuid())
+  type                        String
+  description_id              String
+  description_en              String
+  status                      String
+  rejection_reason            String?
+  requested_by_id             String
+  requested_at                DateTime
+  approved_by_id              String?
+  approved_at                 DateTime?
+  created_at                  DateTime           @default(now())
+  updated_at                  DateTime           @updatedAt
+  deleted_at                  DateTime?
+
+  requested_by                user               @relation("ApprovalRequestedBy", fields: [requested_by_id], references: [id])
+  approved_by                 user?              @relation("ApprovalApprovedBy", fields: [approved_by_id], references: [id])
+  vehicle_part                vehicle_part?
+  service_history             service_history?
+  fuel_log                    fuel_log?
+  vehicle_sync_history        vehicle_sync_history?
 }

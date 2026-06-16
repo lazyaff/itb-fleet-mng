@@ -1298,7 +1298,7 @@ export default function VehicleDetail({
           {/* RIGHT SIDE (55%) */}
           <div className="w-[55%] bg-white rounded-xl shadow p-4 flex flex-col min-h-0 h-auto">
             <div className="flex justify-between items-center mb-4">
-              <div className="relative w-[30rem] flex bg-gray-200 py-1.5 px-2 font-medium rounded-2xl">
+              <div className="relative w-120 flex bg-gray-200 py-1.5 px-2 font-medium rounded-2xl">
                 <div
                   className="absolute top-1.5 bottom-1.5 left-1.5 w-[calc((100%-0.75rem)/4)] bg-white rounded-xl transition-transform duration-300 ease-in-out"
                   style={{
