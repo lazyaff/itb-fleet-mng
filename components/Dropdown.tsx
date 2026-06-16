@@ -24,6 +24,15 @@ type DatePickerProps = {
   placeholder?: string;
 };
 
+type FilterButtonGroupProps<T> = {
+  items: T[];
+  value: string;
+  onChange: (value: string) => void;
+  allLabel: string;
+  getValue: (item: T) => string;
+  getLabel: (item: T) => string;
+};
+
 export function Select<T>({
   label,
   data,
@@ -241,6 +250,50 @@ export function DatePicker2({
         onChange={(e) => onChange(e.target.value)}
         className="absolute opacity-0 pointer-events-none"
       />
+    </div>
+  );
+}
+
+export function FilterButtonGroup<T>({
+  items,
+  value,
+  onChange,
+  allLabel,
+  getValue,
+  getLabel,
+}: FilterButtonGroupProps<T>) {
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => onChange("")}
+        className={`min-w-28 rounded-lg border px-5 py-2 text-sm transition cursor-pointer
+          ${
+            value === ""
+              ? "border-sky-500 bg-sky-500 text-white"
+              : "border-gray-300 bg-white text-gray-500 hover:border-sky-500 hover:text-sky-500"
+          }`}
+      >
+        {allLabel}
+      </button>
+
+      {items.map((item) => {
+        const id = getValue(item);
+
+        return (
+          <button
+            key={id}
+            onClick={() => onChange(id)}
+            className={`min-w-28 rounded-lg border px-5 py-2 text-sm transition cursor-pointer
+              ${
+                value === id
+                  ? "border-sky-500 bg-sky-500 text-white"
+                  : "border-gray-300 bg-white text-gray-500 hover:border-sky-500 hover:text-sky-500"
+              }`}
+          >
+            {getLabel(item)}
+          </button>
+        );
+      })}
     </div>
   );
 }

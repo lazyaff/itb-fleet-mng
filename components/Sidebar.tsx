@@ -7,12 +7,16 @@ import { ChevronDown, LayoutDashboard } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 const Sidebar = () => {
   const { data: session } = useSession() as { data: any };
   const { setLoading } = useContext(LoadingContext);
   const { pageInfo } = useContext(PageInfoContext);
+  const [pendingRequest, setPendingRequest] = useState({
+    my_request: 0,
+    all_request: 0,
+  });
   const role = session?.user?.role_id;
 
   const { t } = useLanguage();
@@ -88,6 +92,7 @@ const Sidebar = () => {
           title: t("sidebar.my_request"),
           url: "/admin/my-request",
           allowedRoles: ["SADM", "ADM", "UOPS"],
+          counter: pendingRequest.my_request,
         },
       ],
     },
@@ -113,6 +118,7 @@ const Sidebar = () => {
           title: t("sidebar.approval_inbox"),
           url: "/admin/approval-inbox",
           allowedRoles: ["SADM", "ADM"],
+          counter: pendingRequest.all_request,
         },
         {
           id: "form_builder",
@@ -151,6 +157,30 @@ const Sidebar = () => {
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch("/api/v1/alert/request", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.user.access_token}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(res.statusText);
+      }
+      const response = await res.json();
+      setPendingRequest(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!session) return;
+    fetchData();
+  }, [session]);
 
   return (
     <div className="relative z-10 flex h-screen w-64 flex-col select-none bg-white shadow-[6px_0_15px_rgba(0,0,0,0.1)]">
@@ -223,17 +253,21 @@ const Sidebar = () => {
                       <div
                         key={sub.id}
                         onClick={() => handleNavigate(sub.url, sub.title)}
-                        className={`flex cursor-pointer items-center text-sm transition-colors font-medium
-                          ${
-                            active
-                              ? "text-blue-500"
-                              : "text-gray-700 hover:text-blue-500"
-                          }
-                        `}
+                        className={`flex cursor-pointer items-start text-sm font-medium transition-colors
+                                    ${active ? "text-blue-500" : "text-gray-700 hover:text-blue-500"}
+                                  `}
                       >
                         <span className="mr-2">•</span>
 
-                        {sub.title}
+                        <span className="inline-flex flex-wrap items-center gap-2">
+                          <span>{sub.title}</span>
+
+                          {sub.counter != undefined && sub.counter > 0 && (
+                            <span className="rounded-full bg-[#EF4444] text-white h-5 min-w-5 px-1 flex items-center justify-center font-semibold text-[0.65rem] leading-none pt-0.5">
+                              {sub.counter}
+                            </span>
+                          )}
+                        </span>
                       </div>
                     );
                   })}

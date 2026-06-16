@@ -227,3 +227,50 @@ export const vehicle_gps_status_color = {
     dot: "bg-red-500",
   },
 } as const;
+
+export const approvalStatus = {
+  approved: {
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    dot: "bg-green-500",
+    label_id: "Disetujui",
+    label_en: "Approved",
+  },
+  pending: {
+    color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    dot: "bg-yellow-500",
+    label_id: "Menunggu",
+    label_en: "Pending",
+  },
+  rejected: {
+    color: "red",
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-400",
+    dot: "bg-red-500",
+    label_id: "Ditolak",
+    label_en: "Rejected",
+  },
+} as const;
+
+export const approvalType = [
+  {
+    id: "service_history",
+    label_id: "Servis",
+    label_en: "Service",
+    long_label_id: "Servis Kendaraan",
+    long_label_en: "Vehicle Service",
+  },
+  {
+    id: "vehicle_sync",
+    label_id: "Sinkronasi",
+    label_en: "Sync",
+    long_label_id: "Sinkronisasi Kendaraan",
+    long_label_en: "Vehicle Sync",
+  },
+];

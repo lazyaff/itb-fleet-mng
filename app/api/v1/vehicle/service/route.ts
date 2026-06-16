@@ -31,6 +31,9 @@ export async function GET(request: NextRequest) {
         where: {
           vehicle_id: id,
           deleted_at: null,
+          approval_request: {
+            status: "approved",
+          },
         },
         ...(limit ? { take: limit } : {}),
         ...(offset ? { skip: offset } : {}),
@@ -77,6 +80,9 @@ export async function GET(request: NextRequest) {
         where: {
           vehicle_id: id,
           deleted_at: null,
+          approval_request: {
+            status: "approved",
+          },
         },
       }),
     ]);
@@ -286,9 +292,21 @@ export async function POST(request: NextRequest) {
       const id = uuidv4();
       const filepath = await saveFile(image, "service-history", id);
 
+      const approval = await tx.approval_request.create({
+        data: {
+          type: "service_history",
+          description_id: "Servis " + vehicle.name,
+          description_en: vehicle.name + " Service",
+          status: "pending",
+          requested_by_id: user_id,
+          requested_at: new Date(),
+        },
+      });
+
       const service = await tx.service_history.create({
         data: {
           id: id,
+          approval_request_id: approval.id,
           vehicle_id: vehicle_id,
           current_mileage: Number(current_distance),
           date: new Date(date),
@@ -308,30 +326,30 @@ export async function POST(request: NextRequest) {
 
       await tx.vehicle_part_service_history.createMany({ data: item });
 
-      await tx.vehicle_part.updateMany({
-        where: {
-          id: {
-            in: part_ids,
-          },
-        },
-        data: {
-          last_service: new Date(date),
-          current_distance: 0,
-        },
-      });
+      // await tx.vehicle_part.updateMany({
+      //   where: {
+      //     id: {
+      //       in: part_ids,
+      //     },
+      //   },
+      //   data: {
+      //     last_service: new Date(date),
+      //     current_distance: 0,
+      //   },
+      // });
 
-      await tx.vehicle_alert.updateMany({
-        where: {
-          vehicle_part_id: {
-            in: part_ids,
-          },
-          active: true,
-        },
-        data: {
-          active: false,
-          resolved_at: new Date(date),
-        },
-      });
+      // await tx.vehicle_alert.updateMany({
+      //   where: {
+      //     vehicle_part_id: {
+      //       in: part_ids,
+      //     },
+      //     active: true,
+      //   },
+      //   data: {
+      //     active: false,
+      //     resolved_at: new Date(date),
+      //   },
+      // });
     });
 
     return NextResponse.json(

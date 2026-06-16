@@ -1,23 +1,12 @@
 "use client";
 
-import { DatePicker, Select } from "@/components/Dropdown";
+import { FilterButtonGroup, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { inspectionConclusion } from "@/src/dropdown";
-import { formatedDate } from "@/utils/date";
-import {
-  Award,
-  ClipboardCheck,
-  Clock,
-  Eye,
-  Info,
-  ListTodo,
-  RefreshCw,
-  Search,
-  SendHorizontal,
-} from "lucide-react";
+import { approvalStatus, approvalType } from "@/src/dropdown";
+import { Eye, Search, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -25,39 +14,32 @@ import { useContext, useEffect, useState } from "react";
 type DataProps = {
   no: number;
   id: string;
-  date: string;
-  vehicle: {
-    plate_number: string;
-    name: string;
-  };
-  inspector: string;
-  conclusion: string;
+  type: string;
+  description_id: string;
+  description_en: string;
+  status: string;
+  requested_at: string;
 };
 
 type DetailProps = {
-  id: string;
-  inspector: string;
-  date: string;
-  vehicle: {
+  type: string;
+  requester: string;
+  request_date: string;
+  status: "pending" | "approved" | "rejected";
+  service_history: {
+    image: string;
+    vehicle_name: string;
     plate_number: string;
-    name: string;
-  };
-  conclusion: "Siap Jalan" | "Butuh Servis" | "Dilarang Jalan";
-  notes: string;
-  sections: {
-    title: string;
-    icon: string;
-    order: number;
-    questions: {
-      order: number;
-      title: string;
-      answer: {
-        label: string;
-        description: string;
-        value: number;
-      };
+    service_date: string;
+    mileage: number;
+    cost: number;
+    notes: string | null;
+    parts: {
+      id: string;
+      name: string;
     }[];
-  }[];
+  } | null;
+  vehicle_sync: {} | null;
 };
 
 export default function MyRequest() {
@@ -67,10 +49,8 @@ export default function MyRequest() {
   const router = useRouter();
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
-  const [sort, setSort] = useState("date_desc");
+  const [type, setType] = useState("");
   const [status, setStatus] = useState("");
-  const [date, setDate] = useState("");
-  const [vehicleIds, setVehicleIds] = useState<string[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -78,39 +58,7 @@ export default function MyRequest() {
   });
   const [filteredData, setFilteredData] = useState<DataProps[]>([]);
   const [detailData, setDetailData] = useState<DetailProps | null>(null);
-  const [vehicleData, setVehicleData] = useState([]);
-  const [openList, setOpenList] = useState(true);
   const [openDetail, setOpenDetail] = useState(false);
-
-  const sortOptions = [
-    {
-      id: "plate_desc",
-      name: t("vehicle_sync.plate_desc"),
-    },
-    {
-      id: "plate_asc",
-      name: t("vehicle_sync.plate_asc"),
-    },
-  ];
-
-  const statusOptions = [
-    {
-      id: "pending",
-      name: t("vehicle_sync.status.pending"),
-    },
-    {
-      id: "approved",
-      name: t("vehicle_sync.status.approved"),
-    },
-    {
-      id: "rejected",
-      name: t("vehicle_sync.status.rejected"),
-    },
-    {
-      id: "synced",
-      name: t("vehicle_sync.status.synced"),
-    },
-  ];
 
   useEffect(() => {
     setPageInfo({
@@ -120,30 +68,39 @@ export default function MyRequest() {
   }, [lang]);
 
   useEffect(() => {
-    if (session && filteredData.length === 0) fetchData();
-  }, [session]);
-
-  useEffect(() => {
-    if (session && vehicleData.length === 0) {
-      fetchVehicleData();
-    }
+    if (session) fetchData();
   }, [session]);
 
   useEffect(() => {
     if (session) {
       fetchData();
     }
-  }, [pagination.page, searchInput, sort, date, vehicleIds]);
+  }, [pagination.page, searchInput, status, type]);
+
+  // lock body scroll while the detail panel is open
+  useEffect(() => {
+    document.body.style.overflow = openDetail ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [openDetail]);
 
   const handleLogout = () => {
     signOut({ redirect: false }).then(() => router.push("/"));
+  };
+
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+    setTimeout(() => {
+      setDetailData(null);
+    }, 400);
   };
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/v1/inspection?page=${pagination.page}&search=${searchInput}&size=10&sort=${sort}&date=${date}&vehicle_ids=${vehicleIds}`,
+        `/api/v1/my-request?page=${pagination.page}&search=${searchInput}&size=10&type=${type}&status=${status}`,
         {
           method: "GET",
           headers: {
@@ -174,38 +131,11 @@ export default function MyRequest() {
     }
   };
 
-  const fetchVehicleData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/v1/inspection/vehicle-list`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.user.access_token}`,
-        },
-        cache: "no-store",
-      });
-      const result = await response.json();
-      if (result.success) {
-        setVehicleData(result.data);
-      } else {
-        if (result.status === 401) {
-          handleLogout();
-        } else {
-          throw new Error("Failed to fetch data");
-        }
-      }
-    } catch (error) {
-      console.log("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchDetailData = async (id: string) => {
     try {
       if (loading) return;
       setLoading(true);
-      const response = await fetch(`/api/v1/inspection/detail?id=${id}`, {
+      const response = await fetch(`/api/v1/my-request/detail?id=${id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,
@@ -243,70 +173,40 @@ export default function MyRequest() {
                 type="text"
                 placeholder={t("vehicle_sync.search_placeholder")}
                 className="w-full bg-transparent outline-none"
-                //   onKeyDown={(e) => {
-                //     if (e.key === "Enter") {
-                //       setSearchInput(e.currentTarget.value);
-                //       setPagination({ ...pagination, page: 1 });
-                //     }
-                //   }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSearchInput(e.currentTarget.value);
+                    setPagination({ ...pagination, page: 1 });
+                  }
+                }}
               />
-            </div>
-            <div className="flex flex-row justify-end gap-4 items-end">
-              <button
-                // onClick={() =>
-                //   setUpdateService({ ...updateService, open: false })
-                // }
-                className="font-medium px-6 text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-200 select-none cursor-pointer items-center flex gap-4"
-              >
-                <RefreshCw size={14} /> {t("vehicle_sync.refresh_data")}
-              </button>
-              <button
-                // onClick={handleUpdateService}
-                className={`font-medium px-6 bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer items-center flex gap-4`}
-              >
-                <SendHorizontal size={14} strokeWidth={2} />{" "}
-                {t("vehicle_sync.submit_request")}
-              </button>
             </div>
           </div>
           <div className="flex items-end justify-between w-full gap-2">
-            <div className="flex gap-2">
-              <div className="w-48">
-                <Select
-                  data={statusOptions}
-                  value={status}
-                  onChange={(val) => {
-                    //   setSort(val);
-                    //   setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  displayValue={(item) => item.name}
-                  placeholder={"Status"}
-                  searchable={false}
-                />
-              </div>
-              <div className="w-48">
-                <Select
-                  data={sortOptions}
-                  value={sort}
-                  onChange={(val) => {
-                    // setSort(val);
-                    // setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  displayValue={(item) => item.name}
-                  searchKeys={["name"]}
-                  placeholder={t("vehicle_sync.sort_by")}
-                  searchable={false}
-                />
-              </div>
-            </div>
-            <div className="h-full flex items-end flex-col">
-              <div className="px-3 text-gray-400 border border-gray-400 py-1.5 italic rounded-4xl bg-white select-none text-xs flex items-center gap-1">
-                <Clock size={10.5} />
-                <span>
-                  {t("vehicle_sync.last_update")}:{" "}
-                  {formatedDate(new Date(), "dd/MM/yyyy - HH:mm")}
-                </span>
-              </div>
+            <div className="flex items-center gap-5">
+              <FilterButtonGroup
+                items={Object.entries(approvalStatus)}
+                value={status}
+                onChange={setStatus}
+                allLabel={lang === "id" ? "Semua" : "All"}
+                getValue={([key]) => key}
+                getLabel={([, item]) =>
+                  lang === "id" ? item.label_id : item.label_en
+                }
+              />
+
+              <div className="h-10 w-px bg-gray-300" />
+
+              <FilterButtonGroup
+                items={approvalType}
+                value={type}
+                onChange={setType}
+                allLabel={lang === "id" ? "Semua" : "All"}
+                getValue={(item) => item.id}
+                getLabel={(item) =>
+                  lang === "id" ? item.label_id : item.label_en
+                }
+              />
             </div>
           </div>
         </div>
@@ -316,61 +216,49 @@ export default function MyRequest() {
             <thead className="bg-[#E2E8F0]/20">
               <tr className="border-b border-gray-300">
                 <th className="px-6 py-3 text-center">
-                  <input type="checkbox" className="cursor-pointer w-4 h-4" />
+                  {t("my_request.table.type").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.vehicle_plate").toUpperCase()}
+                  {t("my_request.table.description").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.type").toUpperCase()}
+                  {t("my_request.table.requested").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">STATUS</th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.visibility").toUpperCase()}
+                  {t("my_request.table.action").toUpperCase()}
                 </th>
-                <th className="px-6 py-3 text-center">DETAIL</th>
               </tr>
             </thead>
 
             {/* Body */}
             <tbody>
               {filteredData.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`border-b border-gray-300 ${item.conclusion === "Dilarang Jalan" ? "bg-[#EF4444]/5" : ""}`}
-                >
-                  <td className="px-6 py-3 text-gray-800 text-center">
-                    <input type="checkbox" className="cursor-pointer w-4 h-4" />
+                <tr key={item.id} className={`border-b border-gray-300`}>
+                  <td className="px-6 py-3 text-gray-800 text-center font-semibold">
+                    {
+                      approvalType.find((type) => type.id === item.type)?.[
+                        lang === "id" ? "long_label_id" : "long_label_en"
+                      ]
+                    }
                   </td>
 
                   <td className="px-6 py-3 text-gray-800 text-center">
-                    {item.date}
+                    {lang === "id" ? item.description_id : item.description_en}
                   </td>
 
                   <td className="px-6 py-3 text-gray-800 text-center">
-                    <div>
-                      <span className="text-gray-800 text-sm">
-                        {item.vehicle.plate_number}
-                      </span>
-                      <br />
-                      <span className="text-gray-600 text-xs">
-                        {item.vehicle.name}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-3 text-gray-800 text-center">
-                    {item.inspector}
+                    {item.requested_at}
                   </td>
 
                   <td className="px-6 py-3 text-center">
                     {(() => {
                       const config =
-                        inspectionConclusion[
-                          item.conclusion as keyof typeof inspectionConclusion
+                        approvalStatus[
+                          item.status as keyof typeof approvalStatus
                         ];
 
-                      if (!config) return item.conclusion;
+                      if (!config) return item.status;
 
                       return (
                         <span
@@ -379,7 +267,7 @@ export default function MyRequest() {
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
                           />
-                          {item.conclusion}
+                          {lang === "id" ? config.label_id : config.label_en}
                         </span>
                       );
                     })()}
@@ -392,10 +280,7 @@ export default function MyRequest() {
                         onClick={async () => {
                           const detail = await fetchDetailData(item.id);
                           if (!detail) return;
-                          setOpenList(false);
-                          setTimeout(() => {
-                            setOpenDetail(true);
-                          }, 500);
+                          setOpenDetail(true);
                         }}
                       >
                         <Eye size={18} />
@@ -417,6 +302,168 @@ export default function MyRequest() {
           )}
         </div>
       </div>
+
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 left-64 bg-black/40 z-40 transition-opacity duration-300 ${
+          openDetail
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={handleCloseDetail}
+      />
+
+      {/* Detail Slide-over Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
+          openDetail ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {detailData && (
+          <div className="flex flex-col h-full pt-14">
+            <div className="flex-1 p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("my_request.table.type")}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {
+                      approvalType.find((tp) => tp.id === detailData.type)?.[
+                        lang === "id" ? "long_label_id" : "long_label_en"
+                      ]
+                    }
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("my_request.requester")}
+                  </p>
+                  <p className="font-semibold text-gray-800 wrap-break-word">
+                    {detailData.requester}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("my_request.requested_date")}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {detailData.request_date}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">STATUS</p>
+                  {(() => {
+                    const config =
+                      approvalStatus[
+                        detailData.status as keyof typeof approvalStatus
+                      ];
+                    if (!config) return detailData.status;
+                    return (
+                      <span
+                        className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-sm font-medium ${config.bg} ${config.text} ${config.border}`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                        />
+                        {lang === "id" ? config.label_id : config.label_en}
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {detailData.service_history && (
+                <div className="space-y-4">
+                  {detailData.service_history.image && (
+                    <img
+                      src={detailData.service_history.image}
+                      alt={detailData.service_history.vehicle_name}
+                      className="w-full h-auto object-cover rounded-lg border border-gray-200"
+                    />
+                  )}
+
+                  <div className="divide-y divide-gray-100 border border-gray-200 bg-gray-50 rounded-lg">
+                    <DetailRow
+                      label={t("my_request.vehicle")}
+                      value={detailData.service_history.vehicle_name}
+                    />
+                    <DetailRow
+                      label={t("my_request.plate")}
+                      value={detailData.service_history.plate_number}
+                    />
+                    <DetailRow
+                      label={t("my_request.service_date")}
+                      value={detailData.service_history.service_date}
+                    />
+                    <DetailRow
+                      label={t("my_request.mileage")}
+                      value={`${detailData.service_history.mileage.toLocaleString("id-ID")} km`}
+                    />
+                    <DetailRow
+                      label={t("my_request.price")}
+                      value={`Rp ${detailData.service_history.cost.toLocaleString("id-ID")}`}
+                    />
+                    <div className="px-4 py-2.5">
+                      <p className="text-xs text-gray-400 uppercase mb-2">
+                        {t("my_request.serviced_parts")}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {detailData.service_history.parts.map((part) => (
+                          <span
+                            key={part.id}
+                            className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-200"
+                          >
+                            {part.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {detailData.service_history.notes && (
+                      <div className="px-4 py-2.5">
+                        <p className="text-xs text-gray-400 uppercase mb-2">
+                          {t("my_request.notes")}
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          {detailData.service_history.notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Vehicle sync detail (fallback, struktur data belum didefinisikan) */}
+              {!detailData.service_history && detailData.vehicle_sync && (
+                <div className="text-gray-500 text-sm">
+                  {lang === "id"
+                    ? "Tidak ada detail tambahan untuk sinkronisasi ini."
+                    : "No additional details for this sync."}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex items-center justify-between px-4 py-2.5 text-sm">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold text-gray-800">{value}</span>
     </div>
   );
 }

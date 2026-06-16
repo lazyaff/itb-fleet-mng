@@ -810,7 +810,7 @@ export default function VehicleDetail({
             visible: true,
             type: "success",
             title: t("form.success_title"),
-            subtitle: t("form.add_success"),
+            subtitle: t("form.add_request_success"),
             onClose: () => {
               setAddService({
                 ...addService,
