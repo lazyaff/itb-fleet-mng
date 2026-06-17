@@ -26,6 +26,7 @@ type DetailProps = {
   requester: string;
   request_date: string;
   status: "pending" | "approved" | "rejected";
+  rejection_reason: string | null;
   service_history: {
     image: string;
     vehicle_name: string;
@@ -320,12 +321,12 @@ export default function MyRequest() {
         }`}
       >
         {detailData && (
-          <div className="flex flex-col h-full pt-14">
+          <div className="flex flex-col pt-14 bg-[#F6F8FA]">
             <div className="flex-1 p-6 space-y-5">
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
                   <p className="text-xs text-gray-400 uppercase mb-1">
-                    {t("my_request.table.type")}
+                    {t("approval_inbox.table.type")}
                   </p>
                   <p className="font-semibold text-gray-800">
                     {
@@ -335,9 +336,9 @@ export default function MyRequest() {
                     }
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
                   <p className="text-xs text-gray-400 uppercase mb-1">
-                    {t("my_request.requester")}
+                    {t("approval_inbox.requester")}
                   </p>
                   <p className="font-semibold text-gray-800 wrap-break-word">
                     {detailData.requester}
@@ -346,15 +347,15 @@ export default function MyRequest() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
                   <p className="text-xs text-gray-400 uppercase mb-1">
-                    {t("my_request.requested_date")}
+                    {t("approval_inbox.requested_date")}
                   </p>
                   <p className="font-semibold text-gray-800">
                     {detailData.request_date}
                   </p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
                   <p className="text-xs text-gray-400 uppercase mb-1">STATUS</p>
                   {(() => {
                     const config =
@@ -376,6 +377,19 @@ export default function MyRequest() {
                 </div>
               </div>
 
+              {detailData.rejection_reason && (
+                <div className="bg-white rounded-lg py-3 border border-gray-200">
+                  <p className="text-xs text-gray-800 font-semibold mb-1 px-3 ">
+                    {t("approval_inbox.rejection_reason")}
+                  </p>
+                  <div className="border border-gray-200 rounded-lg p-2.5 min-h-20 mt-2 mx-3">
+                    <p className="text-gray-800">
+                      {detailData.rejection_reason}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {detailData.service_history && (
                 <div className="space-y-4">
                   {detailData.service_history.image && (
@@ -386,30 +400,30 @@ export default function MyRequest() {
                     />
                   )}
 
-                  <div className="divide-y divide-gray-100 border border-gray-200 bg-gray-50 rounded-lg">
+                  <div className="divide-y divide-gray-100 border border-gray-200 bg-white rounded-lg">
                     <DetailRow
-                      label={t("my_request.vehicle")}
+                      label={t("approval_inbox.vehicle")}
                       value={detailData.service_history.vehicle_name}
                     />
                     <DetailRow
-                      label={t("my_request.plate")}
+                      label={t("approval_inbox.plate")}
                       value={detailData.service_history.plate_number}
                     />
                     <DetailRow
-                      label={t("my_request.service_date")}
+                      label={t("approval_inbox.service_date")}
                       value={detailData.service_history.service_date}
                     />
                     <DetailRow
-                      label={t("my_request.mileage")}
+                      label={t("approval_inbox.mileage")}
                       value={`${detailData.service_history.mileage.toLocaleString("id-ID")} km`}
                     />
                     <DetailRow
-                      label={t("my_request.price")}
+                      label={t("approval_inbox.price")}
                       value={`Rp ${detailData.service_history.cost.toLocaleString("id-ID")}`}
                     />
                     <div className="px-4 py-2.5">
                       <p className="text-xs text-gray-400 uppercase mb-2">
-                        {t("my_request.serviced_parts")}
+                        {t("approval_inbox.serviced_parts")}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {detailData.service_history.parts.map((part) => (
@@ -426,7 +440,7 @@ export default function MyRequest() {
                     {detailData.service_history.notes && (
                       <div className="px-4 py-2.5">
                         <p className="text-xs text-gray-400 uppercase mb-2">
-                          {t("my_request.notes")}
+                          {t("approval_inbox.notes")}
                         </p>
                         <p className="text-gray-700 text-sm">
                           {detailData.service_history.notes}

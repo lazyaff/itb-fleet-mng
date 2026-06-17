@@ -8,7 +8,7 @@ import { buildPublicUrl } from "@/utils/image";
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -70,6 +70,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       message: "Data fetched successfully",
       data: {
+        id: rawData.id,
         type: rawData.type,
         requester: rawData.requested_by.email,
         request_date: formatedDate(rawData.requested_at, "dd/MM/yyyy"),

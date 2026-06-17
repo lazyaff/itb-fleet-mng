@@ -1,0 +1,62 @@
+[
+  {
+    "layanan_id": "0b25041a-63ef-47fe-ba22-37c8d4cf125d",
+    "nama_kendaraan": "Bus AC",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "0b544061-9112-408d-9e0d-39fc4f178c30",
+    "nama_kendaraan": "Pickup",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "1468e294-bb67-449a-9eb1-eae11a28b020",
+    "nama_kendaraan": "Mini Bus Inova Silver",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "29be09d9-f83b-4944-88d8-bfc4c213b3f6",
+    "nama_kendaraan": "Endang Suherman",
+    "status_di_efacility": "TIDAK BISA DISEWA"
+  },
+  {
+    "layanan_id": "3887d0a6-aee0-49a0-bd48-5cace3a343da",
+    "nama_kendaraan": "ELF KOICA LONG",
+    "status_di_efacility": "AKTIF"
+  },
+  {
+    "layanan_id": "42db687a-12be-42ec-a0e5-f5e3de201d45",
+    "nama_kendaraan": "Mini Bus Inova ABU",
+    "status_di_efacility": "AKTIF"
+  },
+  {
+    "layanan_id": "5b606e88-f945-4efe-b1fa-2244c22cc116",
+    "nama_kendaraan": "Mini Bus Inova PUTIH",
+    "status_di_efacility": "AKTIF"
+  },
+  {
+    "layanan_id": "a03efa1c-42ab-4af1-a76e-626ee54f4d0e",
+    "nama_kendaraan": "Engkel",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "c292b6f8-9b79-43e4-8c47-0d045ff7a987",
+    "nama_kendaraan": "ELF",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "c65e7cbd-72ce-45d0-9d04-26072bed68a5",
+    "nama_kendaraan": "Bus AC Koika",
+    "status_di_efacility": "TIDAK BISA DISEWA"
+  },
+  {
+    "layanan_id": "c83f846f-3036-4854-bf7f-1b49d3413570",
+    "nama_kendaraan": "Sedan",
+    "status_di_efacility": "RUSAK"
+  },
+  {
+    "layanan_id": "dcf47f27-ce2f-42b8-86ac-bc43236e2032",
+    "nama_kendaraan": "Bus AC Koica",
+    "status_di_efacility": "AKTIF"
+  }
+]

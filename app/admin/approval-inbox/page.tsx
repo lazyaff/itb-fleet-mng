@@ -1,23 +1,17 @@
 "use client";
 
-import { DatePicker, Select } from "@/components/Dropdown";
+import {
+  ConfirmationAlert,
+  ConfirmationAlert2,
+  NotificationAlert,
+} from "@/components/Alert";
+import { FilterButtonGroup, Select } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { inspectionConclusion } from "@/src/dropdown";
-import { formatedDate } from "@/utils/date";
-import {
-  Award,
-  ClipboardCheck,
-  Clock,
-  Eye,
-  Info,
-  ListTodo,
-  RefreshCw,
-  Search,
-  SendHorizontal,
-} from "lucide-react";
+import { approvalStatus, approvalType } from "@/src/dropdown";
+import { Check, Eye, Search, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -25,52 +19,46 @@ import { useContext, useEffect, useState } from "react";
 type DataProps = {
   no: number;
   id: string;
-  date: string;
-  vehicle: {
-    plate_number: string;
-    name: string;
-  };
-  inspector: string;
-  conclusion: string;
+  type: string;
+  description_id: string;
+  description_en: string;
+  status: string;
+  requested_at: string;
+  requested_by: string;
 };
 
 type DetailProps = {
   id: string;
-  inspector: string;
-  date: string;
-  vehicle: {
+  type: string;
+  requester: string;
+  request_date: string;
+  status: "pending" | "approved" | "rejected";
+  rejection_reason: string | null;
+  service_history: {
+    image: string;
+    vehicle_name: string;
     plate_number: string;
-    name: string;
-  };
-  conclusion: "Siap Jalan" | "Butuh Servis" | "Dilarang Jalan";
-  notes: string;
-  sections: {
-    title: string;
-    icon: string;
-    order: number;
-    questions: {
-      order: number;
-      title: string;
-      answer: {
-        label: string;
-        description: string;
-        value: number;
-      };
+    service_date: string;
+    mileage: number;
+    cost: number;
+    notes: string | null;
+    parts: {
+      id: string;
+      name: string;
     }[];
-  }[];
+  } | null;
+  vehicle_sync: {} | null;
 };
 
-export default function MyRequest() {
+export default function ApprovalInbox() {
   const { data: session } = useSession() as { data: any };
   const { loading, setLoading } = useContext(LoadingContext);
   const { t, lang } = useLanguage();
   const router = useRouter();
   const { setPageInfo } = useContext(PageInfoContext);
   const [searchInput, setSearchInput] = useState("");
-  const [sort, setSort] = useState("date_desc");
+  const [type, setType] = useState("");
   const [status, setStatus] = useState("");
-  const [date, setDate] = useState("");
-  const [vehicleIds, setVehicleIds] = useState<string[]>([]);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -78,72 +66,90 @@ export default function MyRequest() {
   });
   const [filteredData, setFilteredData] = useState<DataProps[]>([]);
   const [detailData, setDetailData] = useState<DetailProps | null>(null);
-  const [vehicleData, setVehicleData] = useState([]);
-  const [openList, setOpenList] = useState(true);
   const [openDetail, setOpenDetail] = useState(false);
-
-  const sortOptions = [
-    {
-      id: "plate_desc",
-      name: t("vehicle_sync.plate_desc"),
-    },
-    {
-      id: "plate_asc",
-      name: t("vehicle_sync.plate_asc"),
-    },
-  ];
-
-  const statusOptions = [
-    {
-      id: "pending",
-      name: t("vehicle_sync.status.pending"),
-    },
-    {
-      id: "approved",
-      name: t("vehicle_sync.status.approved"),
-    },
-    {
-      id: "rejected",
-      name: t("vehicle_sync.status.rejected"),
-    },
-    {
-      id: "synced",
-      name: t("vehicle_sync.status.synced"),
-    },
-  ];
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    type: "success" | "error" | "default";
+    title: string;
+    subtitle?: string;
+    onClose: () => void;
+  }>({
+    visible: false,
+    type: "default",
+    title: "",
+    subtitle: "",
+    onClose: () => {},
+  });
+  const [confirmAlert, setConfirmAlert] = useState<{
+    visible: boolean;
+    title: string;
+    confirmText: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+    type: "success" | "danger";
+    setLoading: boolean;
+  }>({
+    visible: false,
+    title: "",
+    confirmText: "",
+    message: "",
+    onConfirm: () => {},
+    onCancel: () => {},
+    type: "success",
+    setLoading: true,
+  });
+  const [rejection, setRejection] = useState<{
+    id: string;
+    visible: boolean;
+    value: string;
+  }>({
+    id: "",
+    visible: false,
+    value: "",
+  });
 
   useEffect(() => {
     setPageInfo({
-      title: t("sidebar.admin"),
+      title: t("sidebar.reports"),
       subtitle: t("sidebar.approval_inbox"),
     });
   }, [lang]);
 
   useEffect(() => {
-    if (session && filteredData.length === 0) fetchData();
-  }, [session]);
-
-  useEffect(() => {
-    if (session && vehicleData.length === 0) {
-      fetchVehicleData();
-    }
+    if (session) fetchData();
   }, [session]);
 
   useEffect(() => {
     if (session) {
       fetchData();
     }
-  }, [pagination.page, searchInput, sort, date, vehicleIds]);
+  }, [pagination.page, searchInput, status, type]);
+
+  // lock body scroll while the detail panel is open
+  useEffect(() => {
+    document.body.style.overflow = openDetail ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [openDetail]);
 
   const handleLogout = () => {
     signOut({ redirect: false }).then(() => router.push("/"));
+  };
+
+  const handleCloseDetail = () => {
+    setOpenDetail(false);
+    setTimeout(() => {
+      setDetailData(null);
+    }, 400);
   };
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/v1/inspection?page=${pagination.page}&search=${searchInput}&size=10&sort=${sort}&date=${date}&vehicle_ids=${vehicleIds}`,
+        `/api/v1/approval-inbox?page=${pagination.page}&search=${searchInput}&size=10&type=${type}&status=${status}`,
         {
           method: "GET",
           headers: {
@@ -174,38 +180,11 @@ export default function MyRequest() {
     }
   };
 
-  const fetchVehicleData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/v1/inspection/vehicle-list`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.user.access_token}`,
-        },
-        cache: "no-store",
-      });
-      const result = await response.json();
-      if (result.success) {
-        setVehicleData(result.data);
-      } else {
-        if (result.status === 401) {
-          handleLogout();
-        } else {
-          throw new Error("Failed to fetch data");
-        }
-      }
-    } catch (error) {
-      console.log("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchDetailData = async (id: string) => {
     try {
       if (loading) return;
       setLoading(true);
-      const response = await fetch(`/api/v1/inspection/detail?id=${id}`, {
+      const response = await fetch(`/api/v1/approval-inbox/detail?id=${id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${session.user.access_token}`,
@@ -232,6 +211,90 @@ export default function MyRequest() {
     }
   };
 
+  const handleApprove = async (
+    id: string,
+    rejection_reason: string | null,
+    status: string,
+  ) => {
+    try {
+      if (!id || loading) {
+        return;
+      }
+      setLoading(true);
+      const response = await fetch(`/api/v1/approval-inbox`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          status,
+          rejection_reason,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        await fetchData();
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: t("form.update_success"),
+          onClose: () => {
+            setAlert({
+              visible: false,
+              title: "",
+              subtitle: "",
+              type: "default",
+              onClose: () => {},
+            });
+          },
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {
+              setAlert({
+                visible: false,
+                title: "",
+                subtitle: "",
+                type: "default",
+                onClose: () => {},
+              });
+            },
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding bus:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {
+          setAlert({
+            visible: false,
+            title: "",
+            subtitle: "",
+            type: "default",
+            onClose: () => {},
+          });
+        },
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative h-full max-h-none">
       <div className={`p-4 flex flex-col min-h-full`}>
@@ -243,70 +306,40 @@ export default function MyRequest() {
                 type="text"
                 placeholder={t("vehicle_sync.search_placeholder")}
                 className="w-full bg-transparent outline-none"
-                //   onKeyDown={(e) => {
-                //     if (e.key === "Enter") {
-                //       setSearchInput(e.currentTarget.value);
-                //       setPagination({ ...pagination, page: 1 });
-                //     }
-                //   }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSearchInput(e.currentTarget.value);
+                    setPagination({ ...pagination, page: 1 });
+                  }
+                }}
               />
-            </div>
-            <div className="flex flex-row justify-end gap-4 items-end">
-              <button
-                // onClick={() =>
-                //   setUpdateService({ ...updateService, open: false })
-                // }
-                className="font-medium px-6 text-black border border-gray-500 py-2 rounded-lg hover:bg-gray-200 select-none cursor-pointer items-center flex gap-4"
-              >
-                <RefreshCw size={14} /> {t("vehicle_sync.refresh_data")}
-              </button>
-              <button
-                // onClick={handleUpdateService}
-                className={`font-medium px-6 bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer items-center flex gap-4`}
-              >
-                <SendHorizontal size={14} strokeWidth={2} />{" "}
-                {t("vehicle_sync.submit_request")}
-              </button>
             </div>
           </div>
           <div className="flex items-end justify-between w-full gap-2">
-            <div className="flex gap-2">
-              <div className="w-48">
-                <Select
-                  data={statusOptions}
-                  value={status}
-                  onChange={(val) => {
-                    //   setSort(val);
-                    //   setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  displayValue={(item) => item.name}
-                  placeholder={"Status"}
-                  searchable={false}
-                />
-              </div>
-              <div className="w-48">
-                <Select
-                  data={sortOptions}
-                  value={sort}
-                  onChange={(val) => {
-                    // setSort(val);
-                    // setPagination((prev) => ({ ...prev, page: 1 }));
-                  }}
-                  displayValue={(item) => item.name}
-                  searchKeys={["name"]}
-                  placeholder={t("vehicle_sync.sort_by")}
-                  searchable={false}
-                />
-              </div>
-            </div>
-            <div className="h-full flex items-end flex-col">
-              <div className="px-3 text-gray-400 border border-gray-400 py-1.5 italic rounded-4xl bg-white select-none text-xs flex items-center gap-1">
-                <Clock size={10.5} />
-                <span>
-                  {t("vehicle_sync.last_update")}:{" "}
-                  {formatedDate(new Date(), "dd/MM/yyyy - HH:mm")}
-                </span>
-              </div>
+            <div className="flex items-center gap-5">
+              <FilterButtonGroup
+                items={Object.entries(approvalStatus)}
+                value={status}
+                onChange={setStatus}
+                allLabel={lang === "id" ? "Semua" : "All"}
+                getValue={([key]) => key}
+                getLabel={([, item]) =>
+                  lang === "id" ? item.label_id : item.label_en
+                }
+              />
+
+              <div className="h-10 w-px bg-gray-300" />
+
+              <FilterButtonGroup
+                items={approvalType}
+                value={type}
+                onChange={setType}
+                allLabel={lang === "id" ? "Semua" : "All"}
+                getValue={(item) => item.id}
+                getLabel={(item) =>
+                  lang === "id" ? item.label_id : item.label_en
+                }
+              />
             </div>
           </div>
         </div>
@@ -316,61 +349,49 @@ export default function MyRequest() {
             <thead className="bg-[#E2E8F0]/20">
               <tr className="border-b border-gray-300">
                 <th className="px-6 py-3 text-center">
-                  <input type="checkbox" className="cursor-pointer w-4 h-4" />
+                  {t("approval_inbox.table.type").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.vehicle_plate").toUpperCase()}
+                  {t("approval_inbox.table.description").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.type").toUpperCase()}
+                  {t("approval_inbox.requester").toUpperCase()}
                 </th>
                 <th className="px-6 py-3 text-center">STATUS</th>
                 <th className="px-6 py-3 text-center">
-                  {t("vehicle_sync.table.visibility").toUpperCase()}
+                  {t("approval_inbox.table.action").toUpperCase()}
                 </th>
-                <th className="px-6 py-3 text-center">DETAIL</th>
               </tr>
             </thead>
 
             {/* Body */}
             <tbody>
               {filteredData.map((item) => (
-                <tr
-                  key={item.id}
-                  className={`border-b border-gray-300 ${item.conclusion === "Dilarang Jalan" ? "bg-[#EF4444]/5" : ""}`}
-                >
-                  <td className="px-6 py-3 text-gray-800 text-center">
-                    <input type="checkbox" className="cursor-pointer w-4 h-4" />
+                <tr key={item.id} className={`border-b border-gray-300`}>
+                  <td className="px-6 py-3 text-gray-800 text-center font-semibold">
+                    {
+                      approvalType.find((type) => type.id === item.type)?.[
+                        lang === "id" ? "long_label_id" : "long_label_en"
+                      ]
+                    }
                   </td>
 
                   <td className="px-6 py-3 text-gray-800 text-center">
-                    {item.date}
+                    {lang === "id" ? item.description_id : item.description_en}
                   </td>
 
                   <td className="px-6 py-3 text-gray-800 text-center">
-                    <div>
-                      <span className="text-gray-800 text-sm">
-                        {item.vehicle.plate_number}
-                      </span>
-                      <br />
-                      <span className="text-gray-600 text-xs">
-                        {item.vehicle.name}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-3 text-gray-800 text-center">
-                    {item.inspector}
+                    {item.requested_by}
                   </td>
 
                   <td className="px-6 py-3 text-center">
                     {(() => {
                       const config =
-                        inspectionConclusion[
-                          item.conclusion as keyof typeof inspectionConclusion
+                        approvalStatus[
+                          item.status as keyof typeof approvalStatus
                         ];
 
-                      if (!config) return item.conclusion;
+                      if (!config) return item.status;
 
                       return (
                         <span
@@ -379,23 +400,70 @@ export default function MyRequest() {
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
                           />
-                          {item.conclusion}
+                          {lang === "id" ? config.label_id : config.label_en}
                         </span>
                       );
                     })()}
                   </td>
 
                   <td className="px-6 py-3 text-center align-middle">
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {item.status === "pending" && (
+                        <>
+                          <button
+                            className="cursor-pointer text-red-600 bg-red-50 rounded-md py-1.5 px-2 border border-red-600"
+                            onClick={async () => {
+                              setConfirmAlert({
+                                title: t("approval_inbox.reject_title"),
+                                confirmText: t("approval_inbox.reject"),
+                                visible: true,
+                                message: t("approval_inbox.confirm_message"),
+                                onCancel: () => {},
+                                type: "danger",
+                                setLoading: false,
+                                onConfirm: async () => {
+                                  setRejection({
+                                    id: item.id,
+                                    visible: true,
+                                    value: "",
+                                  });
+                                },
+                              });
+                            }}
+                          >
+                            <X size={18} />
+                          </button>
+                          <button
+                            className="cursor-pointer text-green-600 bg-green-50 rounded-md py-1.5 px-2 border border-green-600"
+                            onClick={async () => {
+                              setConfirmAlert({
+                                title: t("approval_inbox.approve_title"),
+                                confirmText: t("approval_inbox.approve"),
+                                visible: true,
+                                message: t("approval_inbox.confirm_message"),
+                                onCancel: () => {},
+                                type: "success",
+                                setLoading: true,
+                                onConfirm: async () => {
+                                  await handleApprove(
+                                    item.id,
+                                    null,
+                                    "approved",
+                                  );
+                                },
+                              });
+                            }}
+                          >
+                            <Check size={18} />
+                          </button>
+                        </>
+                      )}
                       <button
-                        className="cursor-pointer text-gray-600 hover:text-[#00A1FE]"
+                        className="cursor-pointer text-gray-600 bg-gray-50 rounded-md py-1.5 px-2 border border-gray-600"
                         onClick={async () => {
                           const detail = await fetchDetailData(item.id);
                           if (!detail) return;
-                          setOpenList(false);
-                          setTimeout(() => {
-                            setOpenDetail(true);
-                          }, 500);
+                          setOpenDetail(true);
                         }}
                       >
                         <Eye size={18} />
@@ -417,6 +485,336 @@ export default function MyRequest() {
           )}
         </div>
       </div>
+
+      {/* Alert */}
+      <NotificationAlert
+        title={alert.title}
+        subtitle={alert.subtitle}
+        visible={alert.visible}
+        type={alert.type}
+        onClose={() => {
+          setAlert({ ...alert, visible: false });
+          setTimeout(() => alert.onClose(), 300);
+        }}
+      />
+
+      {/* Confirm Alert */}
+      <ConfirmationAlert2
+        title={confirmAlert.title}
+        subtitle={t("approval_inbox.confirm_warning")}
+        variant={confirmAlert.type}
+        visible={confirmAlert.visible}
+        onCancel={() => {
+          setConfirmAlert({ ...confirmAlert, visible: false });
+          confirmAlert.onCancel();
+        }}
+        onConfirm={() => {
+          if (confirmAlert.setLoading) setLoading(true);
+          setConfirmAlert({ ...confirmAlert, visible: false });
+          setTimeout(() => confirmAlert.onConfirm(), 300);
+        }}
+        confirmText={confirmAlert.confirmText}
+      />
+
+      <div
+        className={`z-9998 h-dvh fixed inset-0 flex justify-center items-center bg-gray-800/35 transition-opacity duration-500 ${
+          rejection.visible
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className={`bg-white shadow-lg px-8 py-8 rounded-lg w-full max-w-lg text-left transition-transform duration-500 ${
+            rejection.visible ? "scale-100" : "scale-0"
+          }`}
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {t("approval_inbox.rejection_title")}
+              </h2>
+
+              <p className="mt-2 text-sm text-slate-500">
+                {t("approval_inbox.rejection_subtitle")}
+              </p>
+            </div>
+          </div>
+          <textarea
+            value={rejection.value}
+            onChange={(e) =>
+              setRejection({ ...rejection, value: e.target.value })
+            }
+            placeholder={t("approval_inbox.rejection_placeholder")}
+            rows={7}
+            className="mt-5 w-full resize-none rounded-lg border border-slate-300 p-4 text-sm outline-none focus:border-gray-500"
+          />
+          <p className="mt-2 text-xs text-red-500">
+            {Math.min(rejection.value.trim().length, 10)}/10{" "}
+            {t("approval_inbox.minimum_char")}
+          </p>
+          <div className="mt-6 flex justify-end gap-4">
+            <button
+              onClick={() => {
+                setRejection({ visible: false, value: "", id: "" });
+              }}
+              className="min-w-30 rounded-lg border border-slate-300 py-2.5 font-medium transition hover:bg-slate-100 cursor-pointer"
+            >
+              {t("common.cancel")}
+            </button>
+
+            <button
+              onClick={async () => {
+                setLoading(true);
+                setRejection({ ...rejection, visible: false });
+                setTimeout(async () => {
+                  await handleApprove(
+                    rejection.id,
+                    rejection.value,
+                    "rejected",
+                  );
+                }, 300);
+              }}
+              disabled={rejection.value.trim().length < 10}
+              className={`w-full rounded-lg py-2.5 font-medium text-white transition ${
+                rejection.value.trim().length >= 10
+                  ? "bg-red-500 hover:bg-red-600 cursor-pointer"
+                  : "cursor-not-allowed bg-red-300"
+              }`}
+            >
+              {t("approval_inbox.confirm")}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 left-64 bg-black/40 z-40 transition-opacity duration-300 ${
+          openDetail
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={handleCloseDetail}
+      />
+
+      {/* Detail Slide-over Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
+          openDetail ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {detailData && (
+          <div className="flex flex-col pt-14 bg-[#F6F8FA]">
+            <div className="flex-1 p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("approval_inbox.table.type")}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {
+                      approvalType.find((tp) => tp.id === detailData.type)?.[
+                        lang === "id" ? "long_label_id" : "long_label_en"
+                      ]
+                    }
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("approval_inbox.requester")}
+                  </p>
+                  <p className="font-semibold text-gray-800 wrap-break-word">
+                    {detailData.requester}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">
+                    {t("approval_inbox.requested_date")}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {detailData.request_date}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-400 uppercase mb-1">STATUS</p>
+                  {(() => {
+                    const config =
+                      approvalStatus[
+                        detailData.status as keyof typeof approvalStatus
+                      ];
+                    if (!config) return detailData.status;
+                    return (
+                      <span
+                        className={`inline-flex items-center gap-1 px-1.5 rounded-md border text-sm font-medium ${config.bg} ${config.text} ${config.border}`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
+                        />
+                        {lang === "id" ? config.label_id : config.label_en}
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {detailData.rejection_reason && (
+                <div className="bg-white rounded-lg py-3 border border-gray-200">
+                  <p className="text-xs text-gray-800 font-semibold mb-1 px-3 ">
+                    {t("approval_inbox.rejection_reason")}
+                  </p>
+                  <div className="border border-gray-200 rounded-lg p-2.5 min-h-20 mt-2 mx-3">
+                    <p className="text-gray-800">
+                      {detailData.rejection_reason}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {detailData.service_history && (
+                <div className="space-y-4">
+                  {detailData.service_history.image && (
+                    <img
+                      src={detailData.service_history.image}
+                      alt={detailData.service_history.vehicle_name}
+                      className="w-full h-auto object-cover rounded-lg border border-gray-200"
+                    />
+                  )}
+
+                  <div className="divide-y divide-gray-100 border border-gray-200 bg-white rounded-lg">
+                    <DetailRow
+                      label={t("approval_inbox.vehicle")}
+                      value={detailData.service_history.vehicle_name}
+                    />
+                    <DetailRow
+                      label={t("approval_inbox.plate")}
+                      value={detailData.service_history.plate_number}
+                    />
+                    <DetailRow
+                      label={t("approval_inbox.service_date")}
+                      value={detailData.service_history.service_date}
+                    />
+                    <DetailRow
+                      label={t("approval_inbox.mileage")}
+                      value={`${detailData.service_history.mileage.toLocaleString("id-ID")} km`}
+                    />
+                    <DetailRow
+                      label={t("approval_inbox.price")}
+                      value={`Rp ${detailData.service_history.cost.toLocaleString("id-ID")}`}
+                    />
+                    <div className="px-4 py-2.5">
+                      <p className="text-xs text-gray-400 uppercase mb-2">
+                        {t("approval_inbox.serviced_parts")}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {detailData.service_history.parts.map((part) => (
+                          <span
+                            key={part.id}
+                            className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-200"
+                          >
+                            {part.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {detailData.service_history.notes && (
+                      <div className="px-4 py-2.5">
+                        <p className="text-xs text-gray-400 uppercase mb-2">
+                          {t("approval_inbox.notes")}
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          {detailData.service_history.notes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Vehicle sync detail (fallback, struktur data belum didefinisikan) */}
+              {!detailData.service_history && detailData.vehicle_sync && (
+                <div className="text-gray-500 text-sm">
+                  {lang === "id"
+                    ? "Tidak ada detail tambahan untuk sinkronisasi ini."
+                    : "No additional details for this sync."}
+                </div>
+              )}
+
+              <div className="flex gap-6 px-10">
+                <button
+                  onClick={() => {
+                    setOpenDetail(false);
+                    setConfirmAlert({
+                      title: t("approval_inbox.reject_title"),
+                      confirmText: t("approval_inbox.reject"),
+                      visible: true,
+                      message: t("approval_inbox.confirm_message"),
+                      onCancel: () => {
+                        setOpenDetail(true);
+                      },
+                      type: "danger",
+                      setLoading: false,
+                      onConfirm: async () => {
+                        setRejection({
+                          id: detailData.id,
+                          visible: true,
+                          value: "",
+                        });
+                      },
+                    });
+                  }}
+                  className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#EF4444] bg-red-50 transition-colors duration-200 ease-in-out hover:bg-red-100 font-semibold tracking-wide text-[#EF4444]"
+                >
+                  <X size={18} strokeWidth={2.5} />
+                  {t("approval_inbox.reject").toUpperCase()}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setOpenDetail(false);
+                    setConfirmAlert({
+                      title: t("approval_inbox.approve_title"),
+                      confirmText: t("approval_inbox.approve"),
+                      visible: true,
+                      message: t("approval_inbox.confirm_message"),
+                      onCancel: () => {
+                        setOpenDetail(true);
+                      },
+                      type: "success",
+                      setLoading: true,
+                      onConfirm: async () => {
+                        await handleApprove(detailData.id, null, "approved");
+                      },
+                    });
+                  }}
+                  className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#16A34A] bg-green-50 transition-colors duration-200 ease-in-out hover:bg-green-100 font-semibold tracking-wide text-[#16A34A]"
+                >
+                  <Check size={18} strokeWidth={2.5} />
+                  {t("approval_inbox.approve").toUpperCase()}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex items-center justify-between px-4 py-2.5 text-sm">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold text-gray-800">{value}</span>
     </div>
   );
 }

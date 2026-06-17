@@ -1,0 +1,1212 @@
+[
+  {
+    "id": 3,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "8716",
+    "kode_lokasi": "2200721.00000000.162.162000000",
+    "gedung": "POOL KENDARAAN",
+    "ruang": "",
+    "deskripsi": "Mobil D-7044-AM & D-7045-AM",
+    "asset_id": "773"
+  },
+  {
+    "id": 4,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "8718",
+    "kode_lokasi": "2200721.00000000.162.162000000",
+    "gedung": "POOL KENDARAAN",
+    "ruang": "",
+    "deskripsi": "Mobil D-9924-AC",
+    "asset_id": "775"
+  },
+  {
+    "id": 6,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "9129",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Mobil D-1171-KU",
+    "asset_id": "1074"
+  },
+  {
+    "id": 12,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "9755",
+    "kode_lokasi": "2200721.00000000.162.162000000",
+    "gedung": "POOL KENDARAAN",
+    "ruang": "",
+    "deskripsi": "Motor Tiga Roda",
+    "asset_id": "1413"
+  },
+  {
+    "id": 321,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "22765",
+    "kode_lokasi": "2200721.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "MINIBUS Toyota",
+    "asset_id": "8744"
+  },
+  {
+    "id": 322,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "22768",
+    "kode_lokasi": "2200721.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "SEPEDA MOTOR Honda",
+    "asset_id": "8747"
+  },
+  {
+    "id": 323,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "22778",
+    "kode_lokasi": "2200721.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "SEPEDA MOTOR Honda",
+    "asset_id": "8756"
+  },
+  {
+    "id": 403,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Logistik (Ditlog) - Ops - Ganesha",
+    "no_aset": "27012",
+    "kode_lokasi": "2500121.00000000.121.121000000",
+    "gedung": "CAMPUS CENTER BARAT",
+    "ruang": "",
+    "deskripsi": "Mobil D - 1866 - CAN",
+    "asset_id": "11350"
+  },
+  {
+    "id": 470,
+    "pemilik": "ITB Induk - UPT - UPT Layanan Kesehatan (Yankes) - Ops - Ganesha",
+    "no_aset": "28982",
+    "kode_lokasi": "2500521.00000000.412.412000000",
+    "gedung": "MEDIKA GANESA",
+    "ruang": "",
+    "deskripsi": "Mobil Ambulance D-9907-AC",
+    "asset_id": "12953"
+  },
+  {
+    "id": 525,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "35785",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Sepeda Motor Roda Tiga D - 5524 - ABE",
+    "asset_id": "19097"
+  },
+  {
+    "id": 535,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "37274",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil D - 1730 - AFS",
+    "asset_id": "20491"
+  },
+  {
+    "id": 536,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "37278",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Pick Up D 8525 CR",
+    "asset_id": "20495"
+  },
+  {
+    "id": 630,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 631,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 632,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 633,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 634,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 635,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 636,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 637,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 638,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 639,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 640,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 641,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 642,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 643,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "231242",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur (Kijang Innova) 7",
+    "asset_id": "34582"
+  },
+  {
+    "id": 644,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sumber Daya Manusia (DitSDM) - Ops - Ganesha",
+    "no_aset": "231243",
+    "kode_lokasi": "2200621.00000000.902.902030004",
+    "gedung": "CCAR 02",
+    "ruang": "RUANG DIREKTUR KEPEGAWAIAN",
+    "deskripsi": "Mobil Direktur D - 1745 - AGG",
+    "asset_id": "34583"
+  },
+  {
+    "id": 645,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Pengembangan (Ditbang) - Ops - Ganesha",
+    "no_aset": "231250",
+    "kode_lokasi": "2201121.00000000.902.902020002",
+    "gedung": "CCAR 02",
+    "ruang": "RUANG SEKRETARIAT DAN BAGIAN SISTEM FISIK",
+    "deskripsi": "Mobil D - 1011 - AGI",
+    "asset_id": "34590"
+  },
+  {
+    "id": 672,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "252339",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil D - 1537 - AGV",
+    "asset_id": "35559"
+  },
+  {
+    "id": 673,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "252340",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Mocro Bus D - 7349 - AS",
+    "asset_id": "35560"
+  },
+  {
+    "id": 674,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "252343",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil Pick Up D - 8682 - FC",
+    "asset_id": "35563"
+  },
+  {
+    "id": 745,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Cirebon - Ops - Ganesha",
+    "no_aset": "272512",
+    "kode_lokasi": "2600221.00000000.221.221000000",
+    "gedung": "POOL KENDARAAN JATINANGOR",
+    "ruang": "",
+    "deskripsi": "Mobil",
+    "asset_id": "41157"
+  },
+  {
+    "id": 768,
+    "pemilik": "ITB Induk - UPT - UPT Saraga dan Sabuga (Saraga) - Ops - Ganesha",
+    "no_aset": "SBG0059",
+    "kode_lokasi": "2500421.00000000.918.918010001",
+    "gedung": "GEDUNG SABUGA",
+    "ruang": "RUANG PANITIA",
+    "deskripsi": "Kijang Kapsul",
+    "asset_id": "44216"
+  },
+  {
+    "id": 769,
+    "pemilik": "ITB Induk - UPT - UPT Saraga dan Sabuga (Saraga) - Ops - Ganesha",
+    "no_aset": "SBG0060",
+    "kode_lokasi": "2500421.00000000.918.918010001",
+    "gedung": "GEDUNG SABUGA",
+    "ruang": "RUANG PANITIA",
+    "deskripsi": "Kijang Kapsul",
+    "asset_id": "44217"
+  },
+  {
+    "id": 773,
+    "pemilik": "ITB Induk - UPT - UPT Saraga dan Sabuga (Saraga) - Ops - Ganesha",
+    "no_aset": "291253",
+    "kode_lokasi": "2500421.00000000.602.602000000",
+    "gedung": "UPT OLAHRAGA",
+    "ruang": "",
+    "deskripsi": "Mobil",
+    "asset_id": "44614"
+  },
+  {
+    "id": 793,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) - Ops - Ganesha",
+    "no_aset": "294942",
+    "kode_lokasi": "2400121.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mobil D-1042-AHX",
+    "asset_id": "46193"
+  },
+  {
+    "id": 797,
+    "pemilik": "ITB Induk - UPT - UPT Keamanan, Kesehatan dan Keselamatan Kerja dan Lingkungan (K3L) - Ops - Ganesha",
+    "no_aset": "HB00394",
+    "kode_lokasi": "2500621.00000000.122.122020001",
+    "gedung": "CAMPUS CENTER TIMUR (GEDUNG BENNY SUBIANTO II)",
+    "ruang": "RUANG KEPALA UPT K3L",
+    "deskripsi": "Ambulance No. Pol : D - 9940 - AG",
+    "asset_id": "46428"
+  },
+  {
+    "id": 801,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Inovasi dan Kewirausahaan (LPIK) - Ops - Ganesha",
+    "no_aset": "297256",
+    "kode_lokasi": "2400221.00000000.409.409010010",
+    "gedung": "RUMAH F",
+    "ruang": "RUANG STAFF 2",
+    "deskripsi": "Mobil",
+    "asset_id": "46726"
+  },
+  {
+    "id": 802,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Inovasi dan Kewirausahaan (LPIK) - Ops - Ganesha",
+    "no_aset": "297256",
+    "kode_lokasi": "2400221.00000000.409.409010010",
+    "gedung": "RUMAH F",
+    "ruang": "RUANG STAFF 2",
+    "deskripsi": "Mobil",
+    "asset_id": "46726"
+  },
+  {
+    "id": 803,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Inovasi dan Kewirausahaan (LPIK) - Ops - Ganesha",
+    "no_aset": "297256",
+    "kode_lokasi": "2400221.00000000.409.409010010",
+    "gedung": "RUMAH F",
+    "ruang": "RUANG STAFF 2",
+    "deskripsi": "Mobil",
+    "asset_id": "46726"
+  },
+  {
+    "id": 807,
+    "pemilik": "ITB Induk - FS - FTTM - Ops - Ganesha",
+    "no_aset": "298372",
+    "kode_lokasi": "2100521.60005001.177.177B00005",
+    "gedung": "LABORATORIUM TEKNOLOGI XVIII (R&M EM)",
+    "ruang": "LOBBY BASEMENT",
+    "deskripsi": "Mobil Mitsubishi Xpander Ultimate 1.5 A.T",
+    "asset_id": "47224"
+  },
+  {
+    "id": 808,
+    "pemilik": "ITB Induk - FS - FTTM - Ops - Ganesha",
+    "no_aset": "298372",
+    "kode_lokasi": "2100521.60005001.177.177B00005",
+    "gedung": "LABORATORIUM TEKNOLOGI XVIII (R&M EM)",
+    "ruang": "LOBBY BASEMENT",
+    "deskripsi": "Mobil Mitsubishi Xpander Ultimate 1.5 A.T",
+    "asset_id": "47224"
+  },
+  {
+    "id": 809,
+    "pemilik": "ITB Induk - FS - FTTM - Ops - Ganesha",
+    "no_aset": "298372",
+    "kode_lokasi": "2100521.60005001.177.177B00005",
+    "gedung": "LABORATORIUM TEKNOLOGI XVIII (R&M EM)",
+    "ruang": "LOBBY BASEMENT",
+    "deskripsi": "Mobil Mitsubishi Xpander Ultimate 1.5 A.T",
+    "asset_id": "47224"
+  },
+  {
+    "id": 810,
+    "pemilik": "ITB Induk - UPT - UPT Keamanan, Kesehatan dan Keselamatan Kerja dan Lingkungan (K3L) - Ops - Ganesha",
+    "no_aset": "298591",
+    "kode_lokasi": "2500621.00000000.122.122020001",
+    "gedung": "CAMPUS CENTER TIMUR (GEDUNG BENNY SUBIANTO II)",
+    "ruang": "RUANG KEPALA UPT K3L",
+    "deskripsi": "UNIT KENDARAAN PEMADAM KEBAKARAN JENIS HINO RANGER",
+    "asset_id": "47443"
+  },
+  {
+    "id": 811,
+    "pemilik": "ITB Induk - UPT - UPT Keamanan, Kesehatan dan Keselamatan Kerja dan Lingkungan (K3L) - Ops - Ganesha",
+    "no_aset": "298592",
+    "kode_lokasi": "2500621.00000000.122.122020001",
+    "gedung": "CAMPUS CENTER TIMUR (GEDUNG BENNY SUBIANTO II)",
+    "ruang": "RUANG KEPALA UPT K3L",
+    "deskripsi": "UNIT KENDARAAN PEMADAM KEBAKARAN JENIS WATER TENDER MITSUBISHI",
+    "asset_id": "47444"
+  },
+  {
+    "id": 818,
+    "pemilik": "ITB Induk - UPT - UPT Keamanan, Kesehatan dan Keselamatan Kerja dan Lingkungan (K3L) - Ops - Ganesha",
+    "no_aset": "303222",
+    "kode_lokasi": "2500621.00000000.122.122020001",
+    "gedung": "CAMPUS CENTER TIMUR (GEDUNG BENNY SUBIANTO II)",
+    "ruang": "RUANG KEPALA UPT K3L",
+    "deskripsi": "Mobil Ambulance",
+    "asset_id": "48547"
+  },
+  {
+    "id": 824,
+    "pemilik": "ITB Induk - FS - SBM - Ops - Ganesha",
+    "no_aset": "315288",
+    "kode_lokasi": "2101221.60012001.425.425B00012",
+    "gedung": "LABORATORIUM TEKNOLOGI XII (MBA-PERTAMINA)",
+    "ruang": "LOBY SEMI BASEMENT",
+    "deskripsi": "Mobil",
+    "asset_id": "49410"
+  },
+  {
+    "id": 825,
+    "pemilik": "ITB Induk - FS - SBM - Ops - Ganesha",
+    "no_aset": "315289",
+    "kode_lokasi": "2101221.60012001.425.425B00012",
+    "gedung": "LABORATORIUM TEKNOLOGI XII (MBA-PERTAMINA)",
+    "ruang": "LOBY SEMI BASEMENT",
+    "deskripsi": "Mobil Inova Venturer D-1213-AIS",
+    "asset_id": "49411"
+  },
+  {
+    "id": 826,
+    "pemilik": "ITB Induk - FS - FITB - Ops - Ganesha",
+    "no_aset": "HB00930",
+    "kode_lokasi": "2100621.60006001.914.914000000",
+    "gedung": "ITB CIREBON (ASRAMA HAJI)",
+    "ruang": "",
+    "deskripsi": "Kapal Laut",
+    "asset_id": "49489"
+  },
+  {
+    "id": 839,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "318132",
+    "kode_lokasi": "2200721.00000000.126.126000000",
+    "gedung": "KRIYA 1 (FSRD)",
+    "ruang": "",
+    "deskripsi": "Mobil",
+    "asset_id": "50751"
+  },
+  {
+    "id": 847,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Cirebon - Ops - Ganesha",
+    "no_aset": "319435",
+    "kode_lokasi": "2600221.00000000.221.221000000",
+    "gedung": "POOL KENDARAAN JATINANGOR",
+    "ruang": "",
+    "deskripsi": "Mobil",
+    "asset_id": "52026"
+  },
+  {
+    "id": 848,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Cirebon - Ops - Ganesha",
+    "no_aset": "319436",
+    "kode_lokasi": "2600221.00000000.221.221000000",
+    "gedung": "POOL KENDARAAN JATINANGOR",
+    "ruang": "",
+    "deskripsi": "Mobil",
+    "asset_id": "52027"
+  },
+  {
+    "id": 850,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Cirebon - Ops - Ganesha",
+    "no_aset": "321599",
+    "kode_lokasi": "2600221.00000000.206.206010006",
+    "gedung": "GEDUNG E (GEDUNG KULIAH JATINANGOR)",
+    "ruang": "RUANG KULIAH 9648",
+    "deskripsi": "Bus Medium",
+    "asset_id": "52869"
+  },
+  {
+    "id": 962,
+    "pemilik": "ITB Induk - Biro/Kantor - Biro Administrasi Umum (BAU) - Ops - Ganesha",
+    "no_aset": "330489",
+    "kode_lokasi": "2300121.00000000.201.201B10010",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "RUANG KERJA STAFF PENGOLAHAN ARSIP",
+    "deskripsi": "Sepeda Motor YAMAHA MATIC GEAR UP 125 S 125 CC",
+    "asset_id": "60243"
+  },
+  {
+    "id": 2352,
+    "pemilik": "ITB Induk - FS - FSRD - Ops - Ganesha",
+    "no_aset": "334461",
+    "kode_lokasi": "2100721.60007001.102.102010011",
+    "gedung": "KANTOR FSRD",
+    "ruang": "RUANG KEPALA BAGIAN FSRD",
+    "deskripsi": "Sepeda Motor Roda Tiga",
+    "asset_id": "62039"
+  },
+  {
+    "id": 2353,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "334462",
+    "kode_lokasi": "2200721.00000000.128.128010005",
+    "gedung": "KRIYA 2 (FSRD)",
+    "ruang": "GUDANG PERAWATAN BANGUNAN (DITSP)",
+    "deskripsi": "Sepeda Motor Roda Tiga",
+    "asset_id": "62040"
+  },
+  {
+    "id": 2354,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "334463",
+    "kode_lokasi": "2200721.00000000.128.128010005",
+    "gedung": "KRIYA 2 (FSRD)",
+    "ruang": "GUDANG PERAWATAN BANGUNAN (DITSP)",
+    "deskripsi": "Sepeda Motor Roda Tiga",
+    "asset_id": "62041"
+  },
+  {
+    "id": 2783,
+    "pemilik": "ITB Induk - FS - SAPPK - Ops - Ganesha",
+    "no_aset": "334909",
+    "kode_lokasi": "2101121.60011001.120.120010001",
+    "gedung": "LABORATORIUM TEKNOLOGI IX A (SUGIJANTO SOEGIJOKO)",
+    "ruang": "R. POS",
+    "deskripsi": "Sepeda Motor",
+    "asset_id": "62487"
+  },
+  {
+    "id": 4376,
+    "pemilik": "ITB Induk - None - Badan Pengelola Usaha dan Dana Lestari (BPUDL) - Ops - Ganesha",
+    "no_aset": "340157",
+    "kode_lokasi": "2000521.00000000.405.405000000",
+    "gedung": "VILLA MERAH",
+    "ruang": "",
+    "deskripsi": "Mobil D - 78 - ITB",
+    "asset_id": "64124"
+  },
+  {
+    "id": 5321,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342037",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Toyota Kijang D-1782-GQ",
+    "asset_id": "65170"
+  },
+  {
+    "id": 5322,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342039",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Toyota Kijang D-1783-HB",
+    "asset_id": "65172"
+  },
+  {
+    "id": 5323,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342043",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Sedan Toyota Altis D-1538-HA",
+    "asset_id": "65176"
+  },
+  {
+    "id": 5324,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342044",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Sedan Toyota Altis D-1539-HA",
+    "asset_id": "65177"
+  },
+  {
+    "id": 5325,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342052",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "MINI BUS BARANG MINI BUS BARANG / MITSUBISHI",
+    "asset_id": "65185"
+  },
+  {
+    "id": 5326,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342054",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "MINI BUS MINI BUS / KIA TRAVELLO OPTION 2",
+    "asset_id": "65187"
+  },
+  {
+    "id": 5327,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342055",
+    "kode_lokasi": "2200721.00000000.130.130000000",
+    "gedung": "DIREKTORAT SP (EX STJR)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Mini Bus / Toyota/Avanza 1300",
+    "asset_id": "65188"
+  },
+  {
+    "id": 5328,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342078",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Sepeda Motor Honda Kharisma X",
+    "asset_id": "65211"
+  },
+  {
+    "id": 5329,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342091",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Toyota Kijang D-1037-CY",
+    "asset_id": "65224"
+  },
+  {
+    "id": 5330,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342092",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Pick Up Mitsubishi D-8525-CR",
+    "asset_id": "65225"
+  },
+  {
+    "id": 5331,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342096",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Toyota Kijang D-1226-GD",
+    "asset_id": "65229"
+  },
+  {
+    "id": 5332,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sarana Prasarana dan Sistem Informasi (DitSPSI) (SP) - Ops - Ganesha",
+    "no_aset": "342097",
+    "kode_lokasi": "2200721.00000000.173.173000000",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "",
+    "deskripsi": "Mini Bus Toyota Kijang D-1357-GJ",
+    "asset_id": "65230"
+  },
+  {
+    "id": 5350,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sumber Daya Manusia (DitSDM) - Ops - Ganesha",
+    "no_aset": "345200",
+    "kode_lokasi": "2200621.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur D - 1745 - AGG",
+    "asset_id": "68333"
+  },
+  {
+    "id": 5351,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sumber Daya Manusia (DitSDM) - Ops - Ganesha",
+    "no_aset": "345200",
+    "kode_lokasi": "2200621.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur D - 1745 - AGG",
+    "asset_id": "68333"
+  },
+  {
+    "id": 5352,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Sumber Daya Manusia (DitSDM) - Ops - Ganesha",
+    "no_aset": "345200",
+    "kode_lokasi": "2200621.00000000.000.000000000",
+    "gedung": "",
+    "ruang": "",
+    "deskripsi": "Mobil Direktur D - 1745 - AGG",
+    "asset_id": "68333"
+  },
+  {
+    "id": 7798,
+    "pemilik": "ITB Induk - FS - FSRD - Ops - Ganesha",
+    "no_aset": "352438",
+    "kode_lokasi": "2100721.11874111.102.102010011",
+    "gedung": "KANTOR FSRD",
+    "ruang": "RUANG KEPALA BAGIAN FSRD",
+    "deskripsi": "Sepeda Motor All New Vario 160 ABS D - 6108 - ADX",
+    "asset_id": "87023"
+  },
+  {
+    "id": 8960,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Keuangan (Ditkeu) - Ops - Ganesha",
+    "no_aset": "353602",
+    "kode_lokasi": "2200921.00000000.903.903022003",
+    "gedung": "ANNEX 03",
+    "ruang": "RUANG SEKRETARIAT",
+    "deskripsi": "Sepeda Motor, Honda Vario D 2966 ADV 160cc",
+    "asset_id": "92087"
+  },
+  {
+    "id": 13616,
+    "pemilik": "ITB Induk - FS - FTSL - Ops - Ganesha",
+    "no_aset": "358529",
+    "kode_lokasi": "2100221.10351111.109.109010009",
+    "gedung": "PSDA",
+    "ruang": "RUANG PRODI SIPIL (S1)",
+    "deskripsi": "Sepeda Merk : PacificTipe : Vigilon 1.5S",
+    "asset_id": "99596"
+  },
+  {
+    "id": 13617,
+    "pemilik": "ITB Induk - FS - FTSL - Ops - Ganesha",
+    "no_aset": "358530",
+    "kode_lokasi": "2100221.10351111.109.109010009",
+    "gedung": "PSDA",
+    "ruang": "RUANG PRODI SIPIL (S1)",
+    "deskripsi": "Sepeda Merk : PacificTipe : Vigilon 1.5S",
+    "asset_id": "99597"
+  },
+  {
+    "id": 13844,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) - Ops - Ganesha",
+    "no_aset": "358757",
+    "kode_lokasi": "2400121.00000000.173.173064004",
+    "gedung": "LABORATORIUM TEKNOLOGI XVI (CRCS)",
+    "ruang": "KEPALA BAGIAN ADMINISTRASI UMUM",
+    "deskripsi": "Sepeda Motor Listrik Gesit G-1 D - 3002 - AEA",
+    "asset_id": "100097"
+  },
+  {
+    "id": 16500,
+    "pemilik": "ITB Induk - FS - FITB - Ops - Ganesha",
+    "no_aset": "HB01397",
+    "kode_lokasi": "2100621.60006001.914.914010005",
+    "gedung": "ITB CIREBON (ASRAMA HAJI)",
+    "ruang": "LABORATORIUM 1",
+    "deskripsi": "Mobil H-1 XG Gasoline (2020 Model) B-2592-PKY",
+    "asset_id": "106542"
+  },
+  {
+    "id": 16501,
+    "pemilik": "ITB Induk - FS - FITB - Ops - Ganesha",
+    "no_aset": "HB01398",
+    "kode_lokasi": "2100621.60006001.914.914010005",
+    "gedung": "ITB CIREBON (ASRAMA HAJI)",
+    "ruang": "LABORATORIUM 1",
+    "deskripsi": "Mobil H-100 Pick Up Box (2018 Model) B-9525-PCR",
+    "asset_id": "106543"
+  },
+  {
+    "id": 18351,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Ilmu dan Teknologi (LPIT) - Ops - Ganesha",
+    "no_aset": "362561",
+    "kode_lokasi": "2400321.00000000.427.4270B0008",
+    "gedung": "GEDUNG SAINS TECHNO PARK (STP)",
+    "ruang": "Ruang Gudang",
+    "deskripsi": "Sepeda Motor E-trike Overall Size 2600×925×1700",
+    "asset_id": "113380"
+  },
+  {
+    "id": 19250,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363461",
+    "kode_lokasi": "2101021.12732111.136.136030401",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "TU ELKA",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115493"
+  },
+  {
+    "id": 19251,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363462",
+    "kode_lokasi": "2101021.60010001.133.133041000",
+    "gedung": "LABORATORIUM TEKNOLOGI V",
+    "ruang": "TU LAB",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115494"
+  },
+  {
+    "id": 19252,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363463",
+    "kode_lokasi": "2101021.60010001.136.136033401",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "TATA USAHA KKTI",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115495"
+  },
+  {
+    "id": 19253,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363464",
+    "kode_lokasi": "2101021.60010001.148.148010200",
+    "gedung": "GEDUNG EX PLN",
+    "ruang": "TATA USAHA",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115496"
+  },
+  {
+    "id": 19254,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363465",
+    "kode_lokasi": "2101021.12732111.136.136020800",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "R. RAPAT LSKK",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115497"
+  },
+  {
+    "id": 19255,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363466",
+    "kode_lokasi": "2101021.12732111.136.136020800",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "R. RAPAT LSKK",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115498"
+  },
+  {
+    "id": 19256,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363467",
+    "kode_lokasi": "2101021.60010001.136.136020800",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "R. RAPAT LSKK",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115499"
+  },
+  {
+    "id": 19257,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363468",
+    "kode_lokasi": "2101021.60010001.136.136010002",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "R. Wakil Dekan Sumber Daya",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115500"
+  },
+  {
+    "id": 19258,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363469",
+    "kode_lokasi": "2101021.60010001.136.136031701",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "TU BME",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115501"
+  },
+  {
+    "id": 19259,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363470",
+    "kode_lokasi": "2101021.60010001.133.133021400",
+    "gedung": "LABORATORIUM TEKNOLOGI V",
+    "ruang": "TU KK RPLD",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI G20",
+    "asset_id": "115502"
+  },
+  {
+    "id": 19260,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363471",
+    "kode_lokasi": "2101021.60010001.136.136010009",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "R. Dekan",
+    "deskripsi": "Sepeda Polygon Listrik PLG KALOSI G20",
+    "asset_id": "115503"
+  },
+  {
+    "id": 19261,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363472",
+    "kode_lokasi": "2101021.60010001.129.129010200",
+    "gedung": "LAB. RADAR (STEI)",
+    "ruang": "TATA USAHA",
+    "deskripsi": "Sepeda Polygon Listrik PLG KALOSI G20",
+    "asset_id": "115504"
+  },
+  {
+    "id": 19262,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363473",
+    "kode_lokasi": "2101021.60010001.919.919010003",
+    "gedung": "GEDUNG KOICA",
+    "ruang": "OFFICE",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI CRUISE",
+    "asset_id": "115505"
+  },
+  {
+    "id": 19263,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363474",
+    "kode_lokasi": "2101021.60010001.136.136020108",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "SARANA & PRASARANA",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI CRUISE",
+    "asset_id": "115506"
+  },
+  {
+    "id": 19264,
+    "pemilik": "ITB Induk - FS - STEI - Ops - Ganesha",
+    "no_aset": "363475",
+    "kode_lokasi": "2101021.60010001.136.136020108",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "SARANA & PRASARANA",
+    "deskripsi": "Sepeda Listrik Polygon PLG KALOSI CRUISE",
+    "asset_id": "115507"
+  },
+  {
+    "id": 22014,
+    "pemilik": "ITB Induk - FS - FTI - Ops - Ganesha",
+    "no_aset": "366214",
+    "kode_lokasi": "2100321.60003001.133.133011008",
+    "gedung": "LABORATORIUM TEKNOLOGI V",
+    "ruang": "RUANG BAGIAN SARANA DAN PRASARANA",
+    "deskripsi": "Sepeda Motor D-2303- AEE U-Winfly T3/202360V/20 AH",
+    "asset_id": "133369"
+  },
+  {
+    "id": 24135,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02140",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "141364"
+  },
+  {
+    "id": 24136,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02144",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "141365"
+  },
+  {
+    "id": 24137,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02150",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Miles",
+    "asset_id": "141366"
+  },
+  {
+    "id": 24138,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02152",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Miles",
+    "asset_id": "141367"
+  },
+  {
+    "id": 24139,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02158",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Gili Velo",
+    "asset_id": "141368"
+  },
+  {
+    "id": 24150,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02141",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142364"
+  },
+  {
+    "id": 24151,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02142",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142365"
+  },
+  {
+    "id": 24152,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02143",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142366"
+  },
+  {
+    "id": 24153,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02145",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142367"
+  },
+  {
+    "id": 24154,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02146",
+    "kode_lokasi": "2200521.00000000.201.201010008",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "RUANG K3L",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142368"
+  },
+  {
+    "id": 24155,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02147",
+    "kode_lokasi": "2200521.00000000.201.201010008",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "RUANG K3L",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142369"
+  },
+  {
+    "id": 24156,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02148",
+    "kode_lokasi": "2200521.00000000.908.908010004",
+    "gedung": "ASRAMA ITB JATINANGOR TB 2",
+    "ruang": "SELASAR LUAR",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142370"
+  },
+  {
+    "id": 24157,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02149",
+    "kode_lokasi": "2200521.00000000.908.908010004",
+    "gedung": "ASRAMA ITB JATINANGOR TB 2",
+    "ruang": "SELASAR LUAR",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Cruise",
+    "asset_id": "142371"
+  },
+  {
+    "id": 24158,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02151",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Miles",
+    "asset_id": "142372"
+  },
+  {
+    "id": 24159,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02153",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Miles",
+    "asset_id": "142373"
+  },
+  {
+    "id": 24160,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02154",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Kalosi Miles",
+    "asset_id": "142374"
+  },
+  {
+    "id": 24161,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02155",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Gili Velo",
+    "asset_id": "142375"
+  },
+  {
+    "id": 24162,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02156",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Gili Velo",
+    "asset_id": "142376"
+  },
+  {
+    "id": 24163,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02157",
+    "kode_lokasi": "2200521.00000000.201.201010003",
+    "gedung": "GEDUNG U (GEDUNG UTAMA)",
+    "ruang": "GUDANG PEMINJAMAN",
+    "deskripsi": "Sepeda Listrik Polygon Gili Velo",
+    "asset_id": "142377"
+  },
+  {
+    "id": 24164,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Eksekutif Multi Kampus (DEMK) ITB Jatinangor - Ops - Ganesha",
+    "no_aset": "HB02159",
+    "kode_lokasi": "2200521.00000000.220.220D00005",
+    "gedung": "GKU 1 JATINANGOR",
+    "ruang": "Gudang (K1.d05)",
+    "deskripsi": "Sepeda Listrik Polygon Gili Velo",
+    "asset_id": "142378"
+  },
+  {
+    "id": 25661,
+    "pemilik": "ITB Induk - Direktorat - Direktorat Persiapan Bersama (Ditsama) - Ops - Ganesha",
+    "no_aset": "369811",
+    "kode_lokasi": "2600121.00000000.160.160022009",
+    "gedung": "GEDUNG PERPUSTAKAAN (GEDUNG T.P. RACHMAT II)",
+    "ruang": "GUDANG",
+    "deskripsi": "Motor Honda Vario Matic D 4022 AED",
+    "asset_id": "149367"
+  },
+  {
+    "id": 32875,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Inovasi dan Kewirausahaan (LPIK) - Ops - Ganesha",
+    "no_aset": "376943",
+    "kode_lokasi": "2400221.00000000.136.136B10131",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "GUDANG",
+    "deskripsi": "Mobil AVANZA D 1642 AGT 1.3GA/T 2018",
+    "asset_id": "183364"
+  },
+  {
+    "id": 39677,
+    "pemilik": "ITB Induk - Lembaga - Lembaga Pengembangan Inovasi dan Kewirausahaan (LPIK) - Ops - Ganesha",
+    "no_aset": "383224",
+    "kode_lokasi": "2400221.00000000.136.136020200",
+    "gedung": "LABORATORIUM TEKNOLOGI VIII",
+    "ruang": "SEKRETARIAT",
+    "deskripsi": "Mobil Honda Brio - D 1288 ABU DD1 1.2 S AT ",
+    "asset_id": "207377"
+  }
+]

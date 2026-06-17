@@ -180,6 +180,10 @@ const Sidebar = () => {
   useEffect(() => {
     if (!session) return;
     fetchData();
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000);
+    return () => clearInterval(interval);
   }, [session]);
 
   return (
