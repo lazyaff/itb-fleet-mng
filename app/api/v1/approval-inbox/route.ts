@@ -156,6 +156,7 @@ export async function PUT(request: NextRequest) {
             vehicle_parts: true,
           },
         },
+        vehicle_sync_history: true,
       },
     });
     if (!data) {
@@ -210,6 +211,68 @@ export async function PUT(request: NextRequest) {
             resolved_at: new Date(data.service_history.date),
           },
         });
+      }
+
+      if (status === "approved" && data.vehicle_sync_history) {
+        const synced_data: any = data.vehicle_sync_history.data;
+        const vehicles = await tx.vehicle.findMany({
+          select: {
+            id: true,
+            plate_number: true,
+          },
+        });
+
+        const map = new Map(vehicles.map((v) => [v.plate_number, v.id]));
+
+        const createData = [];
+        const updateData = [];
+
+        for (const item of synced_data) {
+          const id = map.get(item.plate_number);
+
+          if (id) {
+            updateData.push({
+              id,
+              item,
+            });
+          } else {
+            createData.push(item);
+          }
+        }
+
+        await tx.vehicle.createMany({
+          data: createData.map((item) => ({
+            plate_number: item.plate_number,
+            status: "Available",
+            current_mileage: 0,
+            name: item.name,
+            brand: item.brand,
+            category: item.category,
+            plate_color: item.plate_color,
+            type: item.type,
+            assigned_unit: item.assigned_unit,
+            usage_type: item.usage_type,
+            sync_status: item.status === "new" ? "synced" : "conflict",
+          })),
+        });
+
+        await Promise.all(
+          updateData.map(({ id, item }) =>
+            tx.vehicle.update({
+              where: { id },
+              data: {
+                name: item.name,
+                brand: item.brand,
+                category: item.category,
+                plate_color: item.plate_color,
+                type: item.type,
+                assigned_unit: item.assigned_unit,
+                usage_type: item.usage_type,
+                sync_status: item.status === "new" ? "synced" : "conflict",
+              },
+            }),
+          ),
+        );
       }
     });
 

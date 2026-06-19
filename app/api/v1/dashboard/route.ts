@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     const rawData = await prisma.vehicle.findMany({
       where: {
         deleted_at: null,
+        visibility: true,
       },
       select: {
         id: true,
