@@ -94,7 +94,9 @@ export async function GET(request: NextRequest) {
                 name: part.vehicle_part.name,
               })),
             },
-        vehicle_sync: !rawData.vehicle_sync_history ? null : {},
+        vehicle_sync: !rawData.vehicle_sync_history
+          ? null
+          : rawData.vehicle_sync_history.data,
       },
     });
   } catch (error) {

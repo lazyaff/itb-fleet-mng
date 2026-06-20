@@ -245,7 +245,7 @@ export async function PUT(request: NextRequest) {
             plate_number: item.plate_number,
             status: "Available",
             current_mileage: 0,
-            name: item.name,
+            name: item.name ?? "-",
             brand: item.brand,
             category: item.category,
             plate_color: item.plate_color,
@@ -253,6 +253,7 @@ export async function PUT(request: NextRequest) {
             assigned_unit: item.assigned_unit,
             usage_type: item.usage_type,
             sync_status: item.status === "new" ? "synced" : "conflict",
+            visibility: false,
           })),
         });
 

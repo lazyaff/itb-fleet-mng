@@ -5,7 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {
@@ -55,21 +55,23 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const masterData = result.data.map((item: any) => ({
-      plate_number: item.nomor_polisi,
-      name: item.tipe ?? null,
-      brand: item.merk ?? null,
-      category: item.kelompok ?? null,
-      plate_color: item.plat_kendaraan ?? null,
-      type: item.jenis ?? null,
-      assigned_unit: item.unit_pengguna ?? null,
-      usage_type: item.penggunaan ?? null,
-      status: currentData.find(
-        (data) => data.plate_number === item.nomor_polisi,
-      )
-        ? "synced"
-        : "new",
-    }));
+    const currentPlates = new Set(currentData.map((item) => item.plate_number));
+
+    const masterData = result.data.map((item: any) => {
+      const exists = currentPlates.has(item.nomor_polisi);
+      return {
+        plate_number: item.nomor_polisi,
+        name: item.tipe ?? null,
+        brand: item.merk ?? null,
+        category: item.kelompok ?? null,
+        plate_color: item.plat_kendaraan ?? null,
+        type: item.jenis ?? null,
+        assigned_unit: item.unit_pengguna ?? null,
+        usage_type: item.penggunaan ?? null,
+        status: exists ? "synced" : "new",
+        selected: !exists,
+      };
+    });
 
     const conflictData = currentData
       .filter(
@@ -81,6 +83,7 @@ export async function GET(request: NextRequest) {
       .map((item) => ({
         ...item,
         status: "conflict",
+        selected: false,
       }));
 
     const data = [...masterData, ...conflictData];
@@ -107,7 +110,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // validate auth
-    const isAuthorized = await validateJWT(request, ["SADM", "ADM"]);
+    const isAuthorized = await validateJWT(request, ["SADM", "ADM", "UOPS"]);
     if (!isAuthorized.success) {
       return NextResponse.json(
         {

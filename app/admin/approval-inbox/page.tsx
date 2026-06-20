@@ -10,7 +10,7 @@ import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { approvalStatus, approvalType } from "@/src/dropdown";
+import { approvalStatus, approvalType, syncStatus } from "@/src/dropdown";
 import { Check, Eye, Search, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,13 @@ type DetailProps = {
       name: string;
     }[];
   } | null;
-  vehicle_sync: {} | null;
+  vehicle_sync:
+    | {
+        plate_number: string;
+        name: string;
+        status: string;
+      }[]
+    | null;
 };
 
 export default function ApprovalInbox() {
@@ -599,7 +605,7 @@ export default function ApprovalInbox() {
 
       {/* Detail Slide-over Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-[#F6F8FA] z-50 shadow-2xl transition-transform duration-300 ease-in-out overflow-y-auto ${
           openDetail ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -734,12 +740,44 @@ export default function ApprovalInbox() {
                 </div>
               )}
 
-              {/* Vehicle sync detail (fallback, struktur data belum didefinisikan) */}
-              {!detailData.service_history && detailData.vehicle_sync && (
-                <div className="text-gray-500 text-sm">
-                  {lang === "id"
-                    ? "Tidak ada detail tambahan untuk sinkronisasi ini."
-                    : "No additional details for this sync."}
+              {/* Vehicle sync detail */}
+              {detailData.vehicle_sync && (
+                <div className="">
+                  <h2 className="text-[#7B7B7B]/80 font-bold text-lg uppercase">
+                    {t("my_request.vehicle_for_sync")} (
+                    {detailData.vehicle_sync.length})
+                  </h2>
+                  <div className="border border-gray-200 bg-white rounded-lg mt-3">
+                    {detailData.vehicle_sync.map((vehicle) => (
+                      <div
+                        key={vehicle.plate_number}
+                        className="border-b border-gray-200 p-4"
+                      >
+                        <p className="font-semibold">{vehicle.name}</p>
+                        <div className="mt-3 text-[0.825rem]">
+                          <span className="bg-[#F8FAFC] py-1 px-2 border border-gray-200 rounded-md mr-2">
+                            {vehicle.plate_number}
+                          </span>
+                          {(() => {
+                            const config =
+                              syncStatus[
+                                vehicle.status as keyof typeof syncStatus
+                              ];
+
+                            if (!config) return vehicle.status;
+
+                            return (
+                              <span
+                                className={`py-1 px-2 border font-medium ${config.bg} ${config.text} ${config.border} rounded-md`}
+                              >
+                                {t(`my_request.${vehicle.status}`)}
+                              </span>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

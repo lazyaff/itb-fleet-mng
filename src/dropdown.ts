@@ -274,3 +274,38 @@ export const approvalType = [
     long_label_en: "Vehicle Sync",
   },
 ];
+
+export const syncStatus = {
+  new: {
+    color: "green",
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-400",
+    label_id: "Baru",
+    label_en: "New",
+  },
+  synced: {
+    color: "blue",
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-400",
+    label_id: "Tertaut",
+    label_en: "Synced",
+  },
+  conflict: {
+    color: "yellow",
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-400",
+    label_id: "Konflik",
+    label_en: "Conflict",
+  },
+  not_synced: {
+    color: "gray",
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+    border: "border-gray-400",
+    label_id: "Tidak Tertaut",
+    label_en: "Not Synced",
+  },
+} as const;
