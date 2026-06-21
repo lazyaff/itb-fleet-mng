@@ -81,7 +81,7 @@ export default function Sync() {
     visible: boolean;
     message: string;
     subtitle: string;
-    type: "delete" | "password" | "default";
+    type: "submit" | "default";
     onConfirm: () => void;
     onCancel: () => void;
   }>({
@@ -256,7 +256,7 @@ export default function Sync() {
     }
   };
 
-  const filteredSyncedVehicleData = useMemo(() => {
+  const filteredSyncedVehicleData: SyncedVehicleProps[] = useMemo(() => {
     const keyword = search.toLowerCase();
 
     return syncedVehicleData.filter(
@@ -275,17 +275,94 @@ export default function Sync() {
     );
   }, [syncedVehicleData, search, status]);
 
+  const newVehicles = syncedVehicleData.filter((item) => item.status === "new");
+
+  const selectedNewVehicles = newVehicles.filter((item) => item.selected);
+
+  const allSelected =
+    newVehicles.length > 0 && selectedNewVehicles.length === newVehicles.length;
+
+  const handleSubmit = async () => {
+    try {
+      if (selectedNewVehicles.length === 0 || loading) return;
+
+      setLoading(true);
+      const response = await fetch(`/api/v1/vehicle-sync`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.user.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          synced_data: selectedNewVehicles,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setSection("registry");
+        await fetchData();
+        setSearch("");
+        setStatus("");
+        setAlert({
+          visible: true,
+          type: "success",
+          title: t("form.success_title"),
+          subtitle: t("form.add_request_success"),
+          onClose: () => {},
+        });
+      } else {
+        if (result.status === 401) {
+          handleLogout();
+        } else {
+          setAlert({
+            visible: true,
+            type: "error",
+            title: t("form.error_title"),
+            subtitle: result.message,
+            onClose: () => {},
+          });
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setAlert({
+        visible: true,
+        type: "error",
+        title: t("form.error_title"),
+        subtitle: t("form.error_generic"),
+        onClose: () => {},
+      });
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative h-full max-h-none">
       <div className={`p-4 flex flex-col min-h-full`}>
         <div className="mb-6 flex flex-col items-start gap-2">
-          <div className="flex flex-row w-full items-center justify-between">
+          <div className="flex flex-row w-full items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold">
                 {t("vehicle_sync.title_1")}
               </h1>
               {section === "registry" ? (
-                <p className="text-gray-500">{t("vehicle_sync.not_synced")}</p>
+                selectedNewVehicles.length === 0 ? (
+                  <p className="text-gray-500">
+                    {t("vehicle_sync.not_synced")}
+                  </p>
+                ) : (
+                  <span
+                    className={`mt-2 inline-flex items-center gap-2 px-4 py-1.5 rounded-md border text-sm bg-blue-100 text-blue-700 border-blue-400 `}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full bg-blue-500`} />
+                    <span className="font-semibold">
+                      {t("vehicle_sync.waiting_approval")}
+                    </span>{" "}
+                    - {t("vehicle_sync.sent")}
+                  </span>
+                )
               ) : (
                 <p className="text-gray-500">
                   {syncedVehicleData.length} {t("vehicle_sync.fetched")}
@@ -303,7 +380,8 @@ export default function Sync() {
               ) : (
                 <>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
+                      await fetchData();
                       setSection("registry");
                       setSyncedVehicleData([]);
                       setSearch("");
@@ -314,11 +392,29 @@ export default function Sync() {
                     {t("common.cancel")}
                   </button>
                   <button
-                    // onClick={handleUpdateService}
+                    onClick={() => {
+                      if (selectedNewVehicles.length === 0) return;
+                      setConfirmAlert({
+                        visible: true,
+                        message: t("vehicle_sync.confirm"),
+                        subtitle: t("vehicle_part.delete_warning"),
+                        type: "submit",
+                        onConfirm: async () => {
+                          await handleSubmit();
+                        },
+                        onCancel: () => {},
+                      });
+                    }}
                     className={`font-medium px-6 bg-[#00A1FE] text-white py-2 rounded-lg select-none hover:bg-[#048ad8] cursor-pointer items-center flex gap-4`}
                   >
                     <SendHorizontal size={14} strokeWidth={2} />{" "}
-                    {t("vehicle_sync.send")}
+                    {t("vehicle_sync.send")} (
+                    {
+                      syncedVehicleData.filter(
+                        (vehicle: any) => vehicle.selected,
+                      ).length
+                    }
+                    )
                   </button>
                 </>
               )}
@@ -377,7 +473,7 @@ export default function Sync() {
                       </thead>
 
                       <tbody>
-                        {syncedVehicleData.map((item, index) => (
+                        {selectedNewVehicles.map((item, index) => (
                           <tr
                             key={index}
                             className={`border-b border-gray-300`}
@@ -590,6 +686,126 @@ export default function Sync() {
                   lang === "id" ? item.label_id : item.label_en
                 }
               />
+            </div>
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 flex-1 mt-6">
+              <table className="w-full">
+                <thead className="bg-[#E2E8F0]/20">
+                  <tr className="border-b border-gray-300">
+                    <th className="px-6 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        className="cursor-pointer w-4 h-4"
+                        checked={allSelected}
+                        onChange={(e) => {
+                          setSyncedVehicleData((prev) =>
+                            prev.map((item) =>
+                              item.status === "new"
+                                ? { ...item, selected: e.target.checked }
+                                : item,
+                            ),
+                          );
+                        }}
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-center">
+                      {t("vehicle_sync.table.vehicle_plate").toUpperCase()}
+                    </th>
+                    <th className="px-6 py-3 text-center">
+                      {t("vehicle_sync.table.vehicle").toUpperCase()}
+                    </th>
+                    <th className="px-6 py-3 text-center">
+                      {t("vehicle_sync.table.type").toUpperCase()}
+                    </th>
+                    <th className="px-6 py-3 text-center">
+                      {t("vehicle_sync.table.unit").toUpperCase()}
+                    </th>
+                    <th className="px-6 py-3 text-center">
+                      {t("vehicle_sync.table.usage").toUpperCase()}
+                    </th>
+                    <th className="px-6 py-3 text-center">STATUS</th>
+                  </tr>
+                </thead>
+
+                {/* Body */}
+                <tbody>
+                  {filteredSyncedVehicleData.map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`border-b border-gray-300 font-medium ${item.selected ? "bg-[#E4F5FF]/44" : ""} ${item.status === "new" ? "text-black" : "text-[#7B7B7B]/80"}`}
+                    >
+                      <td className="px-6 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          className="cursor-pointer w-4 h-4"
+                          checked={item.selected}
+                          onChange={(e) => {
+                            if (item.status !== "new") return;
+                            setSyncedVehicleData((prev) => {
+                              return prev.map((prevItem) => {
+                                if (
+                                  prevItem.plate_number === item.plate_number &&
+                                  prevItem.name === item.name
+                                ) {
+                                  return {
+                                    ...prevItem,
+                                    selected: e.target.checked,
+                                  };
+                                }
+                                return prevItem;
+                              });
+                            });
+                          }}
+                        />
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        {item.plate_number || "-"}
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        <div>
+                          <span className="text-sm">{item.name || "-"}</span>
+                          <br />
+                          <span className="text-[#7B7B7B]/80 text-xs">
+                            {[item.brand, item.category, item.plate_color]
+                              .filter((value) => value?.trim())
+                              .join(" · ") || "-"}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        {item.type || "-"}
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        {item.assigned_unit || "-"}
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        {item.usage_type || "-"}
+                      </td>
+
+                      <td className="px-6 py-3 text-center">
+                        {(() => {
+                          const config =
+                            syncStatus[item.status as keyof typeof syncStatus];
+
+                          if (!config) return item.status;
+
+                          return (
+                            <span
+                              className={`py-0.5 text-xs px-2 border font-medium ${config.bg} ${config.text} ${config.border} rounded-lg`}
+                            >
+                              {t(`my_request.${item.status}`)}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </>
         )}

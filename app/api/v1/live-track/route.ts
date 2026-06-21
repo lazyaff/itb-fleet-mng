@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       },
       where: {
         deleted_at: null,
+        visibility: true,
       },
       select: {
         id: true,
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
         plate_number: true,
         name: true,
         current_mileage: true,
+        assigned_unit: true,
         live_tracks: {
           take: 1,
           orderBy: {
@@ -89,6 +91,7 @@ export async function GET(request: NextRequest) {
       id: item.id,
       plate_number: item.plate_number,
       name: item.name,
+      assigned_unit: item.assigned_unit,
       image: item.image
         ? process.env.PUBLIC_STORAGE_PATH! + item.image
         : "/image/placeholder.webp",

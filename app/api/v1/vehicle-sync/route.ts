@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
         deleted_at: null,
       },
       select: {
+        id: true,
         plate_number: true,
         name: true,
         brand: true,
@@ -84,9 +85,23 @@ export async function GET(request: NextRequest) {
         ...item,
         status: "conflict",
         selected: false,
+        id: item.id,
       }));
 
     const data = [...masterData, ...conflictData];
+
+    if (conflictData.length > 0) {
+      await prisma.vehicle.updateMany({
+        where: {
+          id: {
+            in: conflictData.map((item) => item.id),
+          },
+        },
+        data: {
+          sync_status: "conflict",
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -146,8 +161,8 @@ export async function POST(request: NextRequest) {
         data: {
           type: "vehicle_sync",
           status: "pending",
-          description_id: `Batch Sinkron - ${newData} Baru, ${conflictData} Konflik`,
-          description_en: `Sync Batch - ${newData} New, ${conflictData} Conflict`,
+          description_id: `Batch Sinkron - ${newData} Baru`,
+          description_en: `Sync Batch - ${newData} New`,
           requested_by_id: isAuthorized.user?.id!,
           requested_at: new Date(),
         },

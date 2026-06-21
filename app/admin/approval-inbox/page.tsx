@@ -1,16 +1,12 @@
 "use client";
 
-import {
-  ConfirmationAlert,
-  ConfirmationAlert2,
-  NotificationAlert,
-} from "@/components/Alert";
-import { FilterButtonGroup, Select } from "@/components/Dropdown";
+import { ConfirmationAlert2, NotificationAlert } from "@/components/Alert";
+import { FilterButtonGroup } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { approvalStatus, approvalType, syncStatus } from "@/src/dropdown";
+import { approvalStatus, approvalType } from "@/src/dropdown";
 import { Check, Eye, Search, X } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -758,22 +754,6 @@ export default function ApprovalInbox() {
                           <span className="bg-[#F8FAFC] py-1 px-2 border border-gray-200 rounded-md mr-2">
                             {vehicle.plate_number}
                           </span>
-                          {(() => {
-                            const config =
-                              syncStatus[
-                                vehicle.status as keyof typeof syncStatus
-                              ];
-
-                            if (!config) return vehicle.status;
-
-                            return (
-                              <span
-                                className={`py-1 px-2 border font-medium ${config.bg} ${config.text} ${config.border} rounded-md`}
-                              >
-                                {t(`my_request.${vehicle.status}`)}
-                              </span>
-                            );
-                          })()}
                         </div>
                       </div>
                     ))}
@@ -781,59 +761,61 @@ export default function ApprovalInbox() {
                 </div>
               )}
 
-              <div className="flex gap-6 px-10">
-                <button
-                  onClick={() => {
-                    setOpenDetail(false);
-                    setConfirmAlert({
-                      title: t("approval_inbox.reject_title"),
-                      confirmText: t("approval_inbox.reject"),
-                      visible: true,
-                      message: t("approval_inbox.confirm_message"),
-                      onCancel: () => {
-                        setOpenDetail(true);
-                      },
-                      type: "danger",
-                      setLoading: false,
-                      onConfirm: async () => {
-                        setRejection({
-                          id: detailData.id,
-                          visible: true,
-                          value: "",
-                        });
-                      },
-                    });
-                  }}
-                  className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#EF4444] bg-red-50 transition-colors duration-200 ease-in-out hover:bg-red-100 font-semibold tracking-wide text-[#EF4444]"
-                >
-                  <X size={18} strokeWidth={2.5} />
-                  {t("approval_inbox.reject").toUpperCase()}
-                </button>
+              {detailData.status === "pending" && (
+                <div className="flex gap-6 px-10">
+                  <button
+                    onClick={() => {
+                      setOpenDetail(false);
+                      setConfirmAlert({
+                        title: t("approval_inbox.reject_title"),
+                        confirmText: t("approval_inbox.reject"),
+                        visible: true,
+                        message: t("approval_inbox.confirm_message"),
+                        onCancel: () => {
+                          setOpenDetail(true);
+                        },
+                        type: "danger",
+                        setLoading: false,
+                        onConfirm: async () => {
+                          setRejection({
+                            id: detailData.id,
+                            visible: true,
+                            value: "",
+                          });
+                        },
+                      });
+                    }}
+                    className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#EF4444] bg-red-50 transition-colors duration-200 ease-in-out hover:bg-red-100 font-semibold tracking-wide text-[#EF4444]"
+                  >
+                    <X size={18} strokeWidth={2.5} />
+                    {t("approval_inbox.reject").toUpperCase()}
+                  </button>
 
-                <button
-                  onClick={() => {
-                    setOpenDetail(false);
-                    setConfirmAlert({
-                      title: t("approval_inbox.approve_title"),
-                      confirmText: t("approval_inbox.approve"),
-                      visible: true,
-                      message: t("approval_inbox.confirm_message"),
-                      onCancel: () => {
-                        setOpenDetail(true);
-                      },
-                      type: "success",
-                      setLoading: true,
-                      onConfirm: async () => {
-                        await handleApprove(detailData.id, null, "approved");
-                      },
-                    });
-                  }}
-                  className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#16A34A] bg-green-50 transition-colors duration-200 ease-in-out hover:bg-green-100 font-semibold tracking-wide text-[#16A34A]"
-                >
-                  <Check size={18} strokeWidth={2.5} />
-                  {t("approval_inbox.approve").toUpperCase()}
-                </button>
-              </div>
+                  <button
+                    onClick={() => {
+                      setOpenDetail(false);
+                      setConfirmAlert({
+                        title: t("approval_inbox.approve_title"),
+                        confirmText: t("approval_inbox.approve"),
+                        visible: true,
+                        message: t("approval_inbox.confirm_message"),
+                        onCancel: () => {
+                          setOpenDetail(true);
+                        },
+                        type: "success",
+                        setLoading: true,
+                        onConfirm: async () => {
+                          await handleApprove(detailData.id, null, "approved");
+                        },
+                      });
+                    }}
+                    className="flex py-3 cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg border border-[#16A34A] bg-green-50 transition-colors duration-200 ease-in-out hover:bg-green-100 font-semibold tracking-wide text-[#16A34A]"
+                  >
+                    <Check size={18} strokeWidth={2.5} />
+                    {t("approval_inbox.approve").toUpperCase()}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

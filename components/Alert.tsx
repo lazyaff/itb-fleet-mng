@@ -5,6 +5,7 @@ import {
   Check,
   CircleAlert,
   LockKeyhole,
+  SendHorizontal,
   Trash2,
   TriangleAlert,
   X,
@@ -17,6 +18,7 @@ type AlertType =
   | "warning"
   | "delete"
   | "password"
+  | "submit"
   | "default";
 
 const ALERT_CONFIG: Record<
@@ -44,6 +46,10 @@ const ALERT_CONFIG: Record<
   },
   password: {
     icon: <LockKeyhole className="w-7 h-7 text-white" />,
+    buttonClass: "bg-[#00A1FE] hover:bg-[#048ad8]",
+  },
+  submit: {
+    icon: <SendHorizontal className="w-7 h-7 text-white" />,
     buttonClass: "bg-[#00A1FE] hover:bg-[#048ad8]",
   },
   default: {

@@ -68,6 +68,7 @@
   "alert.view_all": "Lihat Semua",
 
   "live_track.real_time_fleet": "Peta Real-Time",
+  "live_track.all_unit": "Semua Unit Kerja",
   "live_track.all": "Semua",
   "live_track.moving": "Berjalan",
   "live_track.stopped": "Berhenti",
@@ -367,6 +368,7 @@
   "vehicle_sync.table.visibility": "Visibilitas",
   "vehicle_sync.title_2": "Registri Kendaraan",
   "vehicle_sync.saved": "Tersimpan",
+  "vehicle_sync.confirm": "Apakah anda yakin ingin mengirim?",
 
   "form_builder.title": "Form Builder Inspeksi",
   "form_builder.current_label": "Saat ini:",

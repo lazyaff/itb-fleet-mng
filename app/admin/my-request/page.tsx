@@ -1,12 +1,12 @@
 "use client";
 
-import { FilterButtonGroup, Select } from "@/components/Dropdown";
+import { FilterButtonGroup } from "@/components/Dropdown";
 import Pagination from "@/components/Pagination";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
 import { PageInfoContext } from "@/context/PageInfo";
-import { approvalStatus, approvalType, syncStatus } from "@/src/dropdown";
-import { Eye, Search, X } from "lucide-react";
+import { approvalStatus, approvalType } from "@/src/dropdown";
+import { Eye, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -475,22 +475,6 @@ export default function MyRequest() {
                           <span className="bg-[#F8FAFC] py-1 px-2 border border-gray-200 rounded-md mr-2">
                             {vehicle.plate_number}
                           </span>
-                          {(() => {
-                            const config =
-                              syncStatus[
-                                vehicle.status as keyof typeof syncStatus
-                              ];
-
-                            if (!config) return vehicle.status;
-
-                            return (
-                              <span
-                                className={`py-1 px-2 border font-medium ${config.bg} ${config.text} ${config.border} rounded-md`}
-                              >
-                                {t(`my_request.${vehicle.status}`)}
-                              </span>
-                            );
-                          })()}
                         </div>
                       </div>
                     ))}

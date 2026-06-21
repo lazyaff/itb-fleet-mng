@@ -68,6 +68,7 @@
   "alert.view_all": "View All",
 
   "live_track.real_time_fleet": "Real-Time Fleet",
+  "live_track.all_unit": "All Unit",
   "live_track.all": "All",
   "live_track.moving": "Moving",
   "live_track.stopped": "Stopped",
@@ -367,6 +368,7 @@
   "vehicle_sync.table.visibility": "Visibility",
   "vehicle_sync.title_2": "Vehicle Registry",
   "vehicle_sync.saved": "Saved",
+  "vehicle_sync.confirm": "Are you sure you want to submit?",
 
   "form_builder.title": "Inspection Form Builder",
   "form_builder.current_label": "Current:",

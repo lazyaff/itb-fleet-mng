@@ -1,6 +1,6 @@
 "use client";
 
-import { DatePicker, DatePicker2 } from "@/components/Dropdown";
+import { DatePicker, DatePicker2, Select } from "@/components/Dropdown";
 import { InteractiveMapComponent, MapRef } from "@/components/Map";
 import { useLanguage } from "@/context/Language";
 import { LoadingContext } from "@/context/Loading";
@@ -41,6 +41,7 @@ type Vehicle = {
   image: string;
   plate_number: string;
   name: string;
+  assigned_unit: string | null;
   current_mileage: number;
   status: VehicleStatus;
   speed: number | null;
@@ -113,6 +114,10 @@ export default function LiveTrack() {
     currentIdx: 0,
   });
   const { t, lang } = useLanguage();
+  const [unit, setUnit] = useState([
+    { id: "", name: t("live_track.all_unit") },
+  ]);
+  const [activeUnit, setActiveUnit] = useState("");
 
   const vehicleStatusOption = [
     { id: "", name: t("live_track.all"), color: "blue" },
@@ -152,6 +157,18 @@ export default function LiveTrack() {
 
       const response = await res.json();
       setRawVehicleData(response.data || []);
+
+      const assignedUnit = Array.from(
+        new Set(response.data.map((item: any) => item.assigned_unit)),
+      ).filter(Boolean);
+
+      setUnit([
+        { id: "", name: t("live_track.all_unit") },
+        ...assignedUnit.map((item: any) => ({
+          id: item,
+          name: item,
+        })),
+      ]);
     } catch (error) {
       console.log("Fetch error:", error);
     } finally {
@@ -248,13 +265,17 @@ export default function LiveTrack() {
       result = result.filter((item) => item.status === vehicleStatus);
     }
 
+    if (activeUnit) {
+      result = result.filter((item) => item.assigned_unit === activeUnit);
+    }
+
     setFilteredVehicle(result);
   };
 
   useEffect(() => {
     if (activeVehicle) return;
     applyFilter();
-  }, [searchInput, vehicleStatus, rawVehicleData]);
+  }, [searchInput, vehicleStatus, rawVehicleData, activeUnit]);
 
   const startPlayback = () => {
     if (!history.data?.history.length) return;
@@ -787,7 +808,7 @@ export default function LiveTrack() {
                   }}
                 />
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-4 mb-4">
                 {vehicleStatusOption.map((item) => (
                   <button
                     key={item.id}
@@ -800,6 +821,16 @@ export default function LiveTrack() {
                   </button>
                 ))}
               </div>
+              <Select
+                // label="Unit Kerja"
+                data={unit}
+                value={activeUnit}
+                onChange={(val) => {
+                  setActiveUnit(val);
+                }}
+                displayValue={(item) => item.name}
+                searchKeys={["name"]}
+              />
             </div>
             <div className="border-t border-gray-300 w-full p-4 flex-1 overflow-y-auto flex flex-col gap-4">
               {filteredVehicle.map((item) => (
